@@ -1,5 +1,5 @@
-import Mathlib.Data.Fintype.Basic
 import ConsistencyGO.Fintype
+import Mathlib.Data.Fintype.Basic
 
 variable {α : Type*}
 
@@ -23,8 +23,8 @@ end Tuple
 
 namespace Tuple
 
-variable (u : ℕ → α)
+def toTuple (u : ℕ → α) (n : ℕ) : Fin n → α := fun i => u i.val
 
-def toTuple (n : ℕ) : Fin n → α := fun i => u i.val
+def toTupleFun {β : Type*} (f : (n : ℕ) → (Fin n → α) → β) := fun n u => f n (toTuple u n)
 
 end Tuple
