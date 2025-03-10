@@ -1,3 +1,7 @@
+/-
+ - Created in 2025 by Gaëtan Serré
+-/
+
 import ConsistencyGO.Convergence
 import ConsistencyGO.Tuple
 import Mathlib.MeasureTheory.Measure.NullMeasurable
@@ -5,33 +9,36 @@ import Mathlib.Order.CompletePartialOrder
 
 open MeasureTheory Tuple
 
-variable {α : Type*} [MeasurableSpace α] [LinearOrder α] (ν : Measure (ℕ → α))
+variable {α : Type*} [MeasurableSpace α] (ν : Measure (ℕ → α))
 
 noncomputable def μ (n : ℕ) : Measure (Fin n → α) := by
   refine Measure.ofMeasurable ?_ ?_ ?_
   · intro s _
-    exact ν {u : ℕ → α | toTuple u n ∈ s}
+    exact ν {u : ℕ → α | toTuple n u ∈ s}
   · exact OuterMeasureClass.measure_empty ν
   intro f h_m h_d
-  let g := fun i => {u : ℕ → α | toTuple u n ∈ f i}
+  let g := fun i => {u : ℕ → α | toTuple n u ∈ f i}
 
-  have measurable : ∀ (i : ℕ), MeasurableSet (g i) := by sorry
+  have measurable : ∀ (i : ℕ), MeasurableSet (g i) := by
+    intro i
+    have h_measurable : Measurable (toTuple n : (ℕ → α) → Fin n → α) :=
+      measurable_pi_iff.mpr (fun i => measurable_pi_apply i.1)
+    exact h_measurable (h_m i)
 
   have disjoint : Pairwise (Function.onFun Disjoint g) := by
     intro i j h
-    suffices g i ∩ g j = ∅ by exact Set.disjoint_iff_inter_eq_empty.mpr this
+    suffices h : g i ∩ g j = ∅ by exact Set.disjoint_iff_inter_eq_empty.mpr h
     have h_d : f i ∩ f j = ∅ := Set.disjoint_iff_inter_eq_empty.mp (h_d h)
     ext u
     constructor
-    · intro h
-      have : toTuple u n ∈ f i ∩ f j := h
-      rw [h_d] at this
+    · intro (h : toTuple n u ∈ f i ∩ f j)
+      rw [h_d] at h
       contradiction
     intro h
     contradiction
 
   have iUnion : ν (⋃ i, g i) = ∑' (i : ℕ), ν (g i) := measure_iUnion disjoint measurable
-  have unfold_union : ⋃ i, g i = {u : ℕ → α | toTuple u n ∈ ⋃ i, f i} := by
+  have unfold_union : ⋃ i, g i = {u : ℕ → α | toTuple n u ∈ ⋃ i, f i} := by
     ext u
     constructor
     · intro h
@@ -45,7 +52,8 @@ noncomputable def μ (n : ℕ) : Measure (Fin n → α) := by
 
 open Filter Topology
 
-lemma equiv_convergence {β : Type*} [Dist β] (fn gn : (n : ℕ) → (Fin n → α) → β) :
+lemma equiv_convergence {β : Type*} [Dist β] (fn gn : (n : ℕ) → (Fin n → α) → β)
+    (h_measurable : ∀ ε n, MeasurableSet {u | dist (fn n u) (gn n u) > ε }) :
     ν.tendsto (toTupleFun fn) (toTupleFun gn)
     ↔ ∀ ε > 0, Tendsto (fun n => μ ν n {u | dist (fn n u) (gn n u) > ε}) atTop (𝓝 0) := by
   unfold MeasureTheory.Measure.tendsto
@@ -63,8 +71,8 @@ lemma equiv_convergence {β : Type*} [Dist β] (fn gn : (n : ℕ) → (Fin n →
 
   intro ε hε
   ext n
-  have : (μ ν n) {u | dist (fn n u) (gn n u) > ε} =
-      ν {u : ℕ → α | toTuple u n ∈ {u | dist (fn n u) (gn n u) > ε}} :=
-    Measure.ofMeasurable_apply {u | dist (fn n u) (gn n u) > ε} (by sorry)
-  rw [this]
+  have m_apply : (μ ν n) {u | dist (fn n u) (gn n u) > ε} =
+      ν {u : ℕ → α | toTuple n u ∈ {u | dist (fn n u) (gn n u) > ε}} :=
+    Measure.ofMeasurable_apply {u | dist (fn n u) (gn n u) > ε} (h_measurable ε n)
+  rw [m_apply]
   rfl
