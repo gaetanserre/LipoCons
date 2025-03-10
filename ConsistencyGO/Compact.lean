@@ -1,14 +1,18 @@
+/-
+ - Created in 2025 by Gaëtan Serré
+-/
+
 import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
 
 open MeasureTheory Set
 
 namespace IsCompact
 
-variable {α : Type} [TopologicalSpace α] {Ω : Set α} (h : IsCompact Ω)
+variable {α : Type*} [TopologicalSpace α] {Ω : Set α} (h : IsCompact Ω)
 
 include h
 
-lemma exists_argmax {β : Type} [TopologicalSpace β] [LinearOrder β] [ClosedIciTopology β]
+lemma exists_argmax {β : Type*} [TopologicalSpace β] [LinearOrder β] [ClosedIciTopology β]
     {f : Ω → β} (hf : Continuous f) (hne : Ω.Nonempty) : ∃ x, ∀ y, f y ≤ f x := by
   have univ_compact : IsCompact (univ : Set Ω) := by
     rwa [Subtype.isCompact_iff, Subtype.coe_image_univ Ω]
@@ -19,7 +23,7 @@ lemma exists_argmax {β : Type} [TopologicalSpace β] [LinearOrder β] [ClosedIc
   use x
   exact fun _ ↦ hx (trivial)
 
-lemma exists_argmin {β : Type} [TopologicalSpace β] [LinearOrder β] [ClosedIicTopology β]
+lemma exists_argmin {β : Type*} [TopologicalSpace β] [LinearOrder β] [ClosedIicTopology β]
     {f : Ω → β} (hf : Continuous f) (hne : Ω.Nonempty) : ∃ x, ∀ y, f x ≤ f y := by
   have univ_compact : IsCompact (univ : Set Ω) := by
     rwa [Subtype.isCompact_iff, Subtype.coe_image_univ Ω]

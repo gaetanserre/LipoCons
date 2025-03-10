@@ -1,3 +1,7 @@
+/-
+ - Created in 2025 by Gaëtan Serré
+-/
+
 import ConsistencyGO.Fintype
 import Mathlib.Data.Fintype.Basic
 
@@ -13,18 +17,20 @@ end Tuple
 
 namespace Tuple
 
-variable [LinearOrder α] {n : ℕ} [Nonempty (Fin n)] (f : Fin n → α)
+variable [LinearOrder α] {n : ℕ} [Nonempty α] (f : Fin n → α)
 
-def max := Fintype.max_image f
+noncomputable def max := Fintype.max_image f
 
-lemma le_max : ∀ j, f j ≤ max f := Fintype.le_max_image f
+lemma le_max (h : n > 0) : ∀ j, f j ≤ max f := by
+  have : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp h
+  exact Fintype.le_max_image f
 
 end Tuple
 
 namespace Tuple
 
-def toTuple (u : ℕ → α) (n : ℕ) : Fin n → α := fun i => u i.val
+def toTuple (n : ℕ) (u : ℕ → α) : Fin n → α := fun i => u i.val
 
-def toTupleFun {β : Type*} (f : (n : ℕ) → (Fin n → α) → β) := fun n u => f n (toTuple u n)
+def toTupleFun {β : Type*} (f : (n : ℕ) → (Fin n → α) → β) := fun n u => f n (toTuple n u)
 
 end Tuple

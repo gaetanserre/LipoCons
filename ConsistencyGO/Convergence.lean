@@ -1,3 +1,7 @@
+/-
+ - Created in 2025 by Gaëtan Serré
+-/
+
 import Mathlib.MeasureTheory.Measure.MeasureSpaceDef
 
 open Filter Topology

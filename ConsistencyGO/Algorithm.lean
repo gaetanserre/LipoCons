@@ -1,9 +1,13 @@
+/-
+ - Created in 2025 by Gaëtan Serré
+-/
+
 import Mathlib.MeasureTheory.Measure.Typeclasses
 
-open MeasureTheory
+open MeasureTheory NNReal Fintype Filter Topology
 /--
-Une manière de définir un algorithme itératif serait de le représenter comme
-une mesure de probabilité sur les suites dans `Ω` : `ν : Measure (ℕ → Ω)`.
+Une manière de définir un algorithme itératif appliqué à une fonction serait de le
+représenter comme une mesure de probabilité sur les suites dans `Ω` : `ν : Measure (ℕ → Ω)`.
 Cette mesure représente la distribution des suites d'itérations produites par
 l'algorithme en temps infini. Cette définition permet aussi étudier les séquences
 d'itérations finies : pour tout entier `n` et tout prédicat `P : (Fin n → Ω) → Prop`,
@@ -20,7 +24,7 @@ définition, il est trivial de montrer que
 `μ n {u : Fin n → Ω | P u} = ν {u : ℕ → Ω | P (u[1:n])}`,
 ce qui implique
 `lim_(n → ∞) μ n {u : Fin n → Ω | P u} = lim_(n → ∞) ν {u : ℕ → Ω | P (u[1:n])}`
-(voir `equiv_convergence`).
+(voir `Utils.equiv_convergence`).
 Ainsi, `f g : (n : ℕ) → Fin n → Ω` converge en mesure (par rapport à `ν`)
 l'une vers l'autre si et seulement si
 `∀ ε > 0, lim_(n → ∞) μ n {u : Fin n → Ω | |f n u - g n u| > ε} = 0`.
@@ -33,6 +37,6 @@ seul la convergence de mesure de prédicats sur les séquences d'itérations est
 étudiée. Ainsi, nous utiliserons la suite de mesures `μ (n : ℕ) → Measure (Fin n → Ω)`
 pour représenter un algorithme itératif.
 -/
-structure Algorithm {α β : Type*} [MeasurableSpace α] [LinearOrder β] (f : α → β) where
-  μ : (n : ℕ) → Measure (Fin n → α)
-  μ_prob : (n : ℕ) → IsProbabilityMeasure (μ n)
+structure Algorithm (α β : Type*) [MeasurableSpace α] [LinearOrder β] where
+  μ : (α → β) → (n : ℕ) → Measure (Fin n → α)
+  μ_prob : (f : α → β) → (n : ℕ) → IsProbabilityMeasure (μ f n)
