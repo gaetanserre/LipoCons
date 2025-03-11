@@ -27,7 +27,7 @@ noncomputable def μ (n : ℕ) : Measure (Fin n → α) := by
 
   have disjoint : Pairwise (Function.onFun Disjoint g) := by
     intro i j h
-    suffices h : g i ∩ g j = ∅ by exact Set.disjoint_iff_inter_eq_empty.mpr h
+    suffices h : g i ∩ g j = ∅ from Set.disjoint_iff_inter_eq_empty.mpr h
     have h_d : f i ∩ f j = ∅ := Set.disjoint_iff_inter_eq_empty.mp (h_d h)
     ext u
     constructor
