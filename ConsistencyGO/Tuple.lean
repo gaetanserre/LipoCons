@@ -9,14 +9,6 @@ variable {α : Type*}
 
 namespace Tuple
 
-variable {β : Type*} {n : ℕ} (f : Fin n → α) (g : α → β)
-
-def image : Fin n → β := g ∘ f
-
-end Tuple
-
-namespace Tuple
-
 variable [LinearOrder α] {n : ℕ} [Nonempty α] (f : Fin n → α)
 
 noncomputable def max := Fintype.max_image f
@@ -24,6 +16,12 @@ noncomputable def max := Fintype.max_image f
 lemma le_max (h : n > 0) : ∀ j, f j ≤ max f := by
   have : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp h
   exact Fintype.le_max_image f
+
+noncomputable def min := Fintype.min_image f
+
+lemma le_min (h : n > 0) : ∀ j, min f ≤ f j := by
+  have : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp h
+  exact Fintype.le_min_image f
 
 end Tuple
 
