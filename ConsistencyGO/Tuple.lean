@@ -13,13 +13,13 @@ variable [LinearOrder α] {n : ℕ} [Nonempty α] (f : Fin n → α)
 
 noncomputable def max := Fintype.max_image f
 
-lemma le_max (h : n > 0) : ∀ j, f j ≤ max f := by
+lemma le_max (h : 0 < n) : ∀ j, f j ≤ max f := by
   have : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp h
   exact Fintype.le_max_image f
 
 noncomputable def min := Fintype.min_image f
 
-lemma le_min (h : n > 0) : ∀ j, min f ≤ f j := by
+lemma le_min (h : 0 < n) : ∀ j, min f ≤ f j := by
   have : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp h
   exact Fintype.le_min_image f
 
