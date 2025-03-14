@@ -133,31 +133,21 @@ lemma dist_max_compact (a : Ω) :
 
 end Compact
 
-variable {α β : Type*} [LinearOrder β] [Nonempty β] (f : α → β)
+namespace Metric
 
-lemma arg_tuple_max {n : ℕ} (hn : 0 < n) (u : Fin n → α) : ∃ i, f (u i) = Tuple.max (f ∘ u) := by
-  have : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hn
-  unfold Tuple.max Fintype.max_image
-  split
-  swap
-  · contradiction
-  unfold Fintype.max_image'
-  have univ_ne : (Finset.univ : Finset (Fin n)).Nonempty := Finset.univ_nonempty_iff.mpr this
+lemma continuous_iff_le {α β : Type*} [PseudoMetricSpace α] [PseudoMetricSpace β] {f : α → β} :
+    Continuous f ↔ ∀ b, ∀ ε > 0, ∃ δ > 0, ∀ a, dist a b ≤ δ → dist (f a) (f b) ≤ ε := by
+  rw [Metric.continuous_iff]
+  constructor
+  · intro h b ε hε
+    obtain ⟨δ, hδ, h⟩ := h b ε hε
+    refine ⟨δ/2, half_pos hδ, ?_⟩
+    intro a ha
+    exact le_of_lt (h a (lt_of_le_of_lt ha (div_two_lt_of_pos hδ)))
+  intro h b ε hε
+  obtain ⟨δ, hδ, h⟩ := h b (ε/2) (half_pos hε)
+  refine ⟨δ, hδ, ?_⟩
+  intro a ha
+  exact lt_of_le_of_lt (h a (le_of_lt ha)) (div_two_lt_of_pos hε)
 
-  let A := {x | ∃ i, u i = x}
-
-  suffices h : (Finset.univ).sup' univ_ne (f ∘ u) ∈ (f '' A) by
-    obtain ⟨x, ⟨i, hi⟩, h⟩ := h
-    rw [←h, ←hi]
-    use i
-
-  have : ∀ x ∈ (f '' A), ∀ y ∈ (f '' A), x ⊔ y ∈ (f '' A) := by
-    intro x hx y hy
-    cases max_choice x y with
-    | inl inl => rwa [inl]
-    | inr inr => rwa [inr]
-
-  apply Finset.sup'_mem (f '' A) this Finset.univ univ_ne (f ∘ u)
-
-  intro i _
-  exact ⟨u i, ⟨i, rfl⟩, rfl⟩
+end Metric

@@ -106,8 +106,6 @@ if `∀ ε > 0, lim_(n → ∞) A.μ f n {u | max_min_dist u > ε} = 0`.
 noncomputable def sample_whole_space (A : Algorithm Ω β) (f : Ω → β) : Prop :=
   ∀ ε > 0, Tendsto (fun n => A.μ f n {u | max_min_dist u > ε}) atTop (𝓝 0)
 
-variable [SemilatticeSup Ω]
-
 example (A : Algorithm Ω ℝ) :
     (∀ ⦃f : Ω → ℝ⦄, f ∈ all_lipschitz → sample_whole_space A f)
     ↔
@@ -124,39 +122,43 @@ example (A : Algorithm Ω ℝ) :
         fun n hn => MeasureTheory.OuterMeasureClass.measure_mono (A.μ f n) (h' n hn)
       exact Tendsto.tendsto_zero_le_nat μ_mono (h hf δ hδ)
 
-    let Xₑ := {x | dist (f x) (fmax hcont) ≤ ε}
     let x' := compact_argmax hcont
-    have : f x' = fmax hcont := rfl
-    obtain ⟨δ, hδ, hdist⟩ := (Metric.continuous_iff.mp hcont) x' ε hε
-    let B := Metric.ball x' δ
-    have : B ⊆ Xₑ := by
-      intro e he
-      rw [this] at hdist
-      exact le_of_lt (hdist e he)
-    use δ
-    refine ⟨hδ, ?_⟩
+    obtain ⟨δ, hδ, hdist⟩ := (Metric.continuous_iff_le.mp hcont) x' ε hε
+    let B := Metric.closedBall x' δ
+    refine ⟨δ, hδ, ?_⟩
     intro n n_pos
-    -- Réécrire la preuve proprement
-    have : {(u : (Fin n) → Ω) | dist (Tuple.max (f ∘ u)) (fmax hcont) > ε} ⊆
+
+    have consistent_ss_ball : {(u : (Fin n) → Ω) | dist (Tuple.max (f ∘ u)) (fmax hcont) > ε} ⊆
         {u | ∀ i, u i ∉ B} := by
-      intro e (he : dist (Tuple.max (f ∘ e)) (fmax hcont) > ε)
-      intro i
+      intro e (he : dist (Tuple.max (f ∘ e)) (fmax hcont) > ε) i
       set ei := e i
       by_contra hcontra
+      have le_lt : ∀ ⦃x⦄, x ≤ δ/2 → x < δ := fun _ hx => lt_of_le_of_lt hx (div_two_lt_of_pos hδ)
       specialize hdist ei hcontra
       rw [Compact.dist_max_compact hcont ei] at hdist
-      have univ_ne : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp n_pos
-      obtain ⟨j, hj⟩ := arg_tuple_max f n_pos e
+
+      obtain ⟨j, hj⟩ := Tuple.arg_tuple_max f n_pos e
       rw [←hj] at he
       unfold fmax at he
       rw [Compact.dist_max_compact hcont (e j)] at he
-      have : f ei ≤ f (e j) := by
-        rw [hj]
-        exact Tuple.le_max (f ∘ e) n_pos i
-      have : f (compact_argmax hcont) - f (e j) ≤ f (compact_argmax hcont) - f ei :=
-        tsub_le_tsub_left this _
-      have : f (compact_argmax hcont) - f (e j) < ε := lt_of_le_of_lt this hdist
+      have : f (compact_argmax hcont) - f (e j) ≤ ε := by
+        have ineq : f ei ≤ f (e j) := by
+          rw [hj]
+          exact Tuple.le_max (f ∘ e) n_pos i
+        exact Preorder.le_trans _ _ _ (tsub_le_tsub_left ineq _) hdist
       linarith
 
-    sorry
+    suffices h' : {(u : (Fin n) → Ω) | ∀ i, u i ∉ B} ⊆ {u | max_min_dist u > δ} from
+      fun _ ha ↦ h' (consistent_ss_ball ha)
+
+    intro u (hu : ∀ i, u i ∉ B)
+    have hu : ∀ i, dist (u i) x' > δ := fun i => lt_of_not_ge (hu i)
+    obtain ⟨i, hi⟩ := Tuple.arg_tuple_min (fun xi => dist xi x') n_pos u
+    specialize hu i
+    rw [hi] at hu
+    have argmax_le : min_dist_x u x' ≤ max_min_dist u :=
+      compact_argmax_apply (min_dist_x_continuous u) x'
+    exact gt_of_ge_of_gt argmax_le hu
+
+
   sorry
