@@ -3,8 +3,9 @@
 -/
 
 import Mathlib.MeasureTheory.Measure.Typeclasses
+import ConsistencyGO.Tuple
 
-open MeasureTheory NNReal Fintype Filter Topology
+open MeasureTheory Tuple
 /--
 Une manière de définir un algorithme itératif appliqué à une fonction serait de le
 représenter comme une mesure de probabilité sur les suites dans `Ω` : `ν : Measure (ℕ → Ω)`.
@@ -40,3 +41,8 @@ pour représenter un algorithme itératif.
 structure Algorithm (α β : Type*) [MeasurableSpace α] [LinearOrder β] where
   μ : (α → β) → (n : ℕ) → Measure (Fin n → α)
   μ_prob : (f : α → β) → (n : ℕ) → IsProbabilityMeasure (μ f n)
+  μ_mono : ∀ (f : α → β), ∀ ⦃n m A B⦄,
+      {u | toTuple n u ∈ A} ⊆ {u | toTuple m u ∈ B} → μ f n A ≤ μ f m B
+  /-
+  Équivalent à dire que `∀ n ≤ m, μ n A = μ m {u | u[1:n] ∈ A}`.
+  -/

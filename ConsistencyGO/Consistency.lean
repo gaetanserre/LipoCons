@@ -160,5 +160,18 @@ example (A : Algorithm Ω ℝ) :
       compact_argmax_apply (min_dist_x_continuous u) x'
     exact gt_of_ge_of_gt argmax_le hu
 
+  intro h f hf
+  have : ∀ ε, Antitone (fun n => A.μ f n {u | max_min_dist u > ε}) := by
+    intro ε n m hnm
+    set B := {(u : Fin n → Ω) | max_min_dist u > ε}
+    set C := {(u : Fin m → Ω) | max_min_dist u > ε}
+    suffices h : {(u : ℕ → Ω) | Tuple.toTuple m u ∈ C} ⊆ {(u : ℕ → Ω) | Tuple.toTuple n u ∈ B}
+        from A.μ_mono f h
 
+    sorry
+    /- have : {(u : ℕ → Ω) | Tuple.toTuple n u ∈ SA} ⊆ {(u : ℕ → Ω) | Tuple.toTuple m u ∈ SB} := by
+
+      sorry
+    have := A.μ_mono f n m SA SB this
+    exact this -/
   sorry

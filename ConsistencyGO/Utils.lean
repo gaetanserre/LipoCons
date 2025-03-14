@@ -79,6 +79,16 @@ lemma equiv_convergence {β : Type*} [Dist β] (fn gn : (n : ℕ) → (Fin n →
   rw [m_apply]
   rfl
 
+lemma μ_mono : ∀ n, ∀ m, ∀ (A : Set (Fin n → α)), ∀ (B : Set (Fin m → α)),
+    MeasurableSet A → MeasurableSet B → {u | toTuple n u ∈ A} ⊆ {u | toTuple m u ∈ B} →
+    μ ν n A ≤ μ ν m B := by
+  intro n m A B hA hB hu
+  have : μ ν n A = ν {u : ℕ → α | toTuple n u ∈ A} := Measure.ofMeasurable_apply A hA
+  rw [this]
+  have : μ ν m B = ν {u : ℕ → α | toTuple m u ∈ B} := Measure.ofMeasurable_apply B hB
+  rw [this]
+  exact OuterMeasureClass.measure_mono ν hu
+
 end AlgorithmMeasure
 
 namespace Tendsto
