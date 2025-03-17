@@ -31,13 +31,16 @@ def toTuple (n : ℕ) (u : ℕ → α) : Fin n → α := fun i => u i.val
 
 def toTupleFun {β : Type*} (f : (n : ℕ) → (Fin n → α) → β) := fun n u => f n (toTuple n u)
 
+def subTuple {n m : ℕ} (h : n ≤ m) (u : Fin m → α) : Fin n → α :=
+  fun (i : Fin n) => u ⟨i.val, Fin.val_lt_of_le i h⟩
+
 end Tuple
 
 namespace Tuple
 
 variable {α β : Type*} [LinearOrder β] [Nonempty β] (f : α → β)
 
-lemma arg_tuple_max {n : ℕ} (hn : 0 < n) (u : Fin n → α) : ∃ i, f (u i) = Tuple.max (f ∘ u) := by
+lemma tuple_argmax {n : ℕ} (hn : 0 < n) (u : Fin n → α) : ∃ i, f (u i) = Tuple.max (f ∘ u) := by
   have : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hn
   unfold Tuple.max Fintype.max_image
   split
@@ -64,7 +67,7 @@ lemma arg_tuple_max {n : ℕ} (hn : 0 < n) (u : Fin n → α) : ∃ i, f (u i) =
   intro i _
   exact ⟨u i, ⟨i, rfl⟩, rfl⟩
 
-lemma arg_tuple_min {n : ℕ} (hn : 0 < n) (u : Fin n → α) : ∃ i, f (u i) = Tuple.min (f ∘ u) := by
+lemma tuple_argmin {n : ℕ} (hn : 0 < n) (u : Fin n → α) : ∃ i, f (u i) = Tuple.min (f ∘ u) := by
   have : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hn
   unfold Tuple.min Fintype.min_image
   split

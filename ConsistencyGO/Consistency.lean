@@ -137,7 +137,7 @@ example (A : Algorithm Ω ℝ) :
       specialize hdist ei hcontra
       rw [Compact.dist_max_compact hcont ei] at hdist
 
-      obtain ⟨j, hj⟩ := Tuple.arg_tuple_max f n_pos e
+      obtain ⟨j, hj⟩ := Tuple.tuple_argmax f n_pos e
       rw [←hj] at he
       unfold fmax at he
       rw [Compact.dist_max_compact hcont (e j)] at he
@@ -153,7 +153,7 @@ example (A : Algorithm Ω ℝ) :
 
     intro u (hu : ∀ i, u i ∉ B)
     have hu : ∀ i, dist (u i) x' > δ := fun i => lt_of_not_ge (hu i)
-    obtain ⟨i, hi⟩ := Tuple.arg_tuple_min (fun xi => dist xi x') n_pos u
+    obtain ⟨i, hi⟩ := Tuple.tuple_argmin (fun xi => dist xi x') n_pos u
     specialize hu i
     rw [hi] at hu
     have argmax_le : min_dist_x u x' ≤ max_min_dist u :=
