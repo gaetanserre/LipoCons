@@ -7,7 +7,7 @@ import ConsistencyGO.Compact
 import ConsistencyGO.Utils
 import Mathlib
 
-open Tuple NNReal Filter Topology
+open Tuple NNReal Filter Topology Tendsto
 
 variable {α : Type*} [PseudoMetricSpace α] {Ω : Set α}
 
@@ -106,6 +106,7 @@ if `∀ ε > 0, lim_(n → ∞) A.μ f n {u | max_min_dist u > ε} = 0`.
 noncomputable def sample_whole_space (A : Algorithm Ω β) (f : Ω → β) : Prop :=
   ∀ ε > 0, Tendsto (fun n => A.μ f n {u | max_min_dist u > ε}) atTop (𝓝 0)
 
+
 example (A : Algorithm Ω ℝ) :
     (∀ ⦃f : Ω → ℝ⦄, f ∈ all_lipschitz → sample_whole_space A f)
     ↔
@@ -120,7 +121,7 @@ example (A : Algorithm Ω ℝ) :
       obtain ⟨δ, hδ, h'⟩ := h'
       have μ_mono : ∀ n > 0, measure_dist_max A hcont ε n ≤ (A.μ f n) {u | max_min_dist u > δ} :=
         fun n hn => MeasureTheory.OuterMeasureClass.measure_mono (A.μ f n) (h' n hn)
-      exact Tendsto.tendsto_zero_le_nat μ_mono (h hf δ hδ)
+      exact tendsto_zero_le_nat μ_mono (h hf δ hδ)
 
     let x' := compact_argmax hcont
     obtain ⟨δ, hδ, hdist⟩ := (Metric.continuous_iff_le.mp hcont) x' ε hε
@@ -160,18 +161,34 @@ example (A : Algorithm Ω ℝ) :
       compact_argmax_apply (min_dist_x_continuous u) x'
     exact gt_of_ge_of_gt argmax_le hu
 
-  intro h f hf
-  have : ∀ ε, Antitone (fun n => A.μ f n {u | max_min_dist u > ε}) := by
-    intro ε n m hnm
-    set B := {(u : Fin n → Ω) | max_min_dist u > ε}
-    set C := {(u : Fin m → Ω) | max_min_dist u > ε}
+  intro h f hf ε₁ hε₁
+  apply nstar_tendsto_imp_tendsto
+  set gε := fun (n : nstar) => A.μ f n {u | max_min_dist u > ε₁}
+  have antitone_gε : Antitone gε := by
+    intro n m hnm
+    let B := {(u : Fin n → Ω) | max_min_dist u > ε₁}
+    let C := {(u : Fin m → Ω) | max_min_dist u > ε₁}
     suffices h : {(u : ℕ → Ω) | Tuple.toTuple m u ∈ C} ⊆ {(u : ℕ → Ω) | Tuple.toTuple n u ∈ B}
         from A.μ_mono f h
+    intro u (hu : max_min_dist (toTuple m u) > ε₁)
+    unfold max_min_dist min_dist_x at hu
+    set x' := compact_argmax (min_dist_x_continuous (toTuple m u))
+    obtain ⟨i, hi⟩ :=
+      Tuple.tuple_argmin (f := (fun xi ↦ dist xi x')) m.2 (toTuple m u)
+    rw [←hi] at hu
+    obtain ⟨j, hj⟩ :=
+      Tuple.tuple_argmin (f := (fun xi ↦ dist xi x')) n.2 (toTuple n u)
 
-    sorry
-    /- have : {(u : ℕ → Ω) | Tuple.toTuple n u ∈ SA} ⊆ {(u : ℕ → Ω) | Tuple.toTuple m u ∈ SB} := by
+    suffices h : dist (toTuple m u i) x' ≤ dist (toTuple n u j) x' from
+        gt_of_ge_of_gt
+        (compact_argmax_apply (min_dist_x_continuous (toTuple n u)) x')
+        (lt_of_lt_of_eq (gt_of_ge_of_gt h hu) hj)
+    have :=
+      Tuple.le_min (f := (fun xi ↦ dist xi x') ∘ (toTuple m u)) m.2 ⟨j, Fin.val_lt_of_le j hnm⟩
+    rwa [←hi] at this
 
-      sorry
-    have := A.μ_mono f n m SA SB this
-    exact this -/
+  rw [ENNReal.tendsto_atTop_zero_iff_le_of_antitone antitone_gε]
+  by_contra h_contra
+  push_neg at h_contra
+  obtain ⟨ε₂, hε₂, h_contra⟩ := h_contra
   sorry
