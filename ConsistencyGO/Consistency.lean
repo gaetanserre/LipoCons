@@ -129,7 +129,7 @@ example (A : Algorithm Ω ℝ) :
     refine ⟨δ, hδ, ?_⟩
     intro n n_pos
 
-    have consistent_ss_ball : {(u : (Fin n) → Ω) | dist (Tuple.max (f ∘ u)) (fmax hcont) > ε} ⊆
+    have max_dist_ss_ball : {(u : (Fin n) → Ω) | dist (Tuple.max (f ∘ u)) (fmax hcont) > ε} ⊆
         {u | ∀ i, u i ∉ B} := by
       intro e (he : dist (Tuple.max (f ∘ e)) (fmax hcont) > ε) i
       set ei := e i
@@ -150,7 +150,7 @@ example (A : Algorithm Ω ℝ) :
       linarith
 
     suffices h' : {(u : (Fin n) → Ω) | ∀ i, u i ∉ B} ⊆ {u | max_min_dist u > δ} from
-      fun _ ha ↦ h' (consistent_ss_ball ha)
+      fun _ ha ↦ h' (max_dist_ss_ball ha)
 
     intro u (hu : ∀ i, u i ∉ B)
     have hu : ∀ i, dist (u i) x' > δ := fun i => lt_of_not_ge (hu i)
