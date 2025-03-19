@@ -3,7 +3,7 @@
 -/
 
 import Mathlib.MeasureTheory.Measure.Typeclasses
-import ConsistencyGO.Tuple
+import ConsistencyGO.Defs.Tuple
 
 open MeasureTheory Tuple
 /--

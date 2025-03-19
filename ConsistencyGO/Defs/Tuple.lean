@@ -2,7 +2,7 @@
  - Created in 2025 by Gaëtan Serré
 -/
 
-import ConsistencyGO.Fintype
+import ConsistencyGO.Defs.Fintype
 import Mathlib.Data.Fintype.Basic
 
 variable {α : Type*}

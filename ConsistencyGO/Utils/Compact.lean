@@ -2,7 +2,8 @@
  - Created in 2025 by Gaëtan Serré
 -/
 
-import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
+import ConsistencyGO.Utils.Abs
+import Mathlib.MeasureTheory.Measure.MeasureSpace
 
 open MeasureTheory Set
 
@@ -53,3 +54,16 @@ lemma compact_exists_argmin {β : Type*} [TopologicalSpace β] [LinearOrder β]
 noncomputable def compact_argmin {β : Type*} [TopologicalSpace β] [LinearOrder β]
     [ClosedIicTopology β] {f : Ω → β} (hf : Continuous f) :=
   (compact_exists_argmin hf).choose
+
+
+namespace Compact
+
+variable {f : Ω → ℝ} (hcont : Continuous f)
+
+lemma dist_max_compact (a : Ω) :
+    dist (f a) (f (compact_argmax hcont)) = f (compact_argmax hcont) - (f a) := by
+  set f' := f (compact_argmax hcont)
+  rw [show dist (f a) f' = |f a - f'| by rfl]
+  exact Abs.abs_lt (compact_argmax_apply hcont a)
+
+end Compact

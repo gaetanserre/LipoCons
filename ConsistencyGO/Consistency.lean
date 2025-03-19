@@ -3,9 +3,10 @@
 -/
 
 import ConsistencyGO.Algorithm
-import ConsistencyGO.Compact
-import ConsistencyGO.Utils
-import Mathlib
+import ConsistencyGO.Utils.Compact
+import ConsistencyGO.Utils.Tendsto
+import ConsistencyGO.Utils.Metric
+import Mathlib.Analysis.Normed.Order.Lattice
 
 open Tuple NNReal Filter Topology Tendsto
 

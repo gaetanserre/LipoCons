@@ -2,16 +2,21 @@
  - Created in 2025 by Gaëtan Serré
 -/
 
-import ConsistencyGO.Compact
-import ConsistencyGO.Convergence
-import ConsistencyGO.Tuple
-import Mathlib.Analysis.Normed.Field.Basic
-import Mathlib.Analysis.Normed.Order.Lattice
+import ConsistencyGO.Defs.Tuple
+import Mathlib.Analysis.Normed.Field.Lemmas
+import Mathlib.MeasureTheory.Measure.Typeclasses
 import Mathlib.Order.CompletePartialOrder
 
 open MeasureTheory Tuple Filter Topology
 
-namespace AlgorithmMeasure
+namespace MeasureTheory.Measure
+
+variable {α β : Type*} [MeasurableSpace α] [Dist β] (μ : Measure α)
+
+def tendsto (fn gn : ℕ → α → β) : Prop :=
+    ∀ ε > 0, Tendsto (fun n => μ {x | dist (fn n x) (gn n x) > ε}) atTop (𝓝 0)
+
+end MeasureTheory.Measure
 
 variable {α : Type*} [MeasurableSpace α] (ν : Measure (ℕ → α))
 
@@ -174,106 +179,3 @@ lemma μ_mono_iff_eq_subtuple [inst : Nonempty α]
     have : m ≤ i.val := Nat.le_trans h_ineq h_if
     have := i.2
     linarith
-
-end AlgorithmMeasure
-
-namespace Tendsto
-
-def nstar := {n : ℕ | 0 < n}
-
-instance : Nonempty nstar := ⟨1, Nat.one_pos⟩
-
-variable {α β : Type*} [TopologicalSpace β]
-
-lemma nstar_tendsto_imp_tendsto {f : ℕ → β} {b : β}
-    (h : Tendsto (fun (n : nstar) => f n.1) atTop (𝓝 b)) :
-    Tendsto f atTop (𝓝 b) := by
-  set g := (fun (n : nstar) => f n.1)
-  intro U hU
-  specialize h hU
-  simp_rw [mem_map, mem_atTop_sets, Set.mem_preimage] at h ⊢
-  obtain ⟨a, ha⟩ := h
-  use a.1
-  intro y hy
-  exact ha ⟨y, Nat.lt_of_lt_of_le a.2 hy⟩ hy
-
-variable [Preorder α] [Preorder β] [OrderTopology β] [AddZeroClass β]
-
-lemma tendsto_le_nat {f g h : ℕ → β} {b : β}
-    (h1 : ∀ n > 0, f n ≤ g n) (h2 : ∀ n > 0, h n ≤ f n)
-    (hg : Tendsto g atTop (𝓝 b)) (hh : Tendsto h atTop (𝓝 b)) :
-    Tendsto f atTop (𝓝 b) := by
-  let c := fun (_ : ℕ) => (0 : β)
-  have ev_le_fg : ∀ᶠ n in atTop, f n ≤ g n := by
-    rw [eventually_iff]
-    suffices h : {n | n > 0 ∧ f n ≤ g n} ∈ atTop by
-      filter_upwards [h] with _ hn using hn.2
-    rw [mem_atTop_sets]
-    use 1
-    intro b hb
-    exact ⟨hb, h1 b hb⟩
-
-  have ev_le_hf : ∀ᶠ n in atTop, h n ≤ f n := by
-    rw [eventually_iff]
-    suffices h : {n | n > 0 ∧ h n ≤ f n} ∈ atTop by
-      filter_upwards [h] with _ hn using hn.2
-    rw [mem_atTop_sets]
-    use 1
-    intro b hb
-    exact ⟨hb, h2 b hb⟩
-  exact tendsto_of_tendsto_of_tendsto_of_le_of_le' hh hg ev_le_hf ev_le_fg
-
-variable [CanonicallyOrderedAdd β]
-
-lemma tendsto_zero_le_nat {f g : ℕ → β} (h : ∀ n > 0, f n ≤ g n) (hg : Tendsto g atTop (𝓝 0)) :
-    Tendsto f atTop (𝓝 0) := by
-  let c := fun (_ : ℕ) => (0 : β)
-  have le_const : ∀ n > 0, c n ≤ f n := (fun x _ => zero_le (f x))
-  exact tendsto_le_nat h le_const hg tendsto_const_nhds
-
-end Tendsto
-
-namespace Abs
-
-lemma abs_lt {a b : ℝ} (h : a ≤ b) : |a - b| = b - a := by
-  have le : a - b ≤ 0 := tsub_nonpos.mpr h
-  by_cases h' : a - b = 0
-  · rw [h']
-    rw [neg_inj.mp (neg_eq_of_add_eq_zero_right h')]
-    simp only [abs_zero, sub_self]
-  rw [abs_of_neg (lt_of_le_of_ne le h')]
-  exact neg_sub a b
-
-end Abs
-
-namespace Compact
-
-variable {α : Type*} [TopologicalSpace α] {Ω : Set α} [CompactSpace Ω] [Nonempty Ω]
-{f : Ω → ℝ} (hcont : Continuous f)
-
-lemma dist_max_compact (a : Ω) :
-    dist (f a) (f (compact_argmax hcont)) = f (compact_argmax hcont) - (f a) := by
-  set f' := f (compact_argmax hcont)
-  rw [show dist (f a) f' = |f a - f'| by rfl]
-  exact Abs.abs_lt (compact_argmax_apply hcont a)
-
-end Compact
-
-namespace Metric
-
-lemma continuous_iff_le {α β : Type*} [PseudoMetricSpace α] [PseudoMetricSpace β] {f : α → β} :
-    Continuous f ↔ ∀ b, ∀ ε > 0, ∃ δ > 0, ∀ a, dist a b ≤ δ → dist (f a) (f b) ≤ ε := by
-  rw [Metric.continuous_iff]
-  constructor
-  · intro h b ε hε
-    obtain ⟨δ, hδ, h⟩ := h b ε hε
-    refine ⟨δ/2, half_pos hδ, ?_⟩
-    intro a ha
-    exact le_of_lt (h a (lt_of_le_of_lt ha (div_two_lt_of_pos hδ)))
-  intro h b ε hε
-  obtain ⟨δ, hδ, h⟩ := h b (ε/2) (half_pos hε)
-  refine ⟨δ, hδ, ?_⟩
-  intro a ha
-  exact lt_of_le_of_lt (h a (le_of_lt ha)) (div_two_lt_of_pos hε)
-
-end Metric
