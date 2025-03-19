@@ -107,7 +107,6 @@ if `∀ ε > 0, lim_(n → ∞) A.μ f n {u | max_min_dist u > ε} = 0`.
 noncomputable def sample_whole_space (A : Algorithm Ω β) (f : Ω → β) : Prop :=
   ∀ ε > 0, Tendsto (fun n => A.μ f n {u | max_min_dist u > ε}) atTop (𝓝 0)
 
-
 example (A : Algorithm Ω ℝ) :
     (∀ ⦃f : Ω → ℝ⦄, f ∈ all_lipschitz → sample_whole_space A f)
     ↔
@@ -193,3 +192,22 @@ example (A : Algorithm Ω ℝ) :
   push_neg at h_contra
   obtain ⟨ε₂, hε₂, h_contra⟩ := h_contra
   sorry
+
+lemma ε_cover {ε : ℝ} (hε : ε > 0) {α : Type*} [PseudoMetricSpace α] (Ω : Set α)
+    [Nonempty Ω] [CompactSpace Ω]
+    : {n : nstar | ∃ (t : Finset Ω), t.card = n.1 ∧ Ω = ⋃ x ∈ t, Metric.ball x ε}.Nonempty := by
+  let U := fun (x : Ω) => Metric.ball x ε
+  have hU : ∀ (x : Ω), U x ∈ nhds x := fun x => Metric.ball_mem_nhds x hε
+  obtain ⟨t, ht⟩ := finite_cover_nhds hU
+  have t_card_pos : 0 < t.card := by
+    by_contra h_contra
+    push_neg at h_contra
+    have union_is_empty : ⋃ x ∈ t, U x = ∅ := by
+      rw [Finset.card_eq_zero.mp (Nat.eq_zero_of_le_zero h_contra)]
+      simp only [Finset.not_mem_empty, Set.iUnion_of_empty, Set.iUnion_empty]
+    rw [union_is_empty] at ht
+    exact Set.empty_ne_univ ht
+  let n : nstar := ⟨t.card, t_card_pos⟩
+  refine ⟨n, t, rfl, ?_⟩
+  rw [Set.iUnion_coe_set, ht] at *
+  exact (Subtype.coe_image_univ Ω).symm
