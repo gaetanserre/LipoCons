@@ -2,110 +2,16 @@
  - Created in 2025 by Gaëtan Serré
 -/
 
-import ConsistencyGO.Algorithm
-import ConsistencyGO.Utils.Compact
+import Mathlib
+import ConsistencyGO.Defs.Consistency
 import ConsistencyGO.Utils.Tendsto
 import ConsistencyGO.Utils.Metric
-import Mathlib.Analysis.Normed.Order.Lattice
+import ConsistencyGO.Defs.Tuple
 
-open Tuple NNReal Filter Topology Tendsto
+open Tendsto Tuple MeasureTheory
 
-variable {α : Type*} [PseudoMetricSpace α] {Ω : Set α}
-
-/--
-Given a sequence `u` and a element `x`, returns `min_(0 ≤ i < n) dist (u i) x.
--/
-noncomputable def min_dist_x :=
-  fun {n : ℕ} (u : Fin n → Ω) (x : Ω) => Tuple.min ((fun xi => dist xi x) ∘ u)
-
-/--
-`min_dist_x` is continuous
--/
-lemma min_dist_x_continuous {n : ℕ} (u : Fin n → Ω) : Continuous (min_dist_x u) := by
-  by_cases h : n = 0
-  · have empty : ¬Nonempty (Fin n) := by
-      rw [←Fin.pos_iff_nonempty]
-      exact Eq.not_gt h
-    let e : ℝ := instNonemptyOfInhabited.some
-    suffices h : min_dist_x u = fun x => e by rw [h]; exact continuous_const
-    ext x
-    unfold min_dist_x Tuple.min Fintype.min_image Fintype.min_image'
-    split
-    · contradiction
-    rfl
-
-  have ne_fin : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp (Nat.zero_lt_of_ne_zero h)
-  have ne : (Finset.univ : Finset (Fin n)).Nonempty :=
-    Finset.univ_nonempty_iff.mpr ne_fin
-
-  set g := fun (i : Fin n) (x : Ω) => dist (u i) x
-
-  have continuous_inf_g : Continuous (Finset.univ.inf' ne g) := by
-    suffices h : ∀ i ∈ Finset.univ, Continuous (g i) from Continuous.finset_inf' ne h
-    intro i _
-    exact Continuous.dist continuous_const continuous_id
-
-  suffices h : min_dist_x u = Finset.univ.inf' ne g by rwa [h]
-  ext x
-  unfold min_dist_x Tuple.min Fintype.min_image Fintype.min_image'
-  split
-  · simp only [Function.comp_apply, Finset.inf'_apply, g]
-  contradiction
-
-/-
-We define two spaces `α` and `β` with topological properties and we define
-a continuous function `f` over a compact set of `α`, `Ω`.
--/
-variable {β : Type*} [MeasurableSpace α]
-[Nonempty β] [Dist β] [LinearOrder β] [PseudoMetricSpace β]
-[ClosedIciTopology β] [ClosedIicTopology β]
-[Nonempty Ω] [CompactSpace Ω]
-
-/--
-The maximum of a continuous function over `Ω`.
--/
-noncomputable def fmax {f : Ω → β} (cont : Continuous f) := f (compact_argmax cont)
-
-/--
-Given an algorithm `A`, the function that, given `ε` and `n`, returns
-the measure of the set of sequences of size `n` such that the maximum of
-`f` over these sequences is at least `ε` away from from `fmax`.
--/
-def measure_dist_max (A : Algorithm Ω β) {f : Ω → β} (cont : Continuous f) :=
-  fun ε n => A.μ f n {u | dist (Tuple.max (f ∘ u)) (fmax cont) > ε}
-
-/--
-**Main definition**: An algorithm `A` is consistent over `f`
-if for any `ε > 0`, `lim_(n → ∞) measure_dist_max n = 0`.
--/
-def isConsistent (A : Algorithm Ω β) {f : Ω → β} (cont : Continuous f) : Prop :=
-  ∀ ε > 0, Tendsto (measure_dist_max A cont ε) atTop (𝓝 0)
-
-
-/--
-The set of all Lipschitz functions.
--/
-def all_lipschitz := {f : Ω → β | ∃ κ, LipschitzWith κ f}
-
-/--
-An algorithm `A` is consistent over all Lipschitz functions.
--/
-def isConsistentOverLipschitz (A : Algorithm Ω β) {f : Ω → β} (hf : f ∈ all_lipschitz) : Prop :=
-  isConsistent A hf.choose_spec.continuous
-
-/--
-Given a sequence `u`, maximum over `Ω` of `min_dist_x u`: the maximum distance between
-any element in `Ω` and `u`.
--/
-noncomputable def max_min_dist {n : ℕ} (u : Fin n → Ω) :=
-  min_dist_x u (compact_argmax (min_dist_x_continuous u))
-
-/--
-**Main definition**: Given a function `f`, an algorithm `A` sample the whole space
-if `∀ ε > 0, lim_(n → ∞) A.μ f n {u | max_min_dist u > ε} = 0`.
--/
-noncomputable def sample_whole_space (A : Algorithm Ω β) (f : Ω → β) : Prop :=
-  ∀ ε > 0, Tendsto (fun n => A.μ f n {u | max_min_dist u > ε}) atTop (𝓝 0)
+variable {α : Type*} [MeasurableSpace α] [PseudoMetricSpace α]
+variable {Ω : Set α} [CompactSpace Ω] [Nonempty Ω]
 
 example (A : Algorithm Ω ℝ) :
     (∀ ⦃f : Ω → ℝ⦄, f ∈ all_lipschitz → sample_whole_space A f)
@@ -120,7 +26,7 @@ example (A : Algorithm Ω ℝ) :
         {(u : Fin n → Ω) | dist (Tuple.max (f ∘ u)) (fmax hcont) > ε} ⊆ {u | max_min_dist u > δ} by
       obtain ⟨δ, hδ, h'⟩ := h'
       have μ_mono : ∀ n > 0, measure_dist_max A hcont ε n ≤ (A.μ f n) {u | max_min_dist u > δ} :=
-        fun n hn => MeasureTheory.OuterMeasureClass.measure_mono (A.μ f n) (h' n hn)
+        fun n hn => OuterMeasureClass.measure_mono (A.μ f n) (h' n hn)
       exact tendsto_zero_le_nat μ_mono (h hf δ hδ)
 
     let x' := compact_argmax hcont
@@ -153,7 +59,7 @@ example (A : Algorithm Ω ℝ) :
       fun _ ha ↦ h' (max_dist_ss_ball ha)
 
     intro u (hu : ∀ i, u i ∉ B)
-    have hu : ∀ i, dist (u i) x' > δ := fun i => lt_of_not_ge (hu i)
+    replace hu : ∀ i, dist (u i) x' > δ := fun i => lt_of_not_ge (hu i)
     obtain ⟨i, hi⟩ := Tuple.tuple_argmin (fun xi => dist xi x') n_pos u
     specialize hu i
     rw [hi] at hu
@@ -163,12 +69,11 @@ example (A : Algorithm Ω ℝ) :
 
   intro h f hf ε₁ hε₁
   apply nstar_tendsto_imp_tendsto
-  set gε := fun (n : nstar) => A.μ f n {u | max_min_dist u > ε₁}
-  have antitone_gε : Antitone gε := by
+  set gε₁ := fun (n : nstar) => A.μ f n {u | max_min_dist u > ε₁}
+  have antitone_gε₁ : Antitone gε₁ := by
     intro n m hnm
-    let B := {(u : Fin n → Ω) | max_min_dist u > ε₁}
-    let C := {(u : Fin m → Ω) | max_min_dist u > ε₁}
-    suffices h : {(u : ℕ → Ω) | Tuple.toTuple m u ∈ C} ⊆ {(u : ℕ → Ω) | Tuple.toTuple n u ∈ B}
+    let S := fun n => {(u : Fin n → Ω) | max_min_dist u > ε₁}
+    suffices h : {(u : ℕ → Ω) | Tuple.toTuple m u ∈ S m} ⊆ {(u : ℕ → Ω) | Tuple.toTuple n u ∈ S n}
         from A.μ_mono f h
     intro u (hu : max_min_dist (toTuple m u) > ε₁)
     unfold max_min_dist min_dist_x at hu
@@ -183,31 +88,119 @@ example (A : Algorithm Ω ℝ) :
         gt_of_ge_of_gt
         (compact_argmax_apply (min_dist_x_continuous (toTuple n u)) x')
         (lt_of_lt_of_eq (gt_of_ge_of_gt h hu) hj)
-    have :=
+    have le_min :=
       Tuple.le_min (f := (fun xi ↦ dist xi x') ∘ (toTuple m u)) m.2 ⟨j, Fin.val_lt_of_le j hnm⟩
-    rwa [←hi] at this
+    rwa [←hi] at le_min
 
-  rw [ENNReal.tendsto_atTop_zero_iff_le_of_antitone antitone_gε]
+  rw [ENNReal.tendsto_atTop_zero_iff_le_of_antitone antitone_gε₁]
   by_contra h_contra
   push_neg at h_contra
   obtain ⟨ε₂, hε₂, h_contra⟩ := h_contra
-  sorry
 
-lemma ε_cover {ε : ℝ} (hε : ε > 0) {α : Type*} [PseudoMetricSpace α] (Ω : Set α)
-    [Nonempty Ω] [CompactSpace Ω]
-    : {n : nstar | ∃ (t : Finset Ω), t.card = n.1 ∧ Ω = ⋃ x ∈ t, Metric.ball x ε}.Nonempty := by
-  let U := fun (x : Ω) => Metric.ball x ε
-  have hU : ∀ (x : Ω), U x ∈ nhds x := fun x => Metric.ball_mem_nhds x hε
-  obtain ⟨t, ht⟩ := finite_cover_nhds hU
-  have t_card_pos : 0 < t.card := by
+  -- Step 1: Ball almost never hit by `A`. **RADIUS `ε₁/2` NOT `ε₁`!!!**
+
+  obtain ⟨t, t_card, ht⟩ := (ε_cover_ne (half_pos hε₁) Ω).some_mem
+  set N₁ := (ε_cover_ne (half_pos hε₁) Ω).some
+  have : ∃ c ∈ t, ∀ (n : nstar),
+      ε₂/(2 * N₁) ≤ A.μ f n {u : Fin n → Ω | ∀ i, u i ∉ Metric.ball c (ε₁/2)} := by
     by_contra h_contra
     push_neg at h_contra
-    have union_is_empty : ⋃ x ∈ t, U x = ∅ := by
-      rw [Finset.card_eq_zero.mp (Nat.eq_zero_of_le_zero h_contra)]
-      simp only [Finset.not_mem_empty, Set.iUnion_of_empty, Set.iUnion_empty]
-    rw [union_is_empty] at ht
-    exact Set.empty_ne_univ ht
-  let n : nstar := ⟨t.card, t_card_pos⟩
-  refine ⟨n, t, rfl, ?_⟩
-  rw [Set.iUnion_coe_set, ht] at *
-  exact (Subtype.coe_image_univ Ω).symm
+    replace h_contra : ∃ (n : nstar), ∀ c ∈ t,
+      A.μ f n {u : Fin n → Ω | ∀ i, u i ∉ Metric.ball c (ε₁/2)} < ε₂/(2 * N₁) := by
+      choose choice_fun h_contra using h_contra
+      let choice_fun' := fun (c : t) => choice_fun c.1 c.2
+      let n_max := Fintype.max_image choice_fun'
+      use n_max
+      intro c hc
+      let S := fun n => {(u : Fin n → Ω) | ∀ i, u i ∉ Metric.ball c (ε₁/2)}
+      let n := choice_fun c hc
+      suffices h : {u | toTuple n_max u ∈ S n_max} ⊆ {u | toTuple n u ∈ S n} from
+        lt_of_le_of_lt (A.μ_mono f h) <| h_contra c hc
+
+      have n_le_n_max : n ≤ n_max := by
+        have ne_subtype : Nonempty { x // x ∈ t } := by
+          have card_pos : 0 < t.card := by
+            rw [t_card]
+            exact N₁.2
+          have t_ne : t.Nonempty := Finset.card_pos.mp card_pos
+          exact ⟨t_ne.choose, t_ne.choose_spec⟩
+        exact Fintype.le_max_image choice_fun' ⟨c, hc⟩
+      exact fun _ hu i => hu ⟨i.1, Fin.val_lt_of_le i n_le_n_max⟩
+    obtain ⟨n_max, hn_max⟩ := h_contra
+
+    have : gε₁ n_max ≤ A.μ f n_max {u | ∃ c ∈ t, ∀ i, u i ∉ Metric.ball c (ε₁/2)} := by
+      suffices h : {(u : Fin n_max → Ω) | max_min_dist u > ε₁} ⊆
+          {u | ∃ c ∈ t, ∀ i, u i ∉ Metric.ball c (ε₁/2)} from OuterMeasureClass.measure_mono _ h
+
+      intro u (hu : max_min_dist u > ε₁)
+      let x' := (compact_argmax (min_dist_x_continuous u))
+
+      obtain ⟨c, c_in_t, hc⟩ : ∃ c ∈ t, x' ∈ Metric.ball c (ε₁/2) := by
+        have x'_in_cover : x' ∈ ⋃ c ∈ t, Metric.ball c (ε₁/2) := by
+          rw [←ht]
+          trivial
+        simp_all only [Set.iUnion_coe_set, Set.mem_iUnion, exists_prop, Subtype.exists]
+
+      refine ⟨c, c_in_t, ?_⟩
+
+      unfold max_min_dist min_dist_x at hu
+      set m := Tuple.min ((fun xi ↦ dist xi x') ∘ u)
+
+      intro i
+
+      have : ε₁ < dist (u i) x' := by
+        suffices h : m ≤ dist (u i) x' from gt_of_ge_of_gt h hu
+        exact Tuple.le_min ((fun xi ↦ dist xi x') ∘ u) n_max.2 i
+
+      by_contra h
+      suffices dist (u i) x' < ε₁ by linarith
+      calc dist (u i) x' ≤ dist (u i) c + dist c x' := dist_triangle (u i) c x'
+        _ < ε₁/2 + dist c x' := (add_lt_add_iff_right _).mpr h
+        _ = ε₁/2 + dist x' c := by rw [dist_comm c x']
+        _ < ε₁/2 + ε₁/2 := (add_lt_add_iff_left _).mpr hc
+        _ = ε₁ := by ring
+
+
+    /- have : A.μ f n_max {u | ∀ c ∈ t, ∃ i, u i ∈ Metric.ball c (ε₁/2)}
+        ≤ A.μ f n_max {u | max_min_dist u ≤ ε₁} := by
+      suffices h : {(u : Fin n_max → Ω) | ∀ c ∈ t, ∃ i, u i ∈ Metric.ball c (ε₁/2)} ⊆
+          {u | max_min_dist u ≤ ε₁} from OuterMeasureClass.measure_mono _ h
+      intro u hu
+      let x' := (compact_argmax (min_dist_x_continuous u))
+      obtain ⟨c, c_in_t, hc⟩ : ∃ c ∈ t, x' ∈ Metric.ball c (ε₁/2) := by
+        have x'_in_cover : x' ∈ ⋃ c ∈ t, Metric.ball c (ε₁/2) := by
+          rw [←ht]
+          trivial
+        simp_all only [Set.iUnion_coe_set, Set.mem_iUnion, exists_prop, Subtype.exists]
+      obtain ⟨i, hi⟩ := hu c c_in_t
+      have dist_ui_x'_lt_ε₁ : dist (u i) x' < ε₁ := by
+        suffices h : dist (u i) c + dist c x' < ε₁ from lt_of_le_of_lt (dist_triangle (u i) c x') h
+        calc dist (u i) c + dist c x' < ε₁/2 + dist c x' :=
+          (add_lt_add_iff_right _).mpr hi
+        _ = ε₁/2 + dist x' c := by rw [dist_comm c x']
+        _ < ε₁/2 + ε₁/2 := (add_lt_add_iff_left _).mpr hc
+        _ = ε₁ := by ring
+      suffices h : Tuple.min ((fun xi ↦ dist xi x') ∘ u) < ε₁ from le_of_lt h
+      exact lt_of_le_of_lt (Tuple.le_min _ n_max.2 i) dist_ui_x'_lt_ε₁ -/
+
+
+    sorry
+  sorry
+
+open ENNReal
+
+example (a b : ℝ≥0∞) (ha : a ≠ ⊤) (hb : b ≠ ⊤) : (a + b).toReal = a.toReal + b.toReal := by
+  exact toReal_add ha hb
+
+example (μ : Measure ℝ) (A : Set ℝ) (h : MeasurableSet A) [IsFiniteMeasure μ] :
+  μ A = μ Set.univ - μ Aᶜ := by
+  have : MeasurableSet Aᶜ := MeasurableSet.compl_iff.mpr h
+  have := measure_compl this (measure_ne_top μ Aᶜ)
+  rw [←this, compl_compl A]
+
+
+example (μ : Measure ℝ) (A : ℕ → Set ℝ) : μ (⋃ i, A i) ≤ ∑' i, μ (A i) := by
+  exact measure_iUnion_le A
+
+example (μ : Measure ℝ) (n : ℕ) (A : Fin n → Set ℝ) : μ (⋃ i, A i) ≤ ∑ i, μ (A i) := by
+  exact measure_iUnion_fintype_le μ A

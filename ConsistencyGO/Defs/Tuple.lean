@@ -56,13 +56,13 @@ lemma tuple_argmax {n : ℕ} (hn : 0 < n) (u : Fin n → α) : ∃ i, f (u i) = 
     rw [←h, ←hi]
     use i
 
-  have : ∀ x ∈ (f '' A), ∀ y ∈ (f '' A), x ⊔ y ∈ (f '' A) := by
+  have max_mem : ∀ x ∈ (f '' A), ∀ y ∈ (f '' A), x ⊔ y ∈ (f '' A) := by
     intro x hx y hy
     cases max_choice x y with
     | inl inl => rwa [inl]
     | inr inr => rwa [inr]
 
-  apply Finset.sup'_mem (f '' A) this Finset.univ univ_ne (f ∘ u)
+  apply Finset.sup'_mem (f '' A) max_mem Finset.univ univ_ne (f ∘ u)
 
   intro i _
   exact ⟨u i, ⟨i, rfl⟩, rfl⟩
@@ -83,13 +83,13 @@ lemma tuple_argmin {n : ℕ} (hn : 0 < n) (u : Fin n → α) : ∃ i, f (u i) = 
     rw [←h, ←hi]
     use i
 
-  have : ∀ x ∈ (f '' A), ∀ y ∈ (f '' A), x ⊓ y ∈ (f '' A) := by
+  have min_mem : ∀ x ∈ (f '' A), ∀ y ∈ (f '' A), x ⊓ y ∈ (f '' A) := by
     intro x hx y hy
     cases min_choice x y with
     | inl inl => rwa [inl]
     | inr inr => rwa [inr]
 
-  apply Finset.inf'_mem (f '' A) this Finset.univ univ_ne (f ∘ u)
+  apply Finset.inf'_mem (f '' A) min_mem Finset.univ univ_ne (f ∘ u)
 
   intro i _
   exact ⟨u i, ⟨i, rfl⟩, rfl⟩

@@ -37,7 +37,7 @@ noncomputable def μ (n : ℕ) : Measure (Fin n → α) := by
   have disjoint : Pairwise (Function.onFun Disjoint g) := by
     intro i j h
     suffices h : g i ∩ g j = ∅ from Set.disjoint_iff_inter_eq_empty.mpr h
-    have h_d : f i ∩ f j = ∅ := Set.disjoint_iff_inter_eq_empty.mp (h_d h)
+    replace h_d : f i ∩ f j = ∅ := Set.disjoint_iff_inter_eq_empty.mp (h_d h)
     ext u
     constructor
     · intro (h : toTuple n u ∈ f i ∩ f j)
@@ -88,10 +88,10 @@ lemma μ_mono : ∀ n m A B,
     MeasurableSet A → MeasurableSet B → {u | toTuple n u ∈ A} ⊆ {u | toTuple m u ∈ B} →
     μ ν n A ≤ μ ν m B := by
   intro n m A B hA hB hu
-  have : μ ν n A = ν {u : ℕ → α | toTuple n u ∈ A} := Measure.ofMeasurable_apply A hA
-  rw [this]
-  have : μ ν m B = ν {u : ℕ → α | toTuple m u ∈ B} := Measure.ofMeasurable_apply B hB
-  rw [this]
+  have ofMeasurableA : μ ν n A = ν {u : ℕ → α | toTuple n u ∈ A} := Measure.ofMeasurable_apply A hA
+  rw [ofMeasurableA]
+  have ofMeasurableB : μ ν m B = ν {u : ℕ → α | toTuple m u ∈ B} := Measure.ofMeasurable_apply B hB
+  rw [ofMeasurableB]
   exact OuterMeasureClass.measure_mono ν hu
 
 lemma μ_mono_iff_eq_subtuple [inst : Nonempty α]
@@ -151,7 +151,7 @@ lemma μ_mono_iff_eq_subtuple [inst : Nonempty α]
         linarith
 
   push_neg at h_ineq
-  have h_ineq : m ≤ n := Nat.le_of_succ_le h_ineq
+  replace h_ineq : m ≤ n := Nat.le_of_succ_le h_ineq
   rw [h h_ineq]
   suffices A ⊆ {u | subTuple h_ineq u ∈ B} from OuterMeasureClass.measure_mono (μ n) this
   intro u hu

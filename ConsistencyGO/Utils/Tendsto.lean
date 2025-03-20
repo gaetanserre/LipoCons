@@ -7,11 +7,11 @@ import Mathlib.Topology.Order.Basic
 
 open Filter Topology
 
-namespace Tendsto
-
 def nstar := {n : ℕ | 0 < n}
 
 instance : Nonempty nstar := ⟨1, Nat.one_pos⟩
+
+namespace Tendsto
 
 variable {α β : Type*} [TopologicalSpace β]
 
