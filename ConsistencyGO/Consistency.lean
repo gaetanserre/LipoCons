@@ -160,6 +160,36 @@ example (A : Algorithm Ω ℝ) :
         _ < ε₁/2 + ε₁/2 := (add_lt_add_iff_left _).mpr hc
         _ = ε₁ := by ring
 
+    /- have : {(u : Fin n_max → Ω) | ∃ c ∈ t, ∀ i, u i ∉ Metric.ball c (ε₁/2)} ⊆
+        ⋃ c ∈ t, {u | ∀ (i : Fin ↑n_max), u i ∉ Metric.ball c (ε₁ / 2)} := by
+      rintro u ⟨c, hc, hu⟩
+      rw [Set.mem_iUnion]
+      simp only [Set.mem_iUnion, exists_prop]
+      exact ⟨c, hc, hu⟩ -/
+
+    set S := {(u : Fin n_max → Ω) | ∃ c ∈ t, ∀ (i : Fin ↑n_max), u i ∉ Metric.ball c (ε₁ / 2)}
+
+    have : gε₁ n_max ≤ ε₂ / 2 := by
+      calc gε₁ n_max ≤ (A.μ f n_max) S := by exact this
+      _ ≤ A.μ f n_max (⋃ c ∈ t, {u | ∀ (i : Fin ↑n_max), u i ∉ Metric.ball c (ε₁ / 2)}) := by
+        suffices h : S ⊆ ⋃ c ∈ t, {u | ∀ (i : Fin ↑n_max), u i ∉ Metric.ball c (ε₁ / 2)} from
+          OuterMeasureClass.measure_mono _ h
+        rintro u ⟨c, hc, hu⟩
+        rw [Set.mem_iUnion]
+        simp only [Set.mem_iUnion, exists_prop]
+        exact ⟨c, hc, hu⟩
+      _ ≤ ∑ c ∈ t, A.μ f n_max {u | ∀ (i : Fin ↑n_max), u i ∉ Metric.ball c (ε₁ / 2)} :=
+        measure_biUnion_finset_le t _
+      _ ≤ ∑ c ∈ t, ε₂ / (2 * N₁) := Finset.sum_le_sum (fun c hc => le_of_lt <| hn_max c hc)
+      /- _ = t.card * (ε₂ / (2 * N₁)) := by
+        rw [Finset.sum_const, nsmul_eq_mul] -/
+      _ = ε₂ / 2 := by
+        rw [Finset.sum_const, nsmul_eq_mul, t_card]
+        have : N₁ * (ε₂ / (2 * N₁)) = N₁ * ε₂ / (2 * N₁) := (mul_div_assoc _ _ _).symm
+        rw [this]
+
+        --calc N₁ * (ε₂ / (2 * N₁)) =
+        sorry
 
     /- have : A.μ f n_max {u | ∀ c ∈ t, ∃ i, u i ∈ Metric.ball c (ε₁/2)}
         ≤ A.μ f n_max {u | max_min_dist u ≤ ε₁} := by
@@ -204,3 +234,6 @@ example (μ : Measure ℝ) (A : ℕ → Set ℝ) : μ (⋃ i, A i) ≤ ∑' i, �
 
 example (μ : Measure ℝ) (n : ℕ) (A : Fin n → Set ℝ) : μ (⋃ i, A i) ≤ ∑ i, μ (A i) := by
   exact measure_iUnion_fintype_le μ A
+
+example (ι : Type*) (s : Finset ι) (b : ℝ≥0∞) : ∑ i ∈ s, b = s.card * b := by
+  simp_all only [nonempty_subtype, Finset.sum_const, nsmul_eq_mul]
