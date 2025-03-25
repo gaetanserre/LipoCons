@@ -6,9 +6,10 @@ import Mathlib
 import ConsistencyGO.Defs.Consistency
 import ConsistencyGO.Utils.Tendsto
 import ConsistencyGO.Utils.Metric
+import ConsistencyGO.Utils.ENNReal
 import ConsistencyGO.Defs.Tuple
 
-open Tendsto Tuple MeasureTheory
+open Tendsto Tuple MeasureTheory ENNReal
 
 variable {α : Type*} [MeasurableSpace α] [PseudoMetricSpace α]
 variable {Ω : Set α} [CompactSpace Ω] [Nonempty Ω]
@@ -128,7 +129,7 @@ example (A : Algorithm Ω ℝ) :
       exact fun _ hu i => hu ⟨i.1, Fin.val_lt_of_le i n_le_n_max⟩
     obtain ⟨n_max, hn_max⟩ := h_contra
 
-    have : gε₁ n_max ≤ A.μ f n_max {u | ∃ c ∈ t, ∀ i, u i ∉ Metric.ball c (ε₁/2)} := by
+    have le_μ_cover : gε₁ n_max ≤ A.μ f n_max {u | ∃ c ∈ t, ∀ i, u i ∉ Metric.ball c (ε₁/2)} := by
       suffices h : {(u : Fin n_max → Ω) | max_min_dist u > ε₁} ⊆
           {u | ∃ c ∈ t, ∀ i, u i ∉ Metric.ball c (ε₁/2)} from OuterMeasureClass.measure_mono _ h
 
@@ -160,17 +161,11 @@ example (A : Algorithm Ω ℝ) :
         _ < ε₁/2 + ε₁/2 := (add_lt_add_iff_left _).mpr hc
         _ = ε₁ := by ring
 
-    /- have : {(u : Fin n_max → Ω) | ∃ c ∈ t, ∀ i, u i ∉ Metric.ball c (ε₁/2)} ⊆
-        ⋃ c ∈ t, {u | ∀ (i : Fin ↑n_max), u i ∉ Metric.ball c (ε₁ / 2)} := by
-      rintro u ⟨c, hc, hu⟩
-      rw [Set.mem_iUnion]
-      simp only [Set.mem_iUnion, exists_prop]
-      exact ⟨c, hc, hu⟩ -/
-
     set S := {(u : Fin n_max → Ω) | ∃ c ∈ t, ∀ (i : Fin ↑n_max), u i ∉ Metric.ball c (ε₁ / 2)}
 
-    have : gε₁ n_max ≤ ε₂ / 2 := by
-      calc gε₁ n_max ≤ (A.μ f n_max) S := by exact this
+    have le_μ_ε₂ : gε₁ n_max ≤ ε₂ := by
+      suffices h : gε₁ n_max ≤ ε₂ / 2 from Preorder.le_trans _ _ _ h ENNReal.half_le_self
+      calc gε₁ n_max ≤ (A.μ f n_max) S := le_μ_cover
       _ ≤ A.μ f n_max (⋃ c ∈ t, {u | ∀ (i : Fin ↑n_max), u i ∉ Metric.ball c (ε₁ / 2)}) := by
         suffices h : S ⊆ ⋃ c ∈ t, {u | ∀ (i : Fin ↑n_max), u i ∉ Metric.ball c (ε₁ / 2)} from
           OuterMeasureClass.measure_mono _ h
@@ -181,15 +176,39 @@ example (A : Algorithm Ω ℝ) :
       _ ≤ ∑ c ∈ t, A.μ f n_max {u | ∀ (i : Fin ↑n_max), u i ∉ Metric.ball c (ε₁ / 2)} :=
         measure_biUnion_finset_le t _
       _ ≤ ∑ c ∈ t, ε₂ / (2 * N₁) := Finset.sum_le_sum (fun c hc => le_of_lt <| hn_max c hc)
-      /- _ = t.card * (ε₂ / (2 * N₁)) := by
-        rw [Finset.sum_const, nsmul_eq_mul] -/
       _ = ε₂ / 2 := by
         rw [Finset.sum_const, nsmul_eq_mul, t_card]
-        have : N₁ * (ε₂ / (2 * N₁)) = N₁ * ε₂ / (2 * N₁) := (mul_div_assoc _ _ _).symm
-        rw [this]
+        calc N₁ * (ε₂ / (2 * N₁)) = N₁ * (ε₂ * ((2 * N₁) : ℝ≥0∞)⁻¹) := rfl
+        _ = N₁ * (ε₂ * (2⁻¹ * (N₁ : ℝ≥0∞)⁻¹)) := by
+          rw [ENNReal.mul_inv (Or.inr <| natCast_ne_top ↑N₁) (Or.inl ofNat_ne_top)]
+        _ = N₁ * (N₁ : ℝ≥0∞)⁻¹ * ε₂ * 2⁻¹ := by ring
+        _ = ε₂ / 2 := by
+          rw [
+            ENNReal.mul_inv_cancel
+            (Nat.cast_ne_zero.mpr (Nat.ne_zero_of_lt N₁.2))
+            (natCast_ne_top ↑N₁),
+            one_mul
+          ]
+          rfl
+    specialize h_contra n_max
+    exact ENNReal.contra_ineq
+          (LT.lt.ne_top h_contra)
+          (prop_measure_ne_top (A.μ_prob f n_max))
+          h_contra
+          le_μ_ε₂
 
+        /- have : N₁ * (ε₂ / (2 * N₁)) = N₁ * ε₂ / (2 * N₁) := (mul_div_assoc _ _ _).symm
+        --rw [this]
+        have : ε₂ / (2 * N₁) = ε₂ * ((2 * N₁) : ℝ≥0∞)⁻¹ := by
+          rfl
+        rw [show ε₂ / (2 * N₁) = ε₂ * ((2 * N₁) : ℝ≥0∞)⁻¹ by rfl]
+        rw [ENNReal.mul_inv (Or.inr <| natCast_ne_top ↑N₁) (Or.inl ofNat_ne_top)]
+        have : N₁ * (ε₂ * (2⁻¹ * (N₁ : ℝ≥0∞)⁻¹)) = N₁ * ε₂ * 2⁻¹ * (N₁ : ℝ≥0∞)⁻¹ := by
+          ring
+
+        --rw [←mul_div_assoc]
         --calc N₁ * (ε₂ / (2 * N₁)) =
-        sorry
+        sorry -/
 
     /- have : A.μ f n_max {u | ∀ c ∈ t, ∃ i, u i ∈ Metric.ball c (ε₁/2)}
         ≤ A.μ f n_max {u | max_min_dist u ≤ ε₁} := by
@@ -214,7 +233,6 @@ example (A : Algorithm Ω ℝ) :
       exact lt_of_le_of_lt (Tuple.le_min _ n_max.2 i) dist_ui_x'_lt_ε₁ -/
 
 
-    sorry
   sorry
 
 open ENNReal
@@ -235,5 +253,17 @@ example (μ : Measure ℝ) (A : ℕ → Set ℝ) : μ (⋃ i, A i) ≤ ∑' i, �
 example (μ : Measure ℝ) (n : ℕ) (A : Fin n → Set ℝ) : μ (⋃ i, A i) ≤ ∑ i, μ (A i) := by
   exact measure_iUnion_fintype_le μ A
 
-example (ι : Type*) (s : Finset ι) (b : ℝ≥0∞) : ∑ i ∈ s, b = s.card * b := by
+example (ι : Type*) (s : Finset ι) (b : ℝ≥0∞) : ∑ _ ∈ s, b = s.card * b := by
   simp_all only [nonempty_subtype, Finset.sum_const, nsmul_eq_mul]
+
+example (a b : ℝ≥0∞) (ha : a ≠ ⊤) (hb : b ≠ ⊤) :
+    (a * b)⁻¹ = a⁻¹ * b⁻¹ := by
+  exact ENNReal.mul_inv (Or.inr hb) (Or.inl ha)
+
+example (a : ℝ≥0∞) (ha : a ≠ ⊤) (ha2 : a ≠ 0) : a * a⁻¹ = 1 := by
+  exact ENNReal.mul_inv_cancel ha2 ha
+
+example (a b : ℝ≥0∞) (ha : a ≠ ⊤) (hb : b ≠ ⊤) (h1 : a < b) (h2 : b ≤ a) : False := by
+  have : a.toReal < b.toReal := toReal_strict_mono hb h1
+  have : b.toReal ≤ a.toReal := (toReal_le_toReal hb ha).mpr h2
+  linarith
