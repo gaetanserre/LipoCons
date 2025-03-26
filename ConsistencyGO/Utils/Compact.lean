@@ -55,6 +55,9 @@ noncomputable def compact_argmin {β : Type*} [TopologicalSpace β] [LinearOrder
     [ClosedIicTopology β] {f : Ω → β} (hf : Continuous f) :=
   (compact_exists_argmin hf).choose
 
+lemma compact_argmin_apply {β : Type*} [TopologicalSpace β] [LinearOrder β]
+    [ClosedIicTopology β] {f : Ω → β} (hf : Continuous f) : ∀ y, f (compact_argmin hf) ≤ f y :=
+  (compact_exists_argmin hf).choose_spec
 
 namespace Compact
 

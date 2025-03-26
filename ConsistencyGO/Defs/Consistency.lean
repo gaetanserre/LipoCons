@@ -51,11 +51,13 @@ lemma min_dist_x_continuous {n : ℕ} (u : Fin n → α) : Continuous (min_dist_
 
 variable {Ω : Set α} [CompactSpace Ω] [Nonempty Ω]
 variable {β : Type*} [Nonempty β] [PseudoMetricSpace β] [LinearOrder β] [ClosedIciTopology β]
+[ClosedIicTopology β]
 
 /--
 The maximum of a continuous function over `α`.
 -/
 noncomputable def fmax {f : Ω → β} (cont : Continuous f) := f (compact_argmax cont)
+noncomputable def fmin {f : Ω → β} (cont : Continuous f) := f (compact_argmin cont)
 
 variable [MeasurableSpace α]
 
