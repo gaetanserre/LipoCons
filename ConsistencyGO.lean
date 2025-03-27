@@ -15,41 +15,40 @@ variable {α : Type*} [MeasurableSpace α] [PseudoMetricSpace α]
 variable {Ω : Set α} [CompactSpace Ω] [Nonempty Ω]
 
 example (A : Algorithm Ω ℝ) :
-    (∀ ⦃f : Ω → ℝ⦄, f ∈ all_lipschitz → sample_whole_space A f)
+    (∀ ⦃f : Ω → ℝ⦄, Continuous f → sample_whole_space A f)
     ↔
-    (∀ ⦃f : Ω → ℝ⦄, (hf : f ∈ all_lipschitz) → isConsistentOverLipschitz A hf)
+    (∀ ⦃f : Ω → ℝ⦄, (hf : Continuous f) → isConsistentOverContinuous A hf)
     := by
   constructor
   · intro h f hf ε hε
-    have hcont := hf.choose_spec.continuous
 
     suffices h' : ∃ δ > 0, ∀ n > 0,
-        {(u : Fin n → Ω) | dist (Tuple.max (f ∘ u)) (fmax hcont) > ε} ⊆ {u | max_min_dist u > δ} by
+        {(u : Fin n → Ω) | dist (Tuple.max (f ∘ u)) (fmax hf) > ε} ⊆ {u | max_min_dist u > δ} by
       obtain ⟨δ, hδ, h'⟩ := h'
-      have μ_mono : ∀ n > 0, measure_dist_max A hcont ε n ≤ (A.μ f n) {u | max_min_dist u > δ} :=
+      have μ_mono : ∀ n > 0, measure_dist_max A hf ε n ≤ (A.μ f n) {u | max_min_dist u > δ} :=
         fun n hn => OuterMeasureClass.measure_mono (A.μ f n) (h' n hn)
       exact tendsto_zero_le_nat μ_mono (h hf δ hδ)
 
-    let x' := compact_argmax hcont
-    obtain ⟨δ, hδ, hdist⟩ := Metric.continuous_iff_le.mp hcont x' ε hε
+    let x' := compact_argmax hf
+    obtain ⟨δ, hδ, hdist⟩ := Metric.continuous_iff_le.mp hf x' ε hε
     let B := Metric.closedBall x' δ
     refine ⟨δ, hδ, ?_⟩
     intro n n_pos
 
-    have max_dist_ss_ball : {(u : (Fin n) → Ω) | dist (Tuple.max (f ∘ u)) (fmax hcont) > ε} ⊆
+    have max_dist_ss_ball : {(u : (Fin n) → Ω) | dist (Tuple.max (f ∘ u)) (fmax hf) > ε} ⊆
         {u | ∀ i, u i ∉ B} := by
-      intro e (he : dist (Tuple.max (f ∘ e)) (fmax hcont) > ε) i
+      intro e (he : dist (Tuple.max (f ∘ e)) (fmax hf) > ε) i
       set ei := e i
       by_contra hcontra
       have le_lt : ∀ ⦃x⦄, x ≤ δ/2 → x < δ := fun _ hx => lt_of_le_of_lt hx (div_two_lt_of_pos hδ)
       specialize hdist ei hcontra
-      rw [Compact.dist_max_compact hcont ei] at hdist
+      rw [Compact.dist_max_compact hf ei] at hdist
 
       obtain ⟨j, hj⟩ := Tuple.tuple_argmax f n_pos e
       rw [←hj] at he
       unfold fmax at he
-      rw [Compact.dist_max_compact hcont (e j)] at he
-      have : f (compact_argmax hcont) - f (e j) ≤ ε := by
+      rw [Compact.dist_max_compact hf (e j)] at he
+      have : f (compact_argmax hf) - f (e j) ≤ ε := by
         have ineq : f ei ≤ f (e j) := by
           rw [hj]
           exact Tuple.le_max (f ∘ e) n_pos i
@@ -133,7 +132,6 @@ example (A : Algorithm Ω ℝ) :
     suffices h : gε₁ n_max ≤ ε₂ by
       specialize not_sample_space n_max
       exact ENNReal.contra_ineq
-            (LT.lt.ne_top not_sample_space)
             (prop_measure_ne_top (A.μ_prob f n_max))
             not_sample_space
             h
@@ -236,7 +234,7 @@ example (A : Algorithm Ω ℝ) :
       suffices h : Tuple.min ((fun xi ↦ dist xi x') ∘ u) < ε₁ from le_of_lt h
       exact lt_of_le_of_lt (Tuple.le_min _ n_max.2 i) dist_ui_x'_lt_ε₁ -/
 
-  obtain ⟨κ, hlipschitz⟩ := hf
+  --obtain ⟨κ, hf⟩ := hf
 
   /-
   We define `f~` differently : we just want to ensure that it is maximized within
@@ -247,17 +245,100 @@ example (A : Algorithm Ω ℝ) :
   -/
 
   let f_tilde := fun x =>
-    if x ∈ Metric.closedBall c (ε₁ / 2) then
-    f x + 2*(1 - (dist c x) / (ε₁ / 2)) *
-    (fmax hlipschitz.continuous - fmin hlipschitz.continuous)
+    if x ∈ Metric.ball c (ε₁ / 2) then
+    f x + 2 * (1 - (dist c x) / (ε₁ / 2)) *
+    (fmax hf - fmin hf)
     else f x
 
-  obtain ⟨κ, hf_tilde⟩ : ∃ k, LipschitzWith k f_tilde := by sorry
+  have hf_tilde : Continuous f_tilde := by sorry
 
 
-  let x' := (compact_argmax hf_tilde.continuous)
+  let x' := (compact_argmax hf_tilde)
 
   obtain ⟨δ, δ_pos, hδ⟩ :
+      ∃ δ > 0, ∀ x ∉ Metric.ball c (ε₁/2), dist (f_tilde x) (f_tilde x') > δ := by
+    set fma := fmax hf
+    set fmi := fmin hf
+
+    have f_tilde_eq_f_outside : ∀ ⦃x⦄, x ∉ Metric.ball c (ε₁/2) → f_tilde x = f x := by
+      intro x hx
+      unfold f_tilde
+      split
+      · contradiction
+      rfl
+
+
+    have f_tilde_c_eq : f_tilde c = fma + ((f c - fmi) + (fma - fmi)) := by
+      have c_in_ball : c ∈ Metric.ball c (ε₁/2) :=
+        Metric.mem_ball_self (half_pos hε₁)
+      unfold f_tilde
+      split ; swap
+      · contradiction
+      rw [dist_self, zero_div]
+      ring
+
+    have sum_dist_pos : 0 < ((f c - fmi) + (fma - fmi)) := by
+      have sub_argmin_nonneg : 0 ≤ (f c - fmi) :=
+        sub_nonneg_of_le (compact_argmin_apply hf c)
+
+      have non_constant : 0 < (fma - fmi) := by sorry
+
+      exact add_pos_of_nonneg_of_pos sub_argmin_nonneg non_constant
+
+    have x'_in_ball : x' ∈ Metric.ball c (ε₁/2) := by
+      by_contra h_contra
+
+      set fma := fmax hf
+      set fmi := fmin hf
+
+      have f_tilde_x'_lt_f_tilde_c : f_tilde x' < f_tilde c := by
+        have f_tilde_c_gt_max_f : fma < f_tilde c := by
+
+          rw [f_tilde_c_eq]
+
+          exact lt_add_of_pos_right fma sum_dist_pos
+
+        have f_tilde_x'_le_max_f : f_tilde x' ≤ fma := by
+          have f_tilde_x'_eq : f_tilde x' = f x' := by
+            unfold f_tilde
+            split
+            · contradiction
+            rfl
+          rw [f_tilde_eq_f_outside h_contra]
+          exact compact_argmax_apply hf x'
+
+        exact lt_of_le_of_lt f_tilde_x'_le_max_f f_tilde_c_gt_max_f
+
+      have f_tilde_c_le_f_tilde_x' : f_tilde c ≤ f_tilde x' :=
+        compact_argmax_apply hf_tilde c
+      linarith
+
+    have f_tilde_max_gt_fma : 0 < f_tilde x' - fma := by
+      suffices h : fma < f_tilde c by
+        exact gt_of_ge_of_gt
+          (tsub_le_tsub_right (compact_argmax_apply hf_tilde c) fma)
+          (sub_pos.mpr h)
+      rw [f_tilde_c_eq]
+      exact lt_add_of_pos_right fma sum_dist_pos
+
+    have half_f_tilde_max_gt_fma := half_pos f_tilde_max_gt_fma
+
+    refine ⟨(f_tilde x' - fma)/2, half_f_tilde_max_gt_fma, ?_⟩
+    intro y hy
+    rw [dist_comm]
+    rw [show dist (f_tilde x') (f_tilde y) = |f_tilde x' - f_tilde y| by rfl]
+    rw [abs_of_nonneg (sub_nonneg_of_le (compact_argmax_apply hf_tilde y))]
+    rw [f_tilde_eq_f_outside hy]
+
+    have fma_ge_fy : f_tilde x' - fma ≤ f_tilde x' - f y :=
+      tsub_le_tsub_left (compact_argmax_apply hf y) (f_tilde x')
+    have half_distmax_lt_distmax : (f_tilde x' - fma) / 2 < f_tilde x' - fma :=
+      div_two_lt_of_pos f_tilde_max_gt_fma
+
+    exact gt_of_ge_of_gt fma_ge_fy half_distmax_lt_distmax
+
+
+  /- obtain ⟨δ, δ_pos, hδ⟩ :
       ∃ δ > 0, ∀ x ∈ Metric.ball c (ε₁/2), dist (f_tilde x) (f_tilde x') ≤ δ := by
     suffices h : ∃ δ > 0, ∀ x ∈ Metric.closedBall c (ε₁/2), dist (f_tilde x) (f_tilde x') ≤ δ by
       obtain ⟨δ, δ_pos, hδ⟩ := h
@@ -287,8 +368,8 @@ example (A : Algorithm Ω ℝ) :
     have x'_in_ball : x' ∈ Metric.closedBall c (ε₁/2) := by
       by_contra h_contra
 
-      set fma := fmax hlipschitz.continuous
-      set fmi := fmin hlipschitz.continuous
+      set fma := fmax hf.continuous
+      set fmi := fmin hf.continuous
 
       have f_tilde_x'_lt_f_tilde_c : f_tilde x' < f_tilde c := by
         have f_tilde_c_gt_max_f : fma < f_tilde c := by
@@ -304,7 +385,7 @@ example (A : Algorithm Ω ℝ) :
           rw [f_tilde_c_eq]
 
           have sub_argmin_nonneg : 0 ≤ (f c - fmi) :=
-            sub_nonneg_of_le (compact_argmin_apply hlipschitz.continuous c)
+            sub_nonneg_of_le (compact_argmin_apply hf.continuous c)
 
           have non_constant : 0 < (fma - fmi) := by sorry
 
@@ -317,7 +398,7 @@ example (A : Algorithm Ω ℝ) :
             · contradiction
             rfl
           rw [f_tilde_x'_eq]
-          exact compact_argmax_apply hlipschitz.continuous x'
+          exact compact_argmax_apply hf.continuous x'
 
         exact lt_of_le_of_lt f_tilde_x'_le_max_f f_tilde_c_gt_max_f
 
@@ -343,10 +424,10 @@ example (A : Algorithm Ω ℝ) :
       exact compact_argmax_apply hf_tilde.continuous y
     rw [abs_of_nonneg nonneg_sub_max]
 
-    exact tsub_le_tsub_left (hm ⟨y, hy, rfl⟩) _
+    exact tsub_le_tsub_left (hm ⟨y, hy, rfl⟩) _ -/
 
 
-  have ttt : ε₂ / (2 * N₁) ≠ 0 := by
+  have ratio_ε₂_pos : ε₂ / (2 * N₁) ≠ 0 := by
     have denom_pos : (2 * (N₁ : ℝ≥0∞))⁻¹ ≠ 0 := by
       suffices h : 2 * (N₁ : ℝ≥0∞) ≠ ⊤ from ENNReal.inv_ne_zero.mpr h
       exact mul_ne_top (ENNReal.ofNat_ne_top) (natCast_ne_top N₁)
@@ -363,41 +444,48 @@ example (A : Algorithm Ω ℝ) :
     rw [show ε₂ / (2 * N₁) = ε₂ * (2 * (N₁ : ℝ≥0∞))⁻¹ by rfl]
     exact mul_ne_top (LT.lt.ne_top (h_contra N₁)) neq_top -/
 
-  specialize h ⟨κ, hf_tilde⟩ δ δ_pos
+  specialize h hf_tilde δ δ_pos
   rw [←nstar_tendsto_iff_tendsto, ENNReal.tendsto_atTop_zero] at h
-  obtain ⟨N, hN⟩ := h ((ε₂ / (2 * N₁)) / 2) (ENNReal.half_pos ttt)
+  obtain ⟨N, hN⟩ := h ((ε₂ / (2 * N₁)) / 2) (ENNReal.half_pos ratio_ε₂_pos)
   let N_succ : nstar := ⟨N.1 + 1, Nat.add_pos_left N.2 1⟩
   specialize hN N_succ (Nat.le_add_right N 1)
   specialize hc N_succ
   unfold measure_dist_max at hN
 
   suffices h_suff : {(u : Fin N_succ → Ω) | ∀ i, u i ∉ Metric.ball c (ε₁ / 2)}
-      ⊆ {u | dist (Tuple.max (f_tilde ∘ u)) (fmax hf_tilde.continuous) > δ} by
+      ⊆ {u | dist (Tuple.max (f_tilde ∘ u)) (fmax hf_tilde) > δ} by
     set B := {(u : Fin N_succ → Ω) | ∀ i, u i ∉ Metric.ball c (ε₁ / 2)}
-    set C := {u | dist (Tuple.max (f_tilde ∘ u)) (fmax hf_tilde.continuous) > δ}
-    have mono : A.μ f_tilde N_succ B ≤ A.μ f_tilde N_succ C :=
-      OuterMeasureClass.measure_mono (A.μ f_tilde N_succ) h_suff
-    have t : (ε₂ / (2 * N₁)) / 2 < ε₂ / (2 * N₁) := by
-      refine ENNReal.half_lt_self ?_ ?_
-      · exact ttt
-      have neq_top : (2 * (N₁ : ℝ≥0∞))⁻¹ ≠ ⊤ := by
-        suffices h : (2 * (N₁ : ℝ≥0∞)) ≠ 0 from inv_ne_top.mpr h
-        have pos_2 : (2 : ℝ≥0∞) ≠ 0 := (NeZero.ne' 2).symm
-        have pos_N₁ : (N₁ : ℝ≥0∞) ≠ 0 := Nat.cast_ne_zero.mpr <| Nat.ne_zero_of_lt N₁.2
-        exact (mul_ne_zero_iff_right pos_N₁).mpr pos_2
-      rw [show ε₂ / (2 * N₁) = ε₂ * (2 * (N₁ : ℝ≥0∞))⁻¹ by rfl]
-      exact mul_ne_top (LT.lt.ne_top (not_sample_space N₁)) neq_top
+    set C := {u | dist (Tuple.max (f_tilde ∘ u)) (fmax hf_tilde) > δ}
 
-    have : (ε₂ / (2 * N₁)) / 2 < (A.μ f_tilde ↑N_succ) C := by
+    have measure_f_tilde_gt : (ε₂ / (2 * N₁)) / 2 < A.μ f_tilde N_succ C := by
+      have mono : A.μ f_tilde N_succ B ≤ A.μ f_tilde N_succ C :=
+        OuterMeasureClass.measure_mono (A.μ f_tilde N_succ) h_suff
+
+      have half_lt_ε₂ : (ε₂ / (2 * N₁)) / 2 < ε₂ / (2 * N₁) := by
+        refine ENNReal.half_lt_self ?_ ?_
+        · exact ratio_ε₂_pos
+        have neq_top : (2 * (N₁ : ℝ≥0∞))⁻¹ ≠ ⊤ := by
+          suffices h : (2 * (N₁ : ℝ≥0∞)) ≠ 0 from inv_ne_top.mpr h
+          have pos_2 : (2 : ℝ≥0∞) ≠ 0 := (NeZero.ne' 2).symm
+          have pos_N₁ : (N₁ : ℝ≥0∞) ≠ 0 := Nat.cast_ne_zero.mpr <| Nat.ne_zero_of_lt N₁.2
+          exact (mul_ne_zero_iff_right pos_N₁).mpr pos_2
+        rw [show ε₂ / (2 * N₁) = ε₂ * (2 * (N₁ : ℝ≥0∞))⁻¹ by rfl]
+        exact mul_ne_top (LT.lt.ne_top (not_sample_space N₁)) neq_top
+
       have measure_eq_f_set : A.μ f N_succ B = A.μ f_tilde N_succ B := by sorry
       have measure_f_tilde_le : (ε₂ / (2 * N₁)) ≤ A.μ f_tilde N_succ B := by
         rwa [←measure_eq_f_set]
-      exact gt_of_ge_of_gt mono (gt_of_ge_of_gt measure_f_tilde_le t)
-    --linarith
-    sorry
+      exact gt_of_ge_of_gt mono (gt_of_ge_of_gt measure_f_tilde_le half_lt_ε₂)
 
-
-  sorry
+    exact ENNReal.contra_ineq
+      (prop_measure_ne_top (A.μ_prob f_tilde N_succ))
+      measure_f_tilde_gt
+      hN
+  intro u hu
+  obtain ⟨i, hi⟩ := tuple_argmax f_tilde N_succ.2 u
+  show dist (Tuple.max (f_tilde ∘ u)) (fmax hf_tilde) > δ
+  rw [←hi]
+  exact hδ (u i) (hu i)
 
 open ENNReal
 
@@ -437,7 +525,7 @@ example (a b : ℝ≥0∞) (ha : a ≠ ⊤) (hb : b ≠ ⊤) (h1 : a < b) (h2 : 
   apply?
   sorry -/
 
-example (a ε : ℝ) (hε : 0 < ε) : IsCompact (Metric.closedBall a ε) := by
+example (a ε : ℝ) : IsCompact (Metric.closedBall a ε) := by
   exact isCompact_closedBall a ε
 
 example (f : ℕ → ℝ) (hf : ∀ ε > 0, ∃ x, ∀ y ≥ x, |f y - 0| < ε) :

@@ -79,15 +79,10 @@ def isConsistent (A : Algorithm Ω β) {f : Ω → β} (cont : Continuous f) : P
   ∀ ε > 0, Tendsto (measure_dist_max A cont ε) atTop (𝓝 0)
 
 /--
-The set of all Lipschitz functions.
+An algorithm `A` is consistent over all continuous functions.
 -/
-def all_lipschitz := {f : Ω → β | ∃ κ, LipschitzWith κ f}
-
-/--
-An algorithm `A` is consistent over all Lipschitz functions.
--/
-def isConsistentOverLipschitz (A : Algorithm Ω β) {f : Ω → β} (hf : f ∈ all_lipschitz) : Prop :=
-  isConsistent A hf.choose_spec.continuous
+def isConsistentOverContinuous (A : Algorithm Ω β) {f : Ω → β} (hf : Continuous f) : Prop :=
+  isConsistent A hf
 
 /--
 Given a sequence `u`, maximum over `Ω` of `min_dist_x u`: the maximum distance between
