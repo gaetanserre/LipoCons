@@ -15,17 +15,24 @@ namespace Tendsto
 
 variable {α β : Type*} [TopologicalSpace β]
 
-lemma nstar_tendsto_imp_tendsto {f : ℕ → β} {b : β}
-    (h : Tendsto (fun (n : nstar) => f n.1) atTop (𝓝 b)) :
-    Tendsto f atTop (𝓝 b) := by
+lemma nstar_tendsto_iff_tendsto {f : ℕ → β} {b : β} :
+    Tendsto (fun (n : nstar) => f n.1) atTop (𝓝 b) ↔ Tendsto f atTop (𝓝 b) := by
   set g := (fun (n : nstar) => f n.1)
-  intro U hU
+  constructor
+  · intro h U hU
+    specialize h hU
+    simp_rw [mem_map, mem_atTop_sets, Set.mem_preimage] at h ⊢
+    obtain ⟨a, ha⟩ := h
+    use a.1
+    intro y hy
+    exact ha ⟨y, Nat.lt_of_lt_of_le a.2 hy⟩ hy
+  intro h U hU
   specialize h hU
   simp_rw [mem_map, mem_atTop_sets, Set.mem_preimage] at h ⊢
   obtain ⟨a, ha⟩ := h
-  use a.1
-  intro y hy
-  exact ha ⟨y, Nat.lt_of_lt_of_le a.2 hy⟩ hy
+  use ⟨a + 1, Nat.zero_lt_succ a⟩
+  intro b hb
+  exact ha b.1 <| Nat.le_of_succ_le hb
 
 variable [Preorder α] [Preorder β] [OrderTopology β] [AddZeroClass β]
 

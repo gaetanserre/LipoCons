@@ -69,7 +69,7 @@ example (A : Algorithm Ω ℝ) :
     exact gt_of_ge_of_gt argmax_le hu
 
   intro h f hf ε₁ hε₁
-  apply nstar_tendsto_imp_tendsto
+  rw [←nstar_tendsto_iff_tendsto]
   set gε₁ := fun (n : nstar) => A.μ f n {u | max_min_dist u > ε₁}
   have antitone_gε₁ : Antitone gε₁ := by
     intro n m hnm
@@ -94,9 +94,9 @@ example (A : Algorithm Ω ℝ) :
     rwa [←hi] at le_min
 
   rw [ENNReal.tendsto_atTop_zero_iff_le_of_antitone antitone_gε₁]
-  by_contra h_contra
-  push_neg at h_contra
-  obtain ⟨ε₂, hε₂, h_contra⟩ := h_contra
+  by_contra not_sample_space
+  push_neg at not_sample_space
+  obtain ⟨ε₂, hε₂, not_sample_space⟩ := not_sample_space
 
   -- Step 1: Ball almost never hit by `A`. **RADIUS `ε₁/2` NOT `ε₁`!!!**
 
@@ -131,11 +131,11 @@ example (A : Algorithm Ω ℝ) :
     obtain ⟨n_max, hn_max⟩ := h_contra
 
     suffices h : gε₁ n_max ≤ ε₂ by
-      specialize h_contra n_max
+      specialize not_sample_space n_max
       exact ENNReal.contra_ineq
-            (LT.lt.ne_top h_contra)
+            (LT.lt.ne_top not_sample_space)
             (prop_measure_ne_top (A.μ_prob f n_max))
-            h_contra
+            not_sample_space
             h
 
     set S := {(u : Fin n_max → Ω) | ∃ c ∈ t, ∀ (i : Fin ↑n_max), u i ∉ Metric.ball c (ε₁ / 2)}
@@ -252,12 +252,13 @@ example (A : Algorithm Ω ℝ) :
     (fmax hlipschitz.continuous - fmin hlipschitz.continuous)
     else f x
 
-  obtain ⟨_, hf_tilde⟩ : ∃ k, LipschitzWith k f_tilde := by sorry
+  obtain ⟨κ, hf_tilde⟩ : ∃ k, LipschitzWith k f_tilde := by sorry
 
 
   let x' := (compact_argmax hf_tilde.continuous)
 
-  have : ∃ δ > 0, ∀ x ∈ Metric.ball c (ε₁/2), dist (f_tilde x) (f_tilde x') ≤ δ := by
+  obtain ⟨δ, δ_pos, hδ⟩ :
+      ∃ δ > 0, ∀ x ∈ Metric.ball c (ε₁/2), dist (f_tilde x) (f_tilde x') ≤ δ := by
     suffices h : ∃ δ > 0, ∀ x ∈ Metric.closedBall c (ε₁/2), dist (f_tilde x) (f_tilde x') ≤ δ by
       obtain ⟨δ, δ_pos, hδ⟩ := h
       exact ⟨δ, δ_pos, fun x hx => hδ x <| le_of_lt (α := ℝ) hx⟩
@@ -281,7 +282,7 @@ example (A : Algorithm Ω ℝ) :
       sorry
 
     refine ⟨M-m, M_sub_m_pos, ?_⟩
-    intro x hx
+    intro y hy
 
     have x'_in_ball : x' ∈ Metric.closedBall c (ε₁/2) := by
       by_contra h_contra
@@ -336,13 +337,65 @@ example (A : Algorithm Ω ℝ) :
 
 
     rw [M_eq_max, dist_comm]
-    rw [show dist (f_tilde x') (f_tilde x) = |f_tilde x' - f_tilde x| by rfl]
-    have nonneg_sub_max : 0 ≤ f_tilde x' - f_tilde x := by
-      suffices h : f_tilde x ≤ f_tilde x' from sub_nonneg_of_le h
-      exact compact_argmax_apply hf_tilde.continuous x
+    rw [show dist (f_tilde x') (f_tilde y) = |f_tilde x' - f_tilde y| by rfl]
+    have nonneg_sub_max : 0 ≤ f_tilde x' - f_tilde y := by
+      suffices h : f_tilde y ≤ f_tilde x' from sub_nonneg_of_le h
+      exact compact_argmax_apply hf_tilde.continuous y
     rw [abs_of_nonneg nonneg_sub_max]
 
-    exact tsub_le_tsub_left (hm ⟨x, hx, rfl⟩) _
+    exact tsub_le_tsub_left (hm ⟨y, hy, rfl⟩) _
+
+
+  have ttt : ε₂ / (2 * N₁) ≠ 0 := by
+    have denom_pos : (2 * (N₁ : ℝ≥0∞))⁻¹ ≠ 0 := by
+      suffices h : 2 * (N₁ : ℝ≥0∞) ≠ ⊤ from ENNReal.inv_ne_zero.mpr h
+      exact mul_ne_top (ENNReal.ofNat_ne_top) (natCast_ne_top N₁)
+    exact (mul_ne_zero_iff_right denom_pos).mpr <| pos_iff_ne_zero.mp hε₂
+
+  /- have t : (ε₂ / (2 * N₁)) / 2 < ε₂ / (2 * N₁) := by
+    refine ENNReal.half_lt_self ?_ ?_
+    · exact this
+    have neq_top : (2 * (N₁ : ℝ≥0∞))⁻¹ ≠ ⊤ := by
+      suffices h : (2 * (N₁ : ℝ≥0∞)) ≠ 0 from inv_ne_top.mpr h
+      have pos_2 : (2 : ℝ≥0∞) ≠ 0 := (NeZero.ne' 2).symm
+      have pos_N₁ : (N₁ : ℝ≥0∞) ≠ 0 := Nat.cast_ne_zero.mpr <| Nat.ne_zero_of_lt N₁.2
+      exact (mul_ne_zero_iff_right pos_N₁).mpr pos_2
+    rw [show ε₂ / (2 * N₁) = ε₂ * (2 * (N₁ : ℝ≥0∞))⁻¹ by rfl]
+    exact mul_ne_top (LT.lt.ne_top (h_contra N₁)) neq_top -/
+
+  specialize h ⟨κ, hf_tilde⟩ δ δ_pos
+  rw [←nstar_tendsto_iff_tendsto, ENNReal.tendsto_atTop_zero] at h
+  obtain ⟨N, hN⟩ := h ((ε₂ / (2 * N₁)) / 2) (ENNReal.half_pos ttt)
+  let N_succ : nstar := ⟨N.1 + 1, Nat.add_pos_left N.2 1⟩
+  specialize hN N_succ (Nat.le_add_right N 1)
+  specialize hc N_succ
+  unfold measure_dist_max at hN
+
+  suffices h_suff : {(u : Fin N_succ → Ω) | ∀ i, u i ∉ Metric.ball c (ε₁ / 2)}
+      ⊆ {u | dist (Tuple.max (f_tilde ∘ u)) (fmax hf_tilde.continuous) > δ} by
+    set B := {(u : Fin N_succ → Ω) | ∀ i, u i ∉ Metric.ball c (ε₁ / 2)}
+    set C := {u | dist (Tuple.max (f_tilde ∘ u)) (fmax hf_tilde.continuous) > δ}
+    have mono : A.μ f_tilde N_succ B ≤ A.μ f_tilde N_succ C :=
+      OuterMeasureClass.measure_mono (A.μ f_tilde N_succ) h_suff
+    have t : (ε₂ / (2 * N₁)) / 2 < ε₂ / (2 * N₁) := by
+      refine ENNReal.half_lt_self ?_ ?_
+      · exact ttt
+      have neq_top : (2 * (N₁ : ℝ≥0∞))⁻¹ ≠ ⊤ := by
+        suffices h : (2 * (N₁ : ℝ≥0∞)) ≠ 0 from inv_ne_top.mpr h
+        have pos_2 : (2 : ℝ≥0∞) ≠ 0 := (NeZero.ne' 2).symm
+        have pos_N₁ : (N₁ : ℝ≥0∞) ≠ 0 := Nat.cast_ne_zero.mpr <| Nat.ne_zero_of_lt N₁.2
+        exact (mul_ne_zero_iff_right pos_N₁).mpr pos_2
+      rw [show ε₂ / (2 * N₁) = ε₂ * (2 * (N₁ : ℝ≥0∞))⁻¹ by rfl]
+      exact mul_ne_top (LT.lt.ne_top (not_sample_space N₁)) neq_top
+
+    have : (ε₂ / (2 * N₁)) / 2 < (A.μ f_tilde ↑N_succ) C := by
+      have measure_eq_f_set : A.μ f N_succ B = A.μ f_tilde N_succ B := by sorry
+      have measure_f_tilde_le : (ε₂ / (2 * N₁)) ≤ A.μ f_tilde N_succ B := by
+        rwa [←measure_eq_f_set]
+      exact gt_of_ge_of_gt mono (gt_of_ge_of_gt measure_f_tilde_le t)
+    --linarith
+    sorry
+
 
   sorry
 
@@ -386,3 +439,7 @@ example (a b : ℝ≥0∞) (ha : a ≠ ⊤) (hb : b ≠ ⊤) (h1 : a < b) (h2 : 
 
 example (a ε : ℝ) (hε : 0 < ε) : IsCompact (Metric.closedBall a ε) := by
   exact isCompact_closedBall a ε
+
+example (f : ℕ → ℝ) (hf : ∀ ε > 0, ∃ x, ∀ y ≥ x, |f y - 0| < ε) :
+    Filter.Tendsto f Filter.atTop (nhds 0) := by
+  exact Metric.tendsto_atTop.mpr hf

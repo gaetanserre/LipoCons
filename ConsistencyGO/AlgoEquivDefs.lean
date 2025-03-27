@@ -59,7 +59,7 @@ noncomputable def μ (n : ℕ) : Measure (Fin n → α) := by
   rw [unfold_union] at iUnion
   exact iUnion
 
-lemma equiv_convergence {β : Type*} [Dist β] (fn gn : (n : ℕ) → (Fin n → α) → β)
+lemma iff_convergence {β : Type*} [Dist β] (fn gn : (n : ℕ) → (Fin n → α) → β)
     (h_measurable : ∀ ε n, MeasurableSet {u | dist (fn n u) (gn n u) > ε }) :
     ν.tendsto (toTupleFun fn) (toTupleFun gn)
     ↔ ∀ ε > 0, Tendsto (fun n => μ ν n {u | dist (fn n u) (gn n u) > ε}) atTop (𝓝 0) := by

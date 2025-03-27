@@ -25,7 +25,7 @@ définition, il est trivial de montrer que
 `μ n {u : Fin n → Ω | P u} = ν {u : ℕ → Ω | P (u[1:n])}`,
 ce qui implique
 `lim_(n → ∞) μ n {u : Fin n → Ω | P u} = lim_(n → ∞) ν {u : ℕ → Ω | P (u[1:n])}`
-(voir `Utils.equiv_convergence`).
+(voir `Utils.iff_convergence`).
 Ainsi, `f g : (n : ℕ) → Fin n → Ω` converge en mesure (par rapport à `ν`)
 l'une vers l'autre si et seulement si
 `∀ ε > 0, lim_(n → ∞) μ n {u : Fin n → Ω | |f n u - g n u| > ε} = 0`.
