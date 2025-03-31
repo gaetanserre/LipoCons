@@ -49,15 +49,15 @@ lemma min_dist_x_continuous {n : ℕ} (u : Fin n → α) : Continuous (min_dist_
   · simp only [Function.comp_apply, Finset.inf'_apply, g]
   contradiction
 
-variable {Ω : Set α} [CompactSpace Ω] [Nonempty Ω]
+variable [CompactSpace α] [Nonempty α]
 variable {β : Type*} [Nonempty β] [PseudoMetricSpace β] [LinearOrder β] [ClosedIciTopology β]
 [ClosedIicTopology β]
 
 /--
 The maximum of a continuous function over `α`.
 -/
-noncomputable def fmax {f : Ω → β} (cont : Continuous f) := f (compact_argmax cont)
-noncomputable def fmin {f : Ω → β} (cont : Continuous f) := f (compact_argmin cont)
+noncomputable def fmax {f : α → β} (cont : Continuous f) := f (compact_argmax cont)
+noncomputable def fmin {f : α → β} (cont : Continuous f) := f (compact_argmin cont)
 
 variable [MeasurableSpace α]
 
@@ -66,44 +66,44 @@ Given an algorithm `A`, the function that, given `ε` and `n`, returns
 the measure of the set of sequences of size `n` such that the maximum of
 `f` over these sequences is at least `ε` away from from `fmax`.
 -/
-def measure_dist_max (A : Algorithm Ω β) {f : Ω → β} (cont : Continuous f) :=
+def measure_dist_max (A : Algorithm α β) {f : α → β} (cont : Continuous f) :=
   fun ε n => A.μ f n {u | dist (Tuple.max (f ∘ u)) (fmax cont) > ε}
 
 
 open Filter Topology
 /--
-**Main definition**: An algorithm `A` is consistent over `f`
+**Main definition**: An algorithm `A` is consistent over a continuous function `f`
 if for any `ε > 0`, `lim_(n → ∞) measure_dist_max n = 0`.
 -/
-def isConsistent (A : Algorithm Ω β) {f : Ω → β} (cont : Continuous f) : Prop :=
+def isConsistent (A : Algorithm α β) {f : α → β} (cont : Continuous f) : Prop :=
   ∀ ε > 0, Tendsto (measure_dist_max A cont ε) atTop (𝓝 0)
 
 /--
 An algorithm `A` is consistent over all continuous functions.
 -/
-def isConsistentOverContinuous (A : Algorithm Ω β) {f : Ω → β} (hf : Continuous f) : Prop :=
+def isConsistentOverContinuous (A : Algorithm α β) {f : α → β} (hf : Continuous f) : Prop :=
   isConsistent A hf
 
 /--
-Given a sequence `u`, maximum over `Ω` of `min_dist_x u`: the maximum distance between
-any element in `Ω` and `u`.
+Given a sequence `u`, maximum over `α` of `min_dist_x u`: the maximum distance between
+any element in `α` and `u`.
 -/
-noncomputable def max_min_dist {n : ℕ} (u : Fin n → Ω) :=
+noncomputable def max_min_dist {n : ℕ} (u : Fin n → α) :=
   min_dist_x u (compact_argmax (min_dist_x_continuous u))
 
 /--
 **Main definition**: Given a function `f`, an algorithm `A` sample the whole space
 if `∀ ε > 0, lim_(n → ∞) A.μ f n {u | max_min_dist u > ε} = 0`.
 -/
-noncomputable def sample_whole_space (A : Algorithm Ω β) (f : Ω → β) : Prop :=
+noncomputable def sample_whole_space (A : Algorithm α β) (f : α → β) : Prop :=
   ∀ ε > 0, Tendsto (fun n => A.μ f n {u | max_min_dist u > ε}) atTop (𝓝 0)
 
-lemma ε_cover_ne {ε : ℝ} (hε : ε > 0) {α : Type*} [PseudoMetricSpace α] (Ω : Set α)
-    [Nonempty Ω] [CompactSpace Ω] :
-    {n : nstar | ∃ (t : Finset Ω), t.card = n.1 ∧ Set.univ = ⋃ x ∈ t, Metric.ball x ε}.Nonempty
+lemma ε_cover_ne {ε : ℝ} (hε : ε > 0) (α : Type*) [PseudoMetricSpace α]
+    [Nonempty α] [CompactSpace α] :
+    {n : nstar | ∃ (t : Finset α), t.card = n.1 ∧ Set.univ = ⋃ x ∈ t, Metric.ball x ε}.Nonempty
     := by
-  let U := fun (x : Ω) => Metric.ball x ε
-  have hU : ∀ (x : Ω), U x ∈ nhds x := fun x => Metric.ball_mem_nhds x hε
+  let U := fun (x : α) => Metric.ball x ε
+  have hU : ∀ (x : α), U x ∈ nhds x := fun x => Metric.ball_mem_nhds x hε
   obtain ⟨t, ht⟩ := finite_cover_nhds hU
   refine ⟨⟨t.card, ?_⟩, t, rfl, ht.symm⟩
   by_contra h_contra
