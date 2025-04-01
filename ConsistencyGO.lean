@@ -237,6 +237,32 @@ example (A : Algorithm α ℝ) :
 
   --obtain ⟨κ, hf⟩ := hf
 
+  have ratio_ε₂_pos : ε₂ / (2 * N₁) ≠ 0 := by
+    have denom_pos : (2 * (N₁ : ℝ≥0∞))⁻¹ ≠ 0 := by
+      suffices h : 2 * (N₁ : ℝ≥0∞) ≠ ⊤ from ENNReal.inv_ne_zero.mpr h
+      exact mul_ne_top (ENNReal.ofNat_ne_top) (natCast_ne_top N₁)
+    exact (mul_ne_zero_iff_right denom_pos).mpr <| pos_iff_ne_zero.mp hε₂
+
+  by_cases h_ball_univ : Metric.ball c (ε₁/2) = Set.univ
+  · let one : nstar := ⟨1, Nat.one_pos⟩
+    specialize hc one
+
+    have not_in_ball_eq_empty : {(u : Fin one → α) | ∀ i, u i ∉ Metric.ball c (ε₁ / 2)} = ∅ := by
+      apply Set.subset_eq_empty ?_ rfl
+      rw [h_ball_univ]
+      intro u (hu : ∀ i, u i ∉ Set.univ)
+      let i : Fin one := ⟨0, Nat.one_pos⟩
+      have u_i_in_univ : u i ∈ Set.univ := trivial
+      exact hu i u_i_in_univ
+
+    have measure_empty_pos : (A.μ f one) ∅ ≠ 0 :=
+      suffices h : 0 < (A.μ f one) {u | ∀ i, u i ∉ Metric.ball c (ε₁ / 2)} by
+          rw [←not_in_ball_eq_empty]
+          exact (ne_of_lt h).symm
+        gt_of_ge_of_gt hc <| pos_of_ne_zero ratio_ε₂_pos
+
+    exact measure_empty_pos <| OuterMeasureClass.measure_empty _
+
   /-
   We define `f~` differently : we just want to ensure that it is maximized within
   `Metric.closedBall c (ε₁/2)`. This allows to show that it exists a `δ > 0` such that,
@@ -306,13 +332,13 @@ example (A : Algorithm α ℝ) :
 
   have hf_tilde : Continuous f_tilde := by
     have cont_f_tilde_expr : Continuous
-          (fun x => f x + 2 * (1 - (dist x c) / (ε₁ / 2)) * (fmax hf - fmin hf)) := by
-        apply Continuous.add hf ?_
-        apply Continuous.mul ?_ continuous_const
-        apply Continuous.mul continuous_const ?_
-        apply Continuous.sub continuous_const ?_
-        apply Continuous.div_const ?_ (ε₁ / 2)
-        exact Continuous.dist continuous_id continuous_const
+        (fun x => f x + 2 * (1 - (dist x c) / (ε₁ / 2)) * (fmax hf - fmin hf)) := by
+      apply Continuous.add hf ?_
+      apply Continuous.mul ?_ continuous_const
+      apply Continuous.mul continuous_const ?_
+      apply Continuous.sub continuous_const ?_
+      apply Continuous.div_const ?_ (ε₁ / 2)
+      exact Continuous.dist continuous_id continuous_const
 
     refine Continuous.if ?_ cont_f_tilde_expr hf
     intro a (a_in_frontier : a ∈ frontier (Metric.ball c (ε₁ / 2)))
@@ -328,116 +354,18 @@ example (A : Algorithm α ℝ) :
 
   have nconst_f_tilde : ¬ Constant f_tilde := by
     let B := Metric.ball c (ε₁/2)
+    obtain ⟨x, hx⟩ : ∃ (x : α), x ∉ B := by
+      by_contra h_contra
+      push_neg at h_contra
+      suffices h : Set.univ ⊆ B from h_ball_univ (Set.eq_univ_of_univ_subset h)
+      intro e _
+      exact h_contra e
     rw [Constant.constant_iff]
     push_neg
-    have cont_dist_c : Continuous (fun x => dist x c) :=
-      Continuous.dist continuous_id continuous_const
-    let x := compact_argmax cont_dist_c
-    by_cases h_dist_x : x ∉ B
-    · refine ⟨x, c, ?_⟩
-      rw [f_tilde_eq_outside h_dist_x]
-      suffices h : f x < f_tilde c from ne_of_lt h
-
-      exact lt_of_le_of_lt (compact_argmax_apply hf x) f_tilde_c_gt_max_f
-
-    push_neg at h_dist_x
-
-    have B_eq_univ : B = Set.univ := by sorry
-
-    let x_min := compact_argmin hf
-    let x_max := compact_argmax hf
-    refine ⟨x_min, x_max, ?_⟩
-    by_contra h_contra
-    set fma := f x_max
-    set fmi := f x_min
-    replace h_contra : (fma - fmi) * ((dist x_max c - dist x_min c) / (ε₁/2)) =
-        fma - fmi := by
-      have x_min_in_B : x_min ∈ B := by
-        rw [B_eq_univ]
-        trivial
-      have x_max_in_B : x_max ∈ B := by
-        rw [B_eq_univ]
-        trivial
-      rw [f_tilde_eq_inside x_min_in_B, f_tilde_eq_inside x_max_in_B] at h_contra
-
-      sorry
-    have := compact_argmax_apply cont_dist_c
-    /- apply Constant.not_constant_on_imp_not_constant B f_tilde
-    rw [Constant.constantOn_iff]
-    by_contra h_contra -/
-
-    sorry
-
-    /- replace hf_nconst : ¬ ConstantOn B f ∨ ¬ ConstantOn Bᶜ f := by sorry
-    cases hf_nconst with
-    | inl hf_nconst =>
-      apply Constant.not_constant_on_imp_not_constant B f_tilde
-      by_contra h_contra
-      let f_tilde_in := (fun x => f x + 2 * (1 - (dist x c) / (ε₁ / 2)) *
-      (fmax hf - fmin hf))
-      replace h_contra : ConstantOn B f_tilde_in := by
-        obtain ⟨y, hy⟩ := h_contra
-        use y
-        intro x hx
-        specialize hy x hx
-        rwa [f_tilde_eq_inside hx] at hy
-      obtain ⟨y, hy⟩ := h_contra
-      have : ∀ x ∈ B, f x = y - 2 * (1 - (dist x c) / (ε₁ / 2)) *
-          (fmax hf - fmin hf) := by
-        intro x x_in_B
-        specialize hy x x_in_B
-        exact eq_sub_of_add_eq hy
-      specialize this c (Metric.mem_ball_self (half_pos hε₁))
-      have t : 2 * (1 - dist c c / (ε₁ / 2)) * (fmax hf - fmin hf) =
-          2 * (fmax hf - fmin hf) := by
-        sorry
-      rw [t] at this
-      have tt : y - (fmax hf + (fmax hf - fmin hf)) = y - fmax hf - (fmax hf - fmin hf) := by ring
-      rw [tt] at this
-
-      have : 0 < (fmax hf - fmin hf) := by sorry
-      have : 0 < 2 * (fmax hf - fmin hf) :=
-        (mul_pos_iff_of_pos_left zero_lt_two).mpr this
-      have : y - 2 * (fmax hf - fmin hf) < y := sub_lt_self y this
-      have : y ≠ y - 2 * (fmax hf - fmin hf) := (ne_of_lt this).symm
-
-      specialize hy c (Metric.mem_ball_self (half_pos hε₁))
-
-      sorry -/
-    /- | inr hf_nconst =>
-      apply Constant.not_constant_on_imp_not_constant Bᶜ f_tilde
-      by_contra h_contra
-      suffices ConstantOn Bᶜ f by contradiction
-      obtain ⟨y, hy⟩ := h_contra
-      use y
-      intro x hx
-      rw [←f_tilde_eq_outside hx]
-      exact hy x hx -/
-    /- apply Constant.not_constant_on_imp_not_constant Bᶜ f_tilde
-    by_contra h_contra
-    replace h_contra : ConstantOn Bᶜ f := by
-      obtain ⟨y, hy⟩ := h_contra
-      use y
-      intro x hx
-      rw [←f_tilde_eq_outside hx]
-      exact hy x hx
-
-    obtain ⟨y, hy⟩ := h_contra
-    unfold Constant at hf_nconst
-    push_neg at hf_nconst
-    obtain ⟨y', hy'⟩ := hf_nconst y -/
-
-    /- by_contra h_contra
-    unfold Constant at h_contra hf_nconst
-    obtain ⟨y, hy⟩ := h_contra
-    push_neg at hf_nconst
-    obtain ⟨y', hy'⟩ := hf_nconst y
-    by_cases y'_B : y' ∉ B
-    · specialize hy y'
-      rw [f_tilde_eq_outside y'_B] at hy
-      contradiction
-      --push_neg at y'_B -/
-
+    refine ⟨x, c, ?_⟩
+    rw [f_tilde_eq_outside hx]
+    suffices h : f x < f_tilde c from ne_of_lt h
+    exact lt_of_le_of_lt (compact_argmax_apply hf x) f_tilde_c_gt_max_f
 
 
   let x' := (compact_argmax hf_tilde)
@@ -583,12 +511,6 @@ example (A : Algorithm α ℝ) :
     exact tsub_le_tsub_left (hm ⟨y, hy, rfl⟩) _ -/
 
 
-  have ratio_ε₂_pos : ε₂ / (2 * N₁) ≠ 0 := by
-    have denom_pos : (2 * (N₁ : ℝ≥0∞))⁻¹ ≠ 0 := by
-      suffices h : 2 * (N₁ : ℝ≥0∞) ≠ ⊤ from ENNReal.inv_ne_zero.mpr h
-      exact mul_ne_top (ENNReal.ofNat_ne_top) (natCast_ne_top N₁)
-    exact (mul_ne_zero_iff_right denom_pos).mpr <| pos_iff_ne_zero.mp hε₂
-
   /- have t : (ε₂ / (2 * N₁)) / 2 < ε₂ / (2 * N₁) := by
     refine ENNReal.half_lt_self ?_ ?_
     · exact this
@@ -642,8 +564,6 @@ example (A : Algorithm α ℝ) :
   show dist (Tuple.max (f_tilde ∘ u)) (fmax hf_tilde) > δ
   rw [←hi]
   exact hδ (u i) (hu i)
-
-open ENNReal
 
 example (a b : ℝ≥0∞) (ha : a ≠ ⊤) (hb : b ≠ ⊤) : (a + b).toReal = a.toReal + b.toReal := by
   exact toReal_add ha hb
