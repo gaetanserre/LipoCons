@@ -2,20 +2,19 @@
  - Created in 2025 by Gaëtan Serré
 -/
 
-import Mathlib
 import ConsistencyGO.Defs.Consistency
-import ConsistencyGO.Utils.Tendsto
-import ConsistencyGO.Utils.Metric
-import ConsistencyGO.Utils.ENNReal
-import ConsistencyGO.Defs.Tuple
 import ConsistencyGO.Defs.Constant
+import ConsistencyGO.Utils.ENNReal
+import ConsistencyGO.Utils.Metric
+import Mathlib.Analysis.NormedSpace.Real
+import Mathlib.Analysis.RCLike.Basic
 
 open Tendsto Tuple MeasureTheory ENNReal Classical
 
 variable {α : Type*} [MeasurableSpace α] [SeminormedAddCommGroup α] [NormedSpace ℝ α]
 [CompactSpace α] [Nonempty α]
 
-example (A : Algorithm α ℝ) :
+theorem sample_iff_consistent (A : Algorithm α ℝ) :
     (∀ ⦃f : α → ℝ⦄, Continuous f → ¬ Constant f → sample_whole_space A f)
     ↔
     (∀ ⦃f : α → ℝ⦄, (hf : Continuous f) → ¬ Constant f → isConsistentOverContinuous A hf)
@@ -367,7 +366,6 @@ example (A : Algorithm α ℝ) :
     suffices h : f x < f_tilde c from ne_of_lt h
     exact lt_of_le_of_lt (compact_argmax_apply hf x) f_tilde_c_gt_max_f
 
-
   let x' := (compact_argmax hf_tilde)
 
   obtain ⟨δ, δ_pos, hδ⟩ :
@@ -550,7 +548,13 @@ example (A : Algorithm α ℝ) :
         rw [show ε₂ / (2 * N₁) = ε₂ * (2 * (N₁ : ℝ≥0∞))⁻¹ by rfl]
         exact mul_ne_top (LT.lt.ne_top (not_sample_space N₁)) neq_top
 
-      have measure_eq_f_set : A.μ f N_succ B = A.μ f_tilde N_succ B := by sorry
+      have measure_eq_f_set : A.μ f N_succ B = A.μ f_tilde N_succ B := by
+        have μ_eq_restrict := by
+          have f_eq_f_tilde : ∀ a ∈ (Metric.ball c (ε₁ / 2))ᶜ, f a = f_tilde a :=
+            fun _ ha => (f_tilde_eq_outside ha).symm
+          exact A.μ_eq_restrict f_eq_f_tilde N_succ
+        rwa [compl_compl] at μ_eq_restrict
+
       have measure_f_tilde_le : (ε₂ / (2 * N₁)) ≤ A.μ f_tilde N_succ B := by
         rwa [←measure_eq_f_set]
       exact gt_of_ge_of_gt mono (gt_of_ge_of_gt measure_f_tilde_le half_lt_ε₂)
@@ -564,58 +568,3 @@ example (A : Algorithm α ℝ) :
   show dist (Tuple.max (f_tilde ∘ u)) (fmax hf_tilde) > δ
   rw [←hi]
   exact hδ (u i) (hu i)
-
-example (a b : ℝ≥0∞) (ha : a ≠ ⊤) (hb : b ≠ ⊤) : (a + b).toReal = a.toReal + b.toReal := by
-  exact toReal_add ha hb
-
-example (μ : Measure ℝ) (A : Set ℝ) (h : MeasurableSet A) [IsFiniteMeasure μ] :
-  μ A = μ Set.univ - μ Aᶜ := by
-  have : MeasurableSet Aᶜ := MeasurableSet.compl_iff.mpr h
-  have := measure_compl this (measure_ne_top μ Aᶜ)
-  rw [←this, compl_compl A]
-
-
-example (μ : Measure ℝ) (A : ℕ → Set ℝ) : μ (⋃ i, A i) ≤ ∑' i, μ (A i) := by
-  exact measure_iUnion_le A
-
-example (μ : Measure ℝ) (n : ℕ) (A : Fin n → Set ℝ) : μ (⋃ i, A i) ≤ ∑ i, μ (A i) := by
-  exact measure_iUnion_fintype_le μ A
-
-example (ι : Type*) (s : Finset ι) (b : ℝ≥0∞) : ∑ _ ∈ s, b = s.card * b := by
-  simp_all only [nonempty_subtype, Finset.sum_const, nsmul_eq_mul]
-
-example (a b : ℝ≥0∞) (ha : a ≠ ⊤) (hb : b ≠ ⊤) :
-    (a * b)⁻¹ = a⁻¹ * b⁻¹ := by
-  exact ENNReal.mul_inv (Or.inr hb) (Or.inl ha)
-
-example (a : ℝ≥0∞) (ha : a ≠ ⊤) (ha2 : a ≠ 0) : a * a⁻¹ = 1 := by
-  exact ENNReal.mul_inv_cancel ha2 ha
-
-example (a b : ℝ≥0∞) (ha : a ≠ ⊤) (hb : b ≠ ⊤) (h1 : a < b) (h2 : b ≤ a) : False := by
-  have : a.toReal < b.toReal := toReal_strict_mono hb h1
-  have : b.toReal ≤ a.toReal := (toReal_le_toReal hb ha).mpr h2
-  linarith
-
-/- example (f : ℝ → ℝ) (hf : Continuous f) (a ε : ℝ) (hε : 0 < ε) :
-    ∃ δ, f '' Metric.ball a ε = Metric.ball (f a) δ := by
-  apply?
-  sorry -/
-
-example (a ε : ℝ) : IsCompact (Metric.closedBall a ε) := by
-  exact isCompact_closedBall a ε
-
-example (f : ℕ → ℝ) (hf : ∀ ε > 0, ∃ x, ∀ y ≥ x, |f y - 0| < ε) :
-    Filter.Tendsto f Filter.atTop (nhds 0) := by
-  exact Metric.tendsto_atTop.mpr hf
-
-
-example (f : ℝ → ℝ) (hf : ContinuousOn f Set.univ) : Continuous f := by
-  exact continuous_iff_continuousOn_univ.mpr hf
-
-example (f g : ℝ → ℝ) (hf : Continuous f) (hg : Continuous g) :
-    Continuous (f * g) := by
-  exact Continuous.mul hf hg
-
-example (n : ℕ) (c : EuclideanSpace ℝ (Fin n)) (ε : ℝ) (hε : ε ≠ 0) :
-  closure (Metric.ball c ε) = Metric.closedBall c ε := by
-  exact closure_ball c hε

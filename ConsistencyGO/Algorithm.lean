@@ -41,8 +41,22 @@ pour représenter un algorithme itératif.
 structure Algorithm (α β : Type*) [MeasurableSpace α] [LinearOrder β] where
   μ : (α → β) → (n : ℕ) → Measure (Fin n → α)
   μ_prob : (f : α → β) → (n : ℕ) → IsProbabilityMeasure (μ f n)
+  /-
+  Équivalent à dire que `∀ n ≤ m, μ f n A = μ f m {u | u[1:n] ∈ A}`.
+  -/
   μ_mono : ∀ (f : α → β), ∀ ⦃n m A B⦄,
       {u | toTuple n u ∈ A} ⊆ {u | toTuple m u ∈ B} → μ f n A ≤ μ f m B
   /-
-  Équivalent à dire que `∀ n ≤ m, μ n A = μ m {u | u[1:n] ∈ A}`.
+  Si deux fonctions sont indistinguables sur un ensemble `s`, alors la probabilité
+  qu'aucune itération ne soit dans `sᶜ` est égale pour les deux fonctions.
+  En effet, comme l'algorithme n'a accès qu'aux évaluations de la fonction,
+  la distribution du i-ème point de la séquence d'itérations dépend des points
+  précédent. Or, si aucun de ces points n'est dans `sᶜ` et que `f = g` sur `s`,
+  alors la distribution du i-ème point est la même pour les deux fonctions. Ainsi,
+  la distribution des séquences d'itérations qui contiennent aucun point dans
+  `sᶜ` est la même pour les deux fonctions. Cependant, la distribution des séquences
+  d'itérations qui contiennent plus un point ou plus peuvent différer (par ex si `g` est
+  minimisé sur `sᶜ`).
   -/
+  μ_eq_restrict : ∀ ⦃f g : α → β⦄, ∀ ⦃s : Set α⦄, (∀ a ∈ s, f a = g a) → ∀ n,
+      μ f n {u | ∀ i, u i ∉ sᶜ} = μ g n {u | ∀ i, u i ∉ sᶜ}
