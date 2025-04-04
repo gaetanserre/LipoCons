@@ -2,7 +2,7 @@
  - Created in 2025 by Gaëtan Serré
 -/
 
-import Mathlib.MeasureTheory.Measure.Typeclasses
+import Mathlib.MeasureTheory.Measure.Typeclasses.Probability
 import Mathlib.Order.CompletePartialOrder
 
 open ENNReal MeasureTheory

@@ -3,8 +3,8 @@
 -/
 
 import ConsistencyGO.Defs.Tuple
-import Mathlib.Analysis.Normed.Field.Lemmas
-import Mathlib.MeasureTheory.Measure.Typeclasses
+import Mathlib.Analysis.Normed.Ring.Lemmas
+import Mathlib.MeasureTheory.Measure.Typeclasses.Finite
 import Mathlib.Order.CompletePartialOrder
 
 open MeasureTheory Tuple Filter Topology

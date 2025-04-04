@@ -2,8 +2,9 @@
  - Created in 2025 by Gaëtan Serré
 -/
 
-import Mathlib.MeasureTheory.Measure.Typeclasses
 import ConsistencyGO.Defs.Tuple
+import Mathlib.MeasureTheory.Measure.Typeclasses.Probability
+import Mathlib.Order.CompletePartialOrder
 
 open MeasureTheory Tuple
 /--
@@ -47,7 +48,7 @@ structure Algorithm (α β : Type*) [MeasurableSpace α] [LinearOrder β] where
   μ_mono : ∀ (f : α → β), ∀ ⦃n m A B⦄,
       {u | toTuple n u ∈ A} ⊆ {u | toTuple m u ∈ B} → μ f n A ≤ μ f m B
   /-
-  Si deux fonctions sont indistinguables sur un ensemble `s`, alors la probabilité
+  Si deux fonctions sont indiscernables sur un ensemble `s`, alors la probabilité
   qu'aucune itération ne soit dans `sᶜ` est égale pour les deux fonctions.
   En effet, comme l'algorithme n'a accès qu'aux évaluations de la fonction,
   la distribution du i-ème point de la séquence d'itérations dépend des points
