@@ -52,17 +52,9 @@ lemma not_constant_on_imp_not_constant {α β : Type*} (A : Set α) (f : α → 
   obtain ⟨x, _, hx⟩ := hf c
   use x
 
-/- lemma not_constant_set_or_compl_imp_not_constant {α β : Type*} (A : Set α) (f : α → β) :
-    ¬ ConstantOn A f ∨ ¬ ConstantOn Aᶜ f → ¬ Constant f := by
-  intro hf
-  cases hf with
-  | inl hf =>
-    exact (not_constant_on_imp_not_constant A f) hf
-  | inr hf =>
-    exact (not_constant_on_imp_not_constant Aᶜ f) hf -/
-
 variable {α β : Type*} [TopologicalSpace α] [CompactSpace α] [Nonempty α]
-[TopologicalSpace β] [LinearOrderedCommRing β] [ClosedIciTopology β] [ClosedIicTopology β]
+[TopologicalSpace β] [CommRing β] [LinearOrder β] [IsStrictOrderedRing β]
+[ClosedIciTopology β] [ClosedIicTopology β]
 
 lemma not_constant_continuous_iff_ne_min_max {f : α → β} (hf : Continuous f) :
     ¬ Constant f ↔ f (compact_argmax hf) ≠ f (compact_argmin hf) := by

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html class="alectryon-standalone"><head><title>Algorithm.lean</title><meta charset="utf-8"><meta content="Alectryon" name="generator"><meta name="viewport" content="width=device-width, initial-scale=1"><link href="alectryon.css" rel="stylesheet"><link href="pygments.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" /><script src="alectryon.js"></script></head><body><article class="alectryon-root alectryon-windowed"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Lean4 v4.19.0. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><pre class="alectryon-io highlight"><!-- Generator: Alectryon --><span class="alectryon-wsp"><span class="c">/-</span>
+<span class="cm"> - Created in 2025 by Gaëtan Serré</span>
+<span class="cm">-/</span>
+
+<span class="kn">import</span> ConsistencyGO.Defs.Tuple
+<span class="kn">import</span> Mathlib.MeasureTheory.Measure.Typeclasses.Probability
+<span class="kn">import</span> Mathlib.Order.CompletePartialOrder
+
+<span class="kn">open</span> MeasureTheory Tuple
+<span class="sd">/--</span>
+<span class="sd">Une manière de définir un algorithme itératif appliqué à une fonction serait de le</span>
+<span class="sd">représenter comme une mesure de probabilité sur les suites dans `Ω` : `ν : Measure (ℕ → Ω)`.</span>
+<span class="sd">Cette mesure représente la distribution des suites d&#39;itérations produites par</span>
+<span class="sd">l&#39;algorithme en temps infini. Cette définition permet aussi étudier les séquences</span>
+<span class="sd">d&#39;itérations finies : pour tout entier `n` et tout prédicat `P : (Fin n → Ω) → Prop`,</span>
+<span class="sd">on peut mesurer l&#39;ensemble d&#39;itérations de taille `n` qui vérifie `P` :</span>
+<span class="sd">`ν {u : ℕ → Ω | P (u[1:n])}`. Cette mesure `ν` peut cependant s&#39;avérer difficile à</span>
+<span class="sd">définir. En effet, il est nécessaire de connaître la distribution des limites des</span>
+<span class="sd">séquences d&#39;itérations de l&#39;algorithme. Une manière plus simple de définir un</span>
+<span class="sd">algorithme itératif serait de le représenter par une suite de mesures de probabilité</span>
+<span class="sd">`μ : (n : ℕ) → Measure (Fin n → Ω)`. Pour tout entier `n`, la mesure `μ n` agit sur</span>
+<span class="sd">l&#39;espace des séquences de longueur `n` et représente la distribution des `n` premières</span>
+<span class="sd">itérations de l&#39;algorithme. Il est très simple de définir `μ` à partir de `ν` :</span>
+<span class="sd">`μ = λ n (s : Set (Fin n → Ω)) ↦ ν {u : ℕ → Ω | u[1:n] ∈ s}`. À partir de cette</span>
+<span class="sd">définition, il est trivial de montrer que</span>
+<span class="sd">`μ n {u : Fin n → Ω | P u} = ν {u : ℕ → Ω | P (u[1:n])}`,</span>
+<span class="sd">ce qui implique</span>
+<span class="sd">`lim_(n → ∞) μ n {u : Fin n → Ω | P u} = lim_(n → ∞) ν {u : ℕ → Ω | P (u[1:n])}`</span>
+<span class="sd">(voir `Utils.iff_convergence`).</span>
+<span class="sd">Ainsi, `f g : (n : ℕ) → Fin n → Ω` converge en mesure (par rapport à `ν`)</span>
+<span class="sd">l&#39;une vers l&#39;autre si et seulement si</span>
+<span class="sd">`∀ ε &gt; 0, lim_(n → ∞) μ n {u : Fin n → Ω | |f n u - g n u| &gt; ε} = 0`.</span>
+<span class="sd">L&#39;inconvénient de cette définition est que l&#39;objet `μ ∞ = ν` n&#39;est pas</span>
+<span class="sd">directement accessible : pour un prédicat `P` sur les suites, il sera nécessaire</span>
+<span class="sd">de construire un prédicat `P&#39;` sur les séquences tel que</span>
+<span class="sd">`lim_(n → ∞) μ n {u : Fin n → Omega | P&#39; u} = ν {u : ℕ → Ω | P u}`.</span>
+<span class="sd">Cependant, dans la plupart des analyses de convergence d&#39;algorithmes itératifs,</span>
+<span class="sd">seul la convergence de mesure de prédicats sur les séquences d&#39;itérations est</span>
+<span class="sd">étudiée. Ainsi, nous utiliserons la suite de mesures `μ (n : ℕ) → Measure (Fin n → Ω)`</span>
+<span class="sd">pour représenter un algorithme itératif.</span>
+<span class="sd">-/</span>
+<span class="kd">structure</span> Algorithm (α β : <span class="kt">Type</span><span class="bp">*</span>) [MeasurableSpace α] [LinearOrder β] where
+  μ : (α <span class="bp">→</span> β) <span class="bp">→</span> (n : ℕ) <span class="bp">→</span> Measure (Fin n <span class="bp">→</span> α)
+  μ_prob : (f : α <span class="bp">→</span> β) <span class="bp">→</span> (n : ℕ) <span class="bp">→</span> IsProbabilityMeasure (μ f n)
+  <span class="c">/-</span>
+<span class="cm">  Équivalent à dire que `∀ n ≤ m, μ f n A = μ f m {u | u[1:n] ∈ A}`.</span>
+<span class="cm">  -/</span>
+  μ_mono : <span class="bp">∀</span> (f : α <span class="bp">→</span> β), <span class="bp">∀</span> ⦃n m A B⦄,
+      {u <span class="bp">|</span> toTuple n u <span class="bp">∈</span> A} <span class="bp">⊆</span> {u <span class="bp">|</span> toTuple m u <span class="bp">∈</span> B} <span class="bp">→</span> μ f n A <span class="bp">≤</span> μ f m B
+  <span class="c">/-</span>
+<span class="cm">  Si deux fonctions sont indiscernables sur un ensemble `s`, alors la probabilité</span>
+<span class="cm">  qu&#39;aucune itération ne soit dans `sᶜ` est égale pour les deux fonctions.</span>
+<span class="cm">  En effet, comme l&#39;algorithme n&#39;a accès qu&#39;aux évaluations de la fonction,</span>
+<span class="cm">  la distribution du i-ème point de la séquence d&#39;itérations dépend des points</span>
+<span class="cm">  précédent. Or, si aucun de ces points n&#39;est dans `sᶜ` et que `f = g` sur `s`,</span>
+<span class="cm">  alors la distribution du i-ème point est la même pour les deux fonctions. Ainsi,</span>
+<span class="cm">  la distribution des séquences d&#39;itérations qui contiennent aucun point dans</span>
+<span class="cm">  `sᶜ` est la même pour les deux fonctions. Cependant, la distribution des séquences</span>
+<span class="cm">  d&#39;itérations qui contiennent plus un point ou plus peuvent différer (par ex si `g` est</span>
+<span class="cm">  minimisé sur `sᶜ`).</span>
+<span class="cm">  -/</span>
+  μ_eq_restrict : <span class="bp">∀</span> ⦃f g : α <span class="bp">→</span> β⦄, <span class="bp">∀</span> ⦃s : Set α⦄, (<span class="bp">∀</span> a <span class="bp">∈</span> s, f a <span class="bp">=</span> g a) <span class="bp">→</span> <span class="bp">∀</span> n,
+      μ f n {u <span class="bp">|</span> <span class="bp">∀</span> i, u i <span class="bp">∉</span> s<span class="bp">ᶜ</span>} <span class="bp">=</span> μ g n {u <span class="bp">|</span> <span class="bp">∀</span> i, u i <span class="bp">∉</span> s<span class="bp">ᶜ</span>}
+</span></pre></article></body></html>
