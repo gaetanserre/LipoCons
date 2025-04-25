@@ -9,7 +9,7 @@ import ConsistencyGO.Utils.Metric
 import Mathlib.Analysis.NormedSpace.Real
 import Mathlib.Analysis.RCLike.Basic
 
-open Tendsto Tuple MeasureTheory ENNReal Classical
+open Tendsto Tuple MeasureTheory ENNReal Continuous Classical
 
 variable {α : Type*} [MeasurableSpace α] [SeminormedAddCommGroup α] [NormedSpace ℝ α]
 [CompactSpace α] [Nonempty α]
@@ -324,12 +324,12 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
   have hf_tilde : Continuous f_tilde := by
     have cont_f_tilde_expr : Continuous
         (fun x => f x + 2 * (1 - (dist x c) / (ε₁/2)) * (fmax hf - fmin hf)) := by
-      apply Continuous.add hf ?_
-      apply Continuous.mul ?_ continuous_const
-      apply Continuous.mul continuous_const ?_
-      apply Continuous.sub continuous_const ?_
-      apply Continuous.div_const ?_ (ε₁/2)
-      exact Continuous.dist continuous_id continuous_const
+      apply hf.add ?_
+      apply mul ?_ continuous_const
+      apply mul continuous_const ?_
+      apply sub continuous_const ?_
+      apply div_const ?_ (ε₁/2)
+      exact .dist continuous_id continuous_const
 
     refine Continuous.if ?_ cont_f_tilde_expr hf
     intro a (a_in_frontier : a ∈ frontier (Metric.ball c (ε₁/2)))

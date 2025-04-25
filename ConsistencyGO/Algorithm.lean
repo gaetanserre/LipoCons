@@ -56,7 +56,7 @@ structure Algorithm (α β : Type*) [MeasurableSpace α] [LinearOrder β] where
   alors la distribution du i-ème point est la même pour les deux fonctions. Ainsi,
   la distribution des séquences d'itérations qui contiennent aucun point dans
   `sᶜ` est la même pour les deux fonctions. Cependant, la distribution des séquences
-  d'itérations qui contiennent plus un point ou plus peuvent différer (par ex si `g` est
+  d'itérations qui contiennent un point ou plus peuvent différer (par ex si `g` est
   minimisé sur `sᶜ`).
   -/
   μ_eq_restrict : ∀ ⦃f g : α → β⦄, ∀ ⦃s : Set α⦄, (∀ a ∈ s, f a = g a) → ∀ n,
