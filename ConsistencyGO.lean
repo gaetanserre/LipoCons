@@ -17,8 +17,7 @@ variable {α : Type*} [MeasurableSpace α] [SeminormedAddCommGroup α] [NormedSp
 theorem sample_iff_consistent (A : Algorithm α ℝ) :
     (∀ ⦃f : α → ℝ⦄, Continuous f → ¬ Constant f → sample_whole_space A f)
     ↔
-    (∀ ⦃f : α → ℝ⦄, (hf : Continuous f) → ¬ Constant f → isConsistentOverContinuous A hf)
-    := by
+    (∀ ⦃f : α → ℝ⦄, (hf : Continuous f) → ¬ Constant f → isConsistentOverContinuous A hf) := by
   constructor
   · intro h f hf hf_nconst ε hε
 
