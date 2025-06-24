@@ -1,5 +1,5 @@
 /-
- - Created in 2025 by Gaëtan Serré
+- Created in 2025 by Gaëtan Serré
 -/
 
 import ConsistencyGO.Defs.Consistency
@@ -64,7 +64,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
     rw [hi] at hu
     have argmax_le : min_dist_x u x' ≤ max_min_dist u :=
       compact_argmax_apply (min_dist_x_continuous u) x'
-    exact gt_of_ge_of_gt argmax_le hu
+    exact lt_of_le_of_lt' argmax_le hu
 
   intro h f hf hf_nconst ε₁ hε₁
   rw [←nstar_tendsto_iff_tendsto]
@@ -84,9 +84,9 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
       Tuple.tuple_argmin (f := (fun xi ↦ dist xi x')) n.2 (toTuple n u)
 
     suffices h : dist (toTuple m u i) x' ≤ dist (toTuple n u j) x' from
-        gt_of_ge_of_gt
+        lt_of_le_of_lt'
         (compact_argmax_apply (min_dist_x_continuous (toTuple n u)) x')
-        (lt_of_lt_of_eq (gt_of_ge_of_gt h hu) hj)
+        (lt_of_lt_of_eq (lt_of_le_of_lt' h hu) hj)
     have le_min :=
       Tuple.le_min (f := (fun xi ↦ dist xi x') ∘ (toTuple m u)) m.2 ⟨j, Fin.val_lt_of_le j hnm⟩
     rwa [←hi] at le_min
@@ -103,15 +103,12 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
   set N₁ := (ε_cover_ne (half_pos hε₁) α).some
 
   /- We construct a ball for which the probability to never sample inside is
-  strictly positive for all `n > 0`.
-  -/
+  strictly positive for all `n > 0`. -/
   obtain ⟨c, c_in_t, hc⟩ : ∃ c ∈ t, ∀ (n : nstar),
       ε₂/(2 * N₁) ≤ A.μ f n {u : Fin n → α | ∀ i, u i ∉ Metric.ball c (ε₁/2)} := by
     by_contra h_contra
     push_neg at h_contra
-    /-
-      We take the maximum of the choice function `f : t → ℕ`.
-    -/
+    /- We take the maximum of the choice function `f : t → ℕ`. -/
     replace h_contra : ∃ (n : nstar), ∀ c ∈ t,
       A.μ f n {u : Fin n → α | ∀ i, u i ∉ Metric.ball c (ε₁/2)} < ε₂/(2 * N₁) := by
       choose choice_fun h_contra using h_contra
@@ -143,12 +140,10 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
 
     set S := {(u : Fin n_max → α) | ∃ c ∈ t, ∀ (i : Fin ↑n_max), u i ∉ Metric.ball c (ε₁/2)}
 
-    /-
-    The set of iterations such that max_x min_(u i) dist (u i) x > ε₁ is included
+    /- The set of iterations such that max_x min_(u i) dist (u i) x > ε₁ is included
     in a set of iterations that are outside of a specific ball. As `t` is a
     `ε₁`-cover of the universe, `∃ c ∈ t, x' := argmax_x min_(u i) dist (u i) x > ε₁ ∈ B(c, ε₁)`
-    and thus, any point outside `B(c, ε₁)` is at least at `ε₁` away from `x'`.
-    -/
+    and thus, any point outside `B(c, ε₁)` is at least at `ε₁` away from `x'`. -/
     have le_μ_cover : gε₁ n_max ≤ A.μ f n_max S := by
       suffices h : {(u : Fin n_max → α) | max_min_dist u > ε₁} ⊆ S from
         OuterMeasureClass.measure_mono _ h
@@ -170,7 +165,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
       intro i
 
       have : ε₁ < dist (u i) x' := by
-        suffices h : m ≤ dist (u i) x' from gt_of_ge_of_gt h hu
+        suffices h : m ≤ dist (u i) x' from lt_of_le_of_lt' h hu
         exact Tuple.le_min ((fun xi ↦ dist xi x') ∘ u) n_max.2 i
 
       by_contra h
@@ -213,10 +208,8 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
       mul_ne_top (ENNReal.ofNat_ne_top) (natCast_ne_top N₁)
     (mul_ne_zero_iff_right denom_pos).mpr <| pos_iff_ne_zero.mp hε₂
 
-  /-
-  We show that the constructed ball is not equal to the universe. Indeed, thanks to `hc`,
-  we would be able to show that `0 < ε₂ / (2 * ↑↑N₁) ≤ A.μ f 1 ∅` which leads to a contradiction.
-  -/
+  /- We show that the constructed ball is not equal to the universe. Indeed, thanks to `hc`,
+  we would be able to show that `0 < ε₂ / (2 * ↑↑N₁) ≤ A.μ f 1 ∅` which leads to a contradiction. -/
   have h_ball_not_univ : Metric.ball c (ε₁/2) ≠ Set.univ := by
     by_contra h_contra
     let one : nstar := ⟨1, Nat.one_pos⟩
@@ -234,26 +227,22 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
       suffices h : 0 < (A.μ f one) {u | ∀ i, u i ∉ Metric.ball c (ε₁/2)} by
           rw [←not_in_ball_eq_empty]
           exact (ne_of_lt h).symm
-        gt_of_ge_of_gt hc <| pos_of_ne_zero ratio_ε₂_pos
+        lt_of_le_of_lt' hc <| pos_of_ne_zero ratio_ε₂_pos
 
     exact measure_empty_pos <| OuterMeasureClass.measure_empty _
 
-  /-
-  We define `f~` differently : we just want to ensure that it is maximized within
+  /- We define `f~` differently : we just want to ensure that it is maximized within
   `Metric.closedBall c (ε₁/2)`. This allows to show that it exists a `δ > 0` such that,
   for any `x ∉ Metric.closedBall c (ε₁/2)`, `|f~ x - f~ x^*| > δ`. The latter leads
   to a contradiction as the algorithm almost never samples in `Metric.closedBall c (ε₁/2)` and
-  thus, cannot produce iterates that are `δ`-close to `f~ x^*`.
-  -/
+  thus, cannot produce iterates that are `δ`-close to `f~ x^*`. -/
   let f_tilde := fun x =>
     if x ∈ Metric.ball c (ε₁/2) then
       f x + 2 * (1 - (dist x c) / (ε₁/2)) *
       (fmax hf - fmin hf)
     else f x
 
-  /-
-  Rewrite lemma of the expression of `f~` outside and inside `B(c, ε₁/2)`
-  -/
+  /- Rewrite lemma of the expression of `f~` outside and inside `B(c, ε₁/2)`. -/
   have f_tilde_eq_outside : ∀ ⦃x⦄, x ∉ Metric.ball c (ε₁/2) → f_tilde x = f x := by
       intro x hx
       unfold f_tilde
@@ -269,12 +258,10 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
       · rfl
       contradiction
 
-  /-
-  Some results on `f~(c)`.
+  /- Some results on `f~(c)`.
   1. `f~(c) = max f + (f c - min f) + (max f - min f)`
   2. `0 < (f c - min f) + (max f - min f)`
-  3. `max f < f~(c)` (direct consequence of 2.)
-  -/
+  3. `max f < f~(c)` (direct consequence of 2.) -/
   have f_tilde_c_eq : f_tilde c = fmax hf + ((f c - fmin hf) + (fmax hf - fmin hf)) := by
       have c_in_ball : c ∈ Metric.ball c (ε₁/2) :=
         Metric.mem_ball_self (half_pos hε₁)
@@ -313,11 +300,9 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
 
     exact lt_add_of_pos_right (fmax hf) sum_dist_pos
 
-  /-
-  In order to use `f~` to produce a contradiction, we need to prove that it is continuous
+  /- In order to use `f~` to produce a contradiction, we need to prove that it is continuous
   and non-constant as we assumed that the algorithm is consistent over any continuous and
-  non-constant function.
-  -/
+  non-constant function. -/
 
   -- `f~` is continuous as a composition of continuous functions.
   have hf_tilde : Continuous f_tilde := by
@@ -342,10 +327,8 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
     _ = f a + 2 * 0 * (fmax hf - fmin hf) := by rw [sub_self 1]
     _ = f a := by ring
 
-  /-
-  `f~` is not constant as `B(c, (ε₁/2)) ≠ univ ↔ ∃ x ∉ B(x, (ε₁/2))`.
-  As `f~(x) = f(x) ≤ max f < f~(c)`, `f~(x) ≠ f~(c)`.
-  -/
+  /- `f~` is not constant as `B(c, (ε₁/2)) ≠ univ ↔ ∃ x ∉ B(x, (ε₁/2))`.
+  As `f~(x) = f(x) ≤ max f < f~(c)`, `f~(x) ≠ f~(c)`. -/
   have nconst_f_tilde : ¬ Constant f_tilde := by
     let B := Metric.ball c (ε₁/2)
     obtain ⟨x, hx⟩ : ∃ (x : α), x ∉ B := by
@@ -363,10 +346,8 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
 
   let x' := (compact_argmax hf_tilde)
 
-  /-
-  As we know that `max f < f~(c) ≤ max f~`, setting `δ := max f~ - max f > 0` gives
-  that `∀ x ∉ B(x, ε₁/2), max f~ - f~(x) = max f~ - f(x) > max f~ - max f = δ`.
-  -/
+  /- As we know that `max f < f~(c) ≤ max f~`, setting `δ := max f~ - max f > 0` gives
+  that `∀ x ∉ B(x, ε₁/2), max f~ - f~(x) = max f~ - f(x) > max f~ - max f = δ`. -/
   obtain ⟨δ, δ_pos, hδ⟩ :
       ∃ δ > 0, ∀ x ∉ Metric.ball c (ε₁/2), dist (f_tilde x) (f_tilde x') > δ := by
     set fma := fmax hf
@@ -396,7 +377,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
 
     have f_tilde_max_gt_fma : 0 < f_tilde x' - fma := by
       suffices h : fma < f_tilde c by
-        exact gt_of_ge_of_gt
+        exact lt_of_le_of_lt'
           (tsub_le_tsub_right (compact_argmax_apply hf_tilde c) fma)
           (sub_pos.mpr h)
       rw [f_tilde_c_eq]
@@ -416,12 +397,10 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
     have half_distmax_lt_distmax : (f_tilde x' - fma) / 2 < f_tilde x' - fma :=
       div_two_lt_of_pos f_tilde_max_gt_fma
 
-    exact gt_of_ge_of_gt fma_ge_fy half_distmax_lt_distmax
+    exact lt_of_le_of_lt' fma_ge_fy half_distmax_lt_distmax
 
-  /-
-  We can now specialize the contradiction hypothesis, i.e., that the algorithm
-  is consistent over continuous and non-constant functions, to `f~` and `δ`.
-  -/
+  /- We can now specialize the contradiction hypothesis, i.e., that the algorithm
+  is consistent over continuous and non-constant functions, to `f~` and `δ`. -/
   specialize h hf_tilde nconst_f_tilde δ δ_pos
   rw [←nstar_tendsto_iff_tendsto, ENNReal.tendsto_atTop_zero] at h
   obtain ⟨N, hN⟩ := h ((ε₂ / (2 * N₁)) / 2) (ENNReal.half_pos ratio_ε₂_pos)
@@ -430,12 +409,10 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
   specialize hc N_succ
   unfold measure_dist_max at hN
 
-  /-
-  Finally, if we succeed to show the following inequality, we will have that:
+  /- Finally, if we succeed to show the following inequality, we will have that:
   1. `ε₂ / (2 * N₁)) / 2 < A.μ f (N+1) {u | ∀ i, u i ∉ Metric.ball c (ε₁/2)} ≤ A.μ f (N+1) {u | dist (Tuple.max (f_tilde ∘ u)) (fmax hf_tilde) > δ}` (hc and subset hypothesis)
 
-  2. `A.μ f (N+1) {u | dist (Tuple.max (f_tilde ∘ u)) (fmax hf_tilde) > δ} ≤ ε₂ / (2 * N₁)) / 2` (hN)
-  -/
+  2. `A.μ f (N+1) {u | dist (Tuple.max (f_tilde ∘ u)) (fmax hf_tilde) > δ} ≤ ε₂ / (2 * N₁)) / 2` (hN) -/
   suffices h_suff : {(u : Fin N_succ → α) | ∀ i, u i ∉ Metric.ball c (ε₁/2)}
       ⊆ {u | dist (Tuple.max (f_tilde ∘ u)) (fmax hf_tilde) > δ} by
     set B := {(u : Fin N_succ → α) | ∀ i, u i ∉ Metric.ball c (ε₁/2)}
@@ -456,11 +433,9 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
         rw [show ε₂ / (2 * N₁) = ε₂ * (2 * (N₁ : ℝ≥0∞))⁻¹ by rfl]
         exact mul_ne_top (LT.lt.ne_top (not_sample_space N₁)) neq_top
 
-      /-
-      We use the fact that, as `f and f~` are indistinguishable outside `B(c, ε₁/2)`,
+      /- We use the fact that, as `f and f~` are indistinguishable outside `B(c, ε₁/2)`,
       `A.μ f (N+1) {u | u ∉ B(c, ε₁/2)} = A.μ f~ (N+1) {u | u ∉ B(c, ε₁/2)}`
-      (See `Algorithm.μ_eq_restrict` in `Algorithm.lean`).
-      -/
+      (See `Algorithm.μ_eq_restrict` in `Algorithm.lean`). -/
       have measure_eq_f_set : A.μ f N_succ B = A.μ f_tilde N_succ B := by
         have μ_eq_restrict := by
           have f_eq_f_tilde : ∀ a ∈ (Metric.ball c (ε₁/2))ᶜ, f a = f_tilde a :=
@@ -470,7 +445,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
 
       have measure_f_tilde_le : (ε₂ / (2 * N₁)) ≤ A.μ f_tilde N_succ B := by
         rwa [←measure_eq_f_set]
-      exact gt_of_ge_of_gt mono (gt_of_ge_of_gt measure_f_tilde_le half_lt_ε₂)
+      exact lt_of_le_of_lt' mono (lt_of_le_of_lt' measure_f_tilde_le half_lt_ε₂)
 
     exact ENNReal.contra_ineq
       (prop_measure_ne_top (A.μ_prob f_tilde N_succ))

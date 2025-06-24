@@ -1,5 +1,5 @@
 /-
- - Created in 2025 by Gaëtan Serré
+- Created in 2025 by Gaëtan Serré
 -/
 
 import Mathlib.Analysis.Normed.Field.Basic

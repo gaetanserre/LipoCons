@@ -1,5 +1,5 @@
 /-
- - Created in 2025 by Gaëtan Serré
+- Created in 2025 by Gaëtan Serré
 -/
 
 import ConsistencyGO.Defs.Tuple
@@ -7,8 +7,7 @@ import Mathlib.MeasureTheory.Measure.Typeclasses.Probability
 import Mathlib.Order.CompletePartialOrder
 
 open MeasureTheory Tuple
-/--
-Une manière de définir un algorithme itératif appliqué à une fonction serait de le
+/-- Une manière de définir un algorithme itératif appliqué à une fonction serait de le
 représenter comme une mesure de probabilité sur les suites dans `Ω` : `ν : Measure (ℕ → Ω)`.
 Cette mesure représente la distribution des suites d'itérations produites par
 l'algorithme en temps infini. Cette définition permet aussi étudier les séquences
@@ -37,18 +36,15 @@ de construire un prédicat `P'` sur les séquences tel que
 Cependant, dans la plupart des analyses de convergence d'algorithmes itératifs,
 seul la convergence de mesure de prédicats sur les séquences d'itérations est
 étudiée. Ainsi, nous utiliserons la suite de mesures `μ (n : ℕ) → Measure (Fin n → Ω)`
-pour représenter un algorithme itératif.
--/
+pour représenter un algorithme itératif. -/
 structure Algorithm (α β : Type*) [MeasurableSpace α] [LinearOrder β] where
   μ : (α → β) → (n : ℕ) → Measure (Fin n → α)
   μ_prob : (f : α → β) → (n : ℕ) → IsProbabilityMeasure (μ f n)
-  /-
-  Équivalent à dire que `∀ n ≤ m, μ f n A = μ f m {u | u[1:n] ∈ A}`.
-  -/
+
+  /-- Équivalent à dire que `∀ n ≤ m, μ f n A = μ f m {u | u[1:n] ∈ A}` -/
   μ_mono : ∀ (f : α → β), ∀ ⦃n m A B⦄,
       {u | toTuple n u ∈ A} ⊆ {u | toTuple m u ∈ B} → μ f n A ≤ μ f m B
-  /-
-  Si deux fonctions sont indiscernables sur un ensemble `s`, alors la probabilité
+  /-- Si deux fonctions sont indiscernables sur un ensemble `s`, alors la probabilité
   qu'aucune itération ne soit dans `sᶜ` est égale pour les deux fonctions.
   En effet, comme l'algorithme n'a accès qu'aux évaluations de la fonction,
   la distribution du i-ème point de la séquence d'itérations dépend des points
@@ -57,7 +53,6 @@ structure Algorithm (α β : Type*) [MeasurableSpace α] [LinearOrder β] where
   la distribution des séquences d'itérations qui contiennent aucun point dans
   `sᶜ` est la même pour les deux fonctions. Cependant, la distribution des séquences
   d'itérations qui contiennent un point ou plus peuvent différer (par ex si `g` est
-  minimisé sur `sᶜ`).
-  -/
+  minimisé sur `sᶜ`). -/
   μ_eq_restrict : ∀ ⦃f g : α → β⦄, ∀ ⦃s : Set α⦄, (∀ a ∈ s, f a = g a) → ∀ n,
       μ f n {u | ∀ i, u i ∉ sᶜ} = μ g n {u | ∀ i, u i ∉ sᶜ}

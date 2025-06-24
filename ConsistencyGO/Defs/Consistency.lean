@@ -1,5 +1,5 @@
 /-
- - Created in 2025 by Gaëtan Serré
+- Created in 2025 by Gaëtan Serré
 -/
 
 import ConsistencyGO.Algorithm
@@ -9,15 +9,11 @@ import Mathlib.Analysis.Normed.Order.Lattice
 
 variable {α : Type*} [PseudoMetricSpace α]
 
-/--
-Given a sequence `u` and a element `x`, returns `min_(0 ≤ i < n) dist (u i) x.
--/
+/-- Given a sequence `u` and a element `x`, returns `min_(0 ≤ i < n) dist (u i) x. -/
 noncomputable def min_dist_x :=
   fun {n : ℕ} (u : Fin n → α) (x : α) => Tuple.min ((fun xi => dist xi x) ∘ u)
 
-/--
-`min_dist_x` is continuous
--/
+/-- `min_dist_x` is continuous -/
 lemma min_dist_x_continuous {n : ℕ} (u : Fin n → α) : Continuous (min_dist_x u) := by
   by_cases h : n = 0
   · have empty : ¬Nonempty (Fin n) := by
@@ -53,48 +49,36 @@ variable [CompactSpace α] [Nonempty α]
 variable {β : Type*} [Nonempty β] [PseudoMetricSpace β] [LinearOrder β] [ClosedIciTopology β]
 [ClosedIicTopology β]
 
-/--
-The maximum of a continuous function over `α`.
--/
+/-- The maximum of a continuous function over `α`. -/
 noncomputable def fmax {f : α → β} (cont : Continuous f) := f (compact_argmax cont)
 noncomputable def fmin {f : α → β} (cont : Continuous f) := f (compact_argmin cont)
 
 variable [MeasurableSpace α]
 
-/--
-Given an algorithm `A`, the function that, given `ε` and `n`, returns
+/-- Given an algorithm `A`, the function that, given `ε` and `n`, returns
 the measure of the set of sequences of size `n` such that the maximum of
-`f` over these sequences is at least `ε` away from from `fmax`.
--/
+`f` over these sequences is at least `ε` away from from `fmax`. -/
 def measure_dist_max (A : Algorithm α β) {f : α → β} (cont : Continuous f) :=
   fun ε n => A.μ f n {u | dist (Tuple.max (f ∘ u)) (fmax cont) > ε}
 
 
 open Filter Topology
-/--
-**Main definition**: An algorithm `A` is consistent over a continuous function `f`
-if for any `ε > 0`, `lim_(n → ∞) measure_dist_max n = 0`.
--/
+/-- **Main definition**: An algorithm `A` is consistent over a continuous function `f`
+if for any `ε > 0`, `lim_(n → ∞) measure_dist_max n = 0`. -/
 def isConsistent (A : Algorithm α β) {f : α → β} (cont : Continuous f) : Prop :=
   ∀ ε > 0, Tendsto (measure_dist_max A cont ε) atTop (𝓝 0)
 
-/--
-An algorithm `A` is consistent over all continuous functions.
--/
+/-- An algorithm `A` is consistent over all continuous functions. -/
 def isConsistentOverContinuous (A : Algorithm α β) {f : α → β} (hf : Continuous f) : Prop :=
   isConsistent A hf
 
-/--
-Given a sequence `u`, maximum over `α` of `min_dist_x u`: the maximum distance between
-any element in `α` and `u`.
--/
+/-- Given a sequence `u`, maximum over `α` of `min_dist_x u`: the maximum distance between
+any element in `α` and `u`. -/
 noncomputable def max_min_dist {n : ℕ} (u : Fin n → α) :=
   min_dist_x u (compact_argmax (min_dist_x_continuous u))
 
-/--
-**Main definition**: Given a function `f`, an algorithm `A` sample the whole space
-if `∀ ε > 0, lim_(n → ∞) A.μ f n {u | max_min_dist u > ε} = 0`.
--/
+/-- **Main definition**: Given a function `f`, an algorithm `A` sample the whole space
+if `∀ ε > 0, lim_(n → ∞) A.μ f n {u | max_min_dist u > ε} = 0`. -/
 noncomputable def sample_whole_space (A : Algorithm α β) (f : α → β) : Prop :=
   ∀ ε > 0, Tendsto (fun n => A.μ f n {u | max_min_dist u > ε}) atTop (𝓝 0)
 
@@ -109,6 +93,6 @@ lemma ε_cover_ne {ε : ℝ} (hε : ε > 0) (α : Type*) [PseudoMetricSpace α]
   by_contra h_contra
   have union_is_empty : ⋃ x ∈ t, U x = ∅ := by
       rw [Finset.card_eq_zero.mp (Nat.eq_zero_of_le_zero <| Nat.le_of_not_lt h_contra)]
-      simp only [Finset.not_mem_empty, Set.iUnion_of_empty, Set.iUnion_empty]
+      simp only [Finset.notMem_empty, Set.iUnion_of_empty, Set.iUnion_empty]
   rw [union_is_empty] at ht
   exact Set.empty_ne_univ ht
