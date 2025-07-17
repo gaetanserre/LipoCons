@@ -32,7 +32,7 @@
 
 <span class="kd">def</span> toTuple (n : ℕ) (u : ℕ <span class="bp">→</span> α) : Fin n <span class="bp">→</span> α := <span class="k">fun</span> i <span class="bp">=&gt;</span> u i.val
 
-<span class="kd">def</span> toTupleFun {β : <span class="kt">Type</span><span class="bp">*</span>} (f : (n : ℕ) <span class="bp">→</span> (Fin n <span class="bp">→</span> α) <span class="bp">→</span> β) := <span class="k">fun</span> n u <span class="bp">=&gt;</span> f n (toTuple n u)
+<span class="kd">def</span> ofTupleFun {β : <span class="kt">Type</span><span class="bp">*</span>} (f : (n : ℕ) <span class="bp">→</span> (Fin n <span class="bp">→</span> α) <span class="bp">→</span> β) := <span class="k">fun</span> n u <span class="bp">=&gt;</span> f n (toTuple n u)
 
 <span class="kd">def</span> subTuple {n m : ℕ} (h : n <span class="bp">≤</span> m) (u : Fin m <span class="bp">→</span> α) : Fin n <span class="bp">→</span> α :=
   <span class="k">fun</span> (i : Fin n) <span class="bp">=&gt;</span> u ⟨i.val, Fin.val_lt_of_le i h⟩

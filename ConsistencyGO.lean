@@ -9,7 +9,7 @@ import ConsistencyGO.Utils.Metric
 import Mathlib.Analysis.NormedSpace.Real
 import Mathlib.Analysis.RCLike.Basic
 
-open Tendsto Tuple MeasureTheory ENNReal Continuous Classical
+open Tendsto Tuple MeasureTheory ENNReal Continuous Classical Set
 
 variable {α : Type*} [MeasurableSpace α] [SeminormedAddCommGroup α] [NormedSpace ℝ α]
 [CompactSpace α] [Nonempty α]
@@ -25,7 +25,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
         {(u : Fin n → α) | dist (Tuple.max (f ∘ u)) (fmax hf) > ε} ⊆ {u | max_min_dist u > δ} by
       obtain ⟨δ, hδ, h'⟩ := h'
       have μ_mono : ∀ n > 0, measure_dist_max A hf ε n ≤ (A.μ f n) {u | max_min_dist u > δ} :=
-        fun n hn => OuterMeasureClass.measure_mono (A.μ f n) (h' n hn)
+        fun n hn => (A.μ f n).mono (h' n hn)
       exact tendsto_zero_le_nat μ_mono (h hf hf_nconst δ hδ)
 
     let x' := compact_argmax hf
@@ -37,21 +37,20 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
     have max_dist_ss_ball : {(u : (Fin n) → α) | dist (Tuple.max (f ∘ u)) (fmax hf) > ε} ⊆
         {u | ∀ i, u i ∉ B} := by
       intro e (he : dist (Tuple.max (f ∘ e)) (fmax hf) > ε) i
-      set ei := e i
       by_contra hcontra
       have le_lt : ∀ ⦃x⦄, x ≤ δ/2 → x < δ := fun _ hx => lt_of_le_of_lt hx (div_two_lt_of_pos hδ)
-      specialize hdist ei hcontra
-      rw [Compact.dist_max_compact hf ei] at hdist
+      specialize hdist (e i) hcontra
+      rw [Compact.dist_max_compact hf (e i)] at hdist
 
       obtain ⟨j, hj⟩ := Tuple.tuple_argmax f n_pos e
       rw [←hj] at he
       unfold fmax at he
       rw [Compact.dist_max_compact hf (e j)] at he
       have : f (compact_argmax hf) - f (e j) ≤ ε := by
-        have ineq : f ei ≤ f (e j) := by
+        have ineq : f (e i) ≤ f (e j) := by
           rw [hj]
           exact Tuple.le_max (f ∘ e) n_pos i
-        exact Preorder.le_trans _ _ _ (tsub_le_tsub_left ineq _) hdist
+        exact le_trans (tsub_le_tsub_left ineq _) hdist
       linarith
 
     suffices h' : {(u : (Fin n) → α) | ∀ i, u i ∉ B} ⊆ {u | max_min_dist u > δ} from
@@ -73,7 +72,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
     intro n m hnm
     let S := fun n => {(u : Fin n → α) | max_min_dist u > ε₁}
     suffices h : {(u : ℕ → α) | Tuple.toTuple m u ∈ S m} ⊆ {(u : ℕ → α) | Tuple.toTuple n u ∈ S n}
-        from A.μ_mono f h
+      from A.μ_mono f h
     intro u (hu : max_min_dist (toTuple m u) > ε₁)
     unfold max_min_dist min_dist_x at hu
     set x' := compact_argmax (min_dist_x_continuous (toTuple m u))
@@ -84,9 +83,9 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
       Tuple.tuple_argmin (f := (fun xi ↦ dist xi x')) n.2 (toTuple n u)
 
     suffices h : dist (toTuple m u i) x' ≤ dist (toTuple n u j) x' from
-        lt_of_le_of_lt'
-        (compact_argmax_apply (min_dist_x_continuous (toTuple n u)) x')
-        (lt_of_lt_of_eq (lt_of_le_of_lt' h hu) hj)
+      lt_of_le_of_lt'
+      (compact_argmax_apply (min_dist_x_continuous (toTuple n u)) x')
+      (lt_of_lt_of_eq (lt_of_le_of_lt' h hu) hj)
     have le_min :=
       Tuple.le_min (f := (fun xi ↦ dist xi x') ∘ (toTuple m u)) m.2 ⟨j, Fin.val_lt_of_le j hnm⟩
     rwa [←hi] at le_min
@@ -133,10 +132,8 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
 
     obtain ⟨n_max, hn_max⟩ := h_contra
     suffices h : gε₁ n_max ≤ ε₂ / 2 from
-      ENNReal.contra_ineq
-        (prop_measure_ne_top (A.μ_prob f n_max))
-        (not_sample_space n_max)
-        (Preorder.le_trans _ _ _ h ENNReal.half_le_self)
+      ENNReal.contra_ineq (measure_ne_top _ _) (not_sample_space n_max)
+        (le_trans h ENNReal.half_le_self)
 
     set S := {(u : Fin n_max → α) | ∃ c ∈ t, ∀ (i : Fin ↑n_max), u i ∉ Metric.ball c (ε₁/2)}
 
@@ -145,8 +142,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
     `ε₁`-cover of the universe, `∃ c ∈ t, x' := argmax_x min_(u i) dist (u i) x > ε₁ ∈ B(c, ε₁)`
     and thus, any point outside `B(c, ε₁)` is at least at `ε₁` away from `x'`. -/
     have le_μ_cover : gε₁ n_max ≤ A.μ f n_max S := by
-      suffices h : {(u : Fin n_max → α) | max_min_dist u > ε₁} ⊆ S from
-        OuterMeasureClass.measure_mono _ h
+      suffices h : {(u : Fin n_max → α) | max_min_dist u > ε₁} ⊆ S from (A.μ f n_max).mono h
 
       intro u (hu : max_min_dist u > ε₁)
       let x' := (compact_argmax (min_dist_x_continuous u))
@@ -155,7 +151,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
         have x'_in_cover : x' ∈ ⋃ c ∈ t, Metric.ball c (ε₁/2) := by
           rw [←h_cover]
           trivial
-        simp_all only [Set.iUnion_coe_set, Set.mem_iUnion, exists_prop, Subtype.exists]
+        simp_all only [mem_iUnion, exists_prop]
 
       refine ⟨c, c_in_t, ?_⟩
 
@@ -164,9 +160,9 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
 
       intro i
 
-      have : ε₁ < dist (u i) x' := by
+      have : ε₁ < dist (u i) x' :=
         suffices h : m ≤ dist (u i) x' from lt_of_le_of_lt' h hu
-        exact Tuple.le_min ((fun xi ↦ dist xi x') ∘ u) n_max.2 i
+        Tuple.le_min ((fun xi ↦ dist xi x') ∘ u) n_max.2 i
 
       by_contra h
       suffices dist (u i) x' < ε₁ by linarith
@@ -179,10 +175,10 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
     calc gε₁ n_max ≤ (A.μ f n_max) S := le_μ_cover
     _ ≤ A.μ f n_max (⋃ c ∈ t, {u | ∀ (i : Fin ↑n_max), u i ∉ Metric.ball c (ε₁/2)}) := by
       suffices h : S ⊆ ⋃ c ∈ t, {u | ∀ (i : Fin ↑n_max), u i ∉ Metric.ball c (ε₁/2)} from
-        OuterMeasureClass.measure_mono _ h
+        (A.μ f n_max).mono h
       rintro u ⟨c, hc, hu⟩
-      rw [Set.mem_iUnion]
-      simp only [Set.mem_iUnion, exists_prop]
+      rw [mem_iUnion]
+      simp only [mem_iUnion, exists_prop]
       exact ⟨c, hc, hu⟩
     _ ≤ ∑ c ∈ t, A.μ f n_max {u | ∀ (i : Fin ↑n_max), u i ∉ Metric.ball c (ε₁/2)} :=
       measure_biUnion_finset_le t _
@@ -210,26 +206,26 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
 
   /- We show that the constructed ball is not equal to the universe. Indeed, thanks to `hc`,
   we would be able to show that `0 < ε₂ / (2 * ↑↑N₁) ≤ A.μ f 1 ∅` which leads to a contradiction. -/
-  have h_ball_not_univ : Metric.ball c (ε₁/2) ≠ Set.univ := by
+  have h_ball_not_univ : Metric.ball c (ε₁/2) ≠ univ := by
     by_contra h_contra
     let one : nstar := ⟨1, Nat.one_pos⟩
     specialize hc one
 
+    suffices h : (A.μ f one) ∅ ≠ 0 from h <| OuterMeasureClass.measure_empty _
+
     have not_in_ball_eq_empty : {(u : Fin one → α) | ∀ i, u i ∉ Metric.ball c (ε₁/2)} = ∅ := by
-      apply Set.subset_eq_empty ?_ rfl
+      apply subset_eq_empty ?_ rfl
       rw [h_contra]
-      intro u (hu : ∀ i, u i ∉ Set.univ)
+      intro u (hu : ∀ i, u i ∉ univ)
       let i : Fin one := ⟨0, Nat.one_pos⟩
-      have u_i_in_univ : u i ∈ Set.univ := trivial
+      have u_i_in_univ : u i ∈ univ := trivial
       exact hu i u_i_in_univ
 
-    have measure_empty_pos : (A.μ f one) ∅ ≠ 0 :=
-      suffices h : 0 < (A.μ f one) {u | ∀ i, u i ∉ Metric.ball c (ε₁/2)} by
-          rw [←not_in_ball_eq_empty]
-          exact (ne_of_lt h).symm
-        lt_of_le_of_lt' hc <| pos_of_ne_zero ratio_ε₂_pos
+    suffices h : 0 < (A.μ f one) {u | ∀ i, u i ∉ Metric.ball c (ε₁/2)} by
+      rw [←not_in_ball_eq_empty]
+      exact (ne_of_lt h).symm
+    exact lt_of_le_of_lt' hc <| pos_of_ne_zero ratio_ε₂_pos
 
-    exact measure_empty_pos <| OuterMeasureClass.measure_empty _
 
   /- We define `f~` differently : we just want to ensure that it is maximized within
   `Metric.closedBall c (ε₁/2)`. This allows to show that it exists a `δ > 0` such that,
@@ -334,7 +330,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
     obtain ⟨x, hx⟩ : ∃ (x : α), x ∉ B := by
       by_contra h_contra
       push_neg at h_contra
-      suffices h : Set.univ ⊆ B from h_ball_not_univ (Set.eq_univ_of_univ_subset h)
+      suffices h : univ ⊆ B from h_ball_not_univ (eq_univ_of_univ_subset h)
       intro e _
       exact h_contra e
     rw [Constant.constant_iff]
@@ -420,7 +416,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
 
     have measure_f_tilde_gt : (ε₂ / (2 * N₁)) / 2 < A.μ f_tilde N_succ C := by
       have mono : A.μ f_tilde N_succ B ≤ A.μ f_tilde N_succ C :=
-        OuterMeasureClass.measure_mono (A.μ f_tilde N_succ) h_suff
+        (A.μ f_tilde N_succ).mono h_suff
 
       have half_lt_ε₂ : (ε₂ / (2 * N₁)) / 2 < ε₂ / (2 * N₁) := by
         refine ENNReal.half_lt_self ?_ ?_
@@ -447,10 +443,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
         rwa [←measure_eq_f_set]
       exact lt_of_le_of_lt' mono (lt_of_le_of_lt' measure_f_tilde_le half_lt_ε₂)
 
-    exact ENNReal.contra_ineq
-      (prop_measure_ne_top (A.μ_prob f_tilde N_succ))
-      measure_f_tilde_gt
-      hN
+    exact ENNReal.contra_ineq (measure_ne_top _ _) measure_f_tilde_gt hN
 
   -- This is given by the construction of `δ`.
   intro u hu

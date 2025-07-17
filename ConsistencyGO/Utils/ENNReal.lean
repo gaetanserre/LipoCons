@@ -16,8 +16,3 @@ lemma contra_ineq {a b : ℝ≥0∞} (hb : b ≠ ⊤) (i1 : a < b) (i2 : b ≤ a
   linarith
 
 end ENNReal
-
-lemma prop_measure_ne_top {α : Type*} [MeasurableSpace α] {μ : Measure α}
-    (i : IsProbabilityMeasure μ) {A : Set α} : μ A ≠ ⊤ := by
-  have : IsFiniteMeasure μ := IsZeroOrProbabilityMeasure.toIsFiniteMeasure μ
-  exact measure_ne_top μ A

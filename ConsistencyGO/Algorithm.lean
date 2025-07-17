@@ -37,9 +37,9 @@ Cependant, dans la plupart des analyses de convergence d'algorithmes itératifs,
 seul la convergence de mesure de prédicats sur les séquences d'itérations est
 étudiée. Ainsi, nous utiliserons la suite de mesures `μ (n : ℕ) → Measure (Fin n → Ω)`
 pour représenter un algorithme itératif. -/
-structure Algorithm (α β : Type*) [MeasurableSpace α] [LinearOrder β] where
+structure Algorithm (α β : Type*) [MeasurableSpace α] where
   μ : (α → β) → (n : ℕ) → Measure (Fin n → α)
-  μ_prob : (f : α → β) → (n : ℕ) → IsProbabilityMeasure (μ f n)
+  private μ_prob : (f : α → β) → (n : ℕ) → IsProbabilityMeasure (μ f n)
 
   /-- Équivalent à dire que `∀ n ≤ m, μ f n A = μ f m {u | u[1:n] ∈ A}` -/
   μ_mono : ∀ (f : α → β), ∀ ⦃n m A B⦄,
@@ -56,3 +56,11 @@ structure Algorithm (α β : Type*) [MeasurableSpace α] [LinearOrder β] where
   minimisé sur `sᶜ`). -/
   μ_eq_restrict : ∀ ⦃f g : α → β⦄, ∀ ⦃s : Set α⦄, (∀ a ∈ s, f a = g a) → ∀ n,
       μ f n {u | ∀ i, u i ∉ sᶜ} = μ g n {u | ∀ i, u i ∉ sᶜ}
+
+namespace Algorithm
+
+variable {α β : Type*} [MeasurableSpace α] (A : Algorithm α β)
+
+instance {f : α → β} {n : ℕ} : IsProbabilityMeasure (A.μ f n) := A.μ_prob f n
+
+end Algorithm

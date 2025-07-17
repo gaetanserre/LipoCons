@@ -29,7 +29,7 @@ namespace Tuple
 
 def toTuple (n : ℕ) (u : ℕ → α) : Fin n → α := fun i => u i.val
 
-def toTupleFun {β : Type*} (f : (n : ℕ) → (Fin n → α) → β) := fun n u => f n (toTuple n u)
+def ofTupleFun {β : Type*} (f : (n : ℕ) → (Fin n → α) → β) := fun n u => f n (toTuple n u)
 
 def subTuple {n m : ℕ} (h : n ≤ m) (u : Fin m → α) : Fin n → α :=
   fun (i : Fin n) => u ⟨i.val, Fin.val_lt_of_le i h⟩

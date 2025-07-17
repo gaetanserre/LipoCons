@@ -61,12 +61,11 @@ noncomputable def μ (n : ℕ) : Measure (Fin n → α) := by
 
 lemma iff_convergence {β : Type*} [Dist β] (fn gn : (n : ℕ) → (Fin n → α) → β)
     (h_measurable : ∀ ε n, MeasurableSet {u | dist (fn n u) (gn n u) > ε }) :
-    ν.tendsto (toTupleFun fn) (toTupleFun gn)
+    ν.tendsto (ofTupleFun fn) (ofTupleFun gn)
     ↔ ∀ ε > 0, Tendsto (fun n => μ ν n {u | dist (fn n u) (gn n u) > ε}) atTop (𝓝 0) := by
-  unfold Measure.tendsto
   suffices h : ∀ ε > 0,
       (fun n ↦
-      ν {x | dist (toTupleFun fn n x) (toTupleFun gn n x) > ε})
+      ν {x | dist (ofTupleFun fn n x) (ofTupleFun gn n x) > ε})
       = (fun n ↦ (μ ν n) {u | dist (fn n u) (gn n u) > ε}) by
     constructor
     · intro h' ε hε
