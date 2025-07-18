@@ -3,19 +3,18 @@
 -/
 
 import ConsistencyGO.Defs.Consistency
-import Mathlib.Analysis.NormedSpace.Real
-import Mathlib.Analysis.RCLike.Basic
+import Mathlib
 
 open Classical
 
-namespace Continuous
+namespace Lipschitz
 
 variable {α : Type*} [SeminormedAddCommGroup α] [NormedSpace ℝ α] [CompactSpace α] [Nonempty α]
-  {f : α → ℝ} (hf : Continuous f) (c : α)
+  {f : α → ℝ} (hf : Lipschitz f) (c : α)
 
 noncomputable def f_tilde (ε : ℝ) := fun x =>
   if x ∈ Metric.ball c (ε/2) then
-    f x + 2 * (1 - (dist x c) / (ε/2)) * ((fmax hf + 1) - (fmin hf - 1))
+    f x + 2 * ((1 - (dist x c) / (ε/2)) * ((fmax hf + 1) - (fmin hf - 1)))
   else f x
 
 omit [NormedSpace ℝ α] in
@@ -28,7 +27,7 @@ lemma f_tilde_apply_out {ε : ℝ} {x : α} (hx : x ∉ Metric.ball c (ε/2)) :
 
 omit [NormedSpace ℝ α] in
 lemma f_tilde_apply_in {ε : ℝ} {x : α} (hx : x ∈ Metric.ball c (ε/2)) :
-    hf.f_tilde c ε x = f x + 2 * (1 - (dist x c) / (ε/2)) * ((fmax hf + 1) - (fmin hf - 1)) := by
+    hf.f_tilde c ε x = f x + 2 * ((1 - (dist x c) / (ε/2)) * ((fmax hf + 1) - (fmin hf - 1))) := by
   unfold f_tilde
   split
   · rfl
@@ -45,8 +44,8 @@ lemma f_tilde_c {ε : ℝ} (ε_pos : 0 < ε) :
 omit [NormedSpace ℝ α] in
 lemma pos_rhs_f_tilde_c : 0 < 1 + (f c - fmin hf + 1) + (fmax hf - fmin hf + 2) := by
   refine add_pos_of_nonneg_of_pos (Left.add_nonneg (zero_le_one' ℝ) ?_) ?_
-  · exact Left.add_nonneg (sub_nonneg_of_le (compact_argmin_apply hf c)) (zero_le_one' ℝ)
-  have : 0 ≤ fmax hf - fmin hf := compact_argmax_sub_argmin_pos hf
+  · exact Left.add_nonneg (sub_nonneg_of_le (compact_argmin_apply hf.continuous c)) (zero_le_one' ℝ)
+  have : 0 ≤ fmax hf - fmin hf := compact_argmax_sub_argmin_pos hf.continuous
   exact add_pos_of_nonneg_of_pos this zero_lt_two
 
 omit [NormedSpace ℝ α] in
@@ -54,7 +53,7 @@ lemma max_f_lt_f_tilde_c {ε : ℝ} (ε_pos : 0 < ε) : fmax hf < hf.f_tilde c �
   rw [hf.f_tilde_c c ε_pos]
   exact lt_add_of_pos_right (fmax hf) (hf.pos_rhs_f_tilde_c c)
 
-lemma f_tilde_continuous {ε : ℝ} (ε_pos : 0 < ε) : Continuous (hf.f_tilde c ε) := by
+/- lemma f_tilde_continuous {ε : ℝ} (ε_pos : 0 < ε) : Continuous (hf.f_tilde c ε) := by
   refine Continuous.if ?_ ?_ hf
   · intro a (a_in_frontier : a ∈ frontier (Metric.ball c (ε/2)))
     have ne_zero : (ε/2) ≠ 0 := (ne_of_lt <| half_pos ε_pos).symm
@@ -67,12 +66,15 @@ lemma f_tilde_continuous {ε : ℝ} (ε_pos : 0 < ε) : Continuous (hf.f_tilde c
       by rw [(div_eq_one_iff_eq ne_zero).mpr rfl]
     _ = f a + 2 * 0 * (fmax hf + 1 - (fmin hf - 1)) := by rw [sub_self 1]
     _ = f a := by ring
+  fun_prop -/
 
+lemma f_tilde_lipschitz {ε : ℝ} (ε_pos : 0 < ε) : Lipschitz (hf.f_tilde c ε) := by
+  refine Lipschitz.if ?_ ?_ hf
+  · sorry
   refine hf.add ?_
-  refine mul ?_ continuous_const
-  refine mul continuous_const ?_
-  refine sub continuous_const ?_
-  refine div_const ?_ _
-  exact .dist continuous_id continuous_const
+  refine const_mul ?_
+  refine mul_const ?_
+  refine sub lipschitz_const ?_
+  exact div_const (dist_left c)
 
-end Continuous
+end Lipschitz
