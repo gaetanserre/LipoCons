@@ -66,7 +66,7 @@ open Filter Topology
 /-- **Main definition**: An algorithm `A` is consistent over a continuous function `f`
 if for any `ε > 0`, `lim_(n → ∞) measure_dist_max n = 0`. -/
 def isConsistent (A : Algorithm α β) {f : α → β} (hf : Continuous f) : Prop :=
-  ∀ ε > 0, Tendsto (measure_dist_max A hf ε) atTop (𝓝 0)
+  ∀ ⦃ε⦄, 0 < ε → Tendsto (measure_dist_max A hf ε) atTop (𝓝 0)
 
 /-- An algorithm `A` is consistent over all continuous functions. -/
 def isConsistentOverContinuous (A : Algorithm α β) {f : α → β} (hf : Continuous f) : Prop :=

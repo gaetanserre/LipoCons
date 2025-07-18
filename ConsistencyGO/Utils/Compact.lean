@@ -34,8 +34,9 @@ noncomputable def compact_max [LinearOrder α] [ClosedIciTopology α] : α :=
 lemma compact_max_apply [LinearOrder α] [ClosedIciTopology α] :
     ∀ (x : α), x ≤ compact_max := (compact_exists_max (α := α)).choose_spec
 
-lemma compact_exists_argmax {β : Type*} [TopologicalSpace β] [LinearOrder β]
-    [ClosedIciTopology β] {f : α → β} (hf : Continuous f) : ∃ x, ∀ y, f y ≤ f x := by
+variable {β : Type*} [TopologicalSpace β] [LinearOrder β] {f : α → β}
+
+lemma compact_exists_argmax [ClosedIciTopology β] (hf : Continuous f) : ∃ x, ∀ y, f y ≤ f x := by
   have compact_image : IsCompact (f '' univ) :=
     suffices h : CompactSpace (f '' univ) from isCompact_iff_compactSpace.mpr h
     isCompact_iff_compactSpace.mp (CompactSpace.isCompact_univ.image hf)
@@ -48,15 +49,14 @@ lemma compact_exists_argmax {β : Type*} [TopologicalSpace β] [LinearOrder β]
   rw [hy]
   exact hx (mem_image_of_mem f (trivial))
 
-noncomputable def compact_argmax {β : Type*} [TopologicalSpace β] [LinearOrder β]
-    [ClosedIciTopology β] {f : α → β} (hf : Continuous f) := (compact_exists_argmax hf).choose
+noncomputable def compact_argmax [ClosedIciTopology β] (hf : Continuous f) :=
+  (compact_exists_argmax hf).choose
 
-lemma compact_argmax_apply {β : Type*} [TopologicalSpace β] [LinearOrder β]
-    [ClosedIciTopology β] {f : α → β} (hf : Continuous f) : ∀ y, f y ≤ f (compact_argmax hf) :=
+lemma compact_argmax_apply [ClosedIciTopology β] (hf : Continuous f) :
+    ∀ y, f y ≤ f (compact_argmax hf) :=
   (compact_exists_argmax hf).choose_spec
 
-lemma compact_exists_argmin {β : Type*} [TopologicalSpace β] [LinearOrder β]
-    [ClosedIicTopology β] {f : α → β} (hf : Continuous f) : ∃ x, ∀ y, f x ≤ f y := by
+lemma compact_exists_argmin [ClosedIicTopology β] (hf : Continuous f) : ∃ x, ∀ y, f x ≤ f y := by
   have compact_image : IsCompact (f '' univ) :=
     suffices h : CompactSpace (f '' univ) from isCompact_iff_compactSpace.mpr h
     isCompact_iff_compactSpace.mp (CompactSpace.isCompact_univ.image hf)
@@ -69,13 +69,21 @@ lemma compact_exists_argmin {β : Type*} [TopologicalSpace β] [LinearOrder β]
   rw [hy]
   exact hx (mem_image_of_mem f (trivial))
 
-noncomputable def compact_argmin {β : Type*} [TopologicalSpace β] [LinearOrder β]
-    [ClosedIicTopology β] {f : α → β} (hf : Continuous f) :=
+noncomputable def compact_argmin [ClosedIicTopology β] (hf : Continuous f) :=
   (compact_exists_argmin hf).choose
 
-lemma compact_argmin_apply {β : Type*} [TopologicalSpace β] [LinearOrder β]
-    [ClosedIicTopology β] {f : α → β} (hf : Continuous f) : ∀ y, f (compact_argmin hf) ≤ f y :=
+lemma compact_argmin_apply [ClosedIicTopology β] (hf : Continuous f) :
+    ∀ y, f (compact_argmin hf) ≤ f y :=
   (compact_exists_argmin hf).choose_spec
+
+lemma compact_argmin_le_argmax [ClosedIciTopology β] [ClosedIicTopology β] (hf : Continuous f) :
+    f (compact_argmin hf) ≤ f (compact_argmax hf) :=
+  compact_argmin_apply hf (compact_argmax hf)
+
+lemma compact_argmax_sub_argmin_pos [ClosedIciTopology β] [ClosedIicTopology β] [AddGroup β]
+    [AddRightMono β] (hf : Continuous f) : 0 ≤ f (compact_argmax hf) - f (compact_argmin hf) :=
+  sub_nonneg_of_le (compact_argmin_le_argmax hf)
+
 
 namespace Compact
 
