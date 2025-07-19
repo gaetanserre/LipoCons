@@ -2,8 +2,8 @@
  - Created in 2025 by Gaëtan Serré
 -/
 
-import ConsistencyGO.Utils.Compact
-import Mathlib
+import Mathlib.Analysis.Normed.Module.Convex
+import Mathlib.Analysis.Normed.Order.Lattice
 
 open NNReal
 
@@ -95,86 +95,90 @@ variable [PseudoEMetricSpace β]
 lemma lipschitz_const [PseudoEMetricSpace α] {b : β} :
     Lipschitz (fun _ : α => b) := ⟨0, LipschitzWith.const b⟩
 
-open Set
+variable [NormedAddCommGroup α] [NormedSpace ℝ α]
+open Metric Set unitInterval
 
-variable [PseudoMetricSpace α] [ProperSpace α]
+lemma LipschitzWith.if {f g : α → ℝ} {c : α} {ε : ℝ} {Kf Kg : ℝ≥0}
+    [∀ a, Decidable (a ∈ ball c ε)] (hp : ∀ a ∈ sphere c ε, g a = 0)
+    (hf : LipschitzWith Kf f) (hg : LipschitzWith Kg g) :
+    LipschitzWith (Kf + Kg) (fun a => if a ∈ ball c ε then f a + g a else f a) := by
 
-lemma Lipschitz.if {f g : α → ℝ} {p : α → Prop} [∀ a, Decidable (p a)]
-    (hp : ∀ a ∈ frontier { x | p x }, f a = g a) (hf : Lipschitz f) (hg : Lipschitz g) :
-    Lipschitz fun a => if p a then f a else g a := by
-  let Kf := hf.isLipschitz.choose
-  let Kg := hg.isLipschitz.choose
-  have h_cont := hf.continuous.if hp hg.continuous
-
-  use (max Kf Kg)
-
-  have t : (max Kf Kg) = Real.toNNReal (max Kf Kg) := by sorry
-  rw [t]
-
-  apply LipschitzWith.of_dist_le'
+  rw [lipschitzWith_iff_dist_le_mul]
   intro x y
-  by_cases h : p x ∧ p y
-  · rw [if_pos h.1, if_pos h.2]
-    sorry
-    --exact le_mul_of_le_mul_right (hf.isLipschitz.choose_spec x y) (le_max_left _ _)
-  · by_cases h' : ¬ p x ∧ ¬ p y
-    · rw [if_neg h'.1, if_neg h'.2]
-      sorry
-      --exact le_mul_of_le_mul_right (hg.isLipschitz.choose_spec x y) (le_max_right _ _)
-    push_neg at h; push_neg at h'
-    by_cases hx : ¬ p x
-    · specialize h' hx
-      rw [if_neg hx, if_pos h']
-      set h := fun a ↦ if p a then f a else g a
-      by_contra h_contra
-      push_neg at h_contra
+  let p := fun a => a ∈ ball c ε
 
-      let r := dist x y
-      have compact_ball : IsCompact (Metric.closedBall x r) :=
-        isCompact_closedBall x r
+  by_cases hxy : ¬ p x ∧ ¬ p y
+  · rw [if_neg hxy.1, if_neg hxy.2]
+    rw [lipschitzWith_iff_dist_le_mul] at hf
+    specialize hf x y
+    suffices Kf * dist x y ≤ (Kf + Kg) * dist x y from le_trans hf this
+    have Kf_le_add : (Kf : ℝ) ≤ Kf + Kg := by
+      show Kf ≤ Kf + Kg
+      exact le_self_add
+    exact mul_le_mul_of_nonneg Kf_le_add (le_refl _) zero_le_coe dist_nonneg
 
-      replace h_cont : ContinuousOn h (Metric.closedBall x r) :=
-        fun _ _ => Continuous.continuousWithinAt h_cont
-      replace h_cont : UniformContinuousOn h (Metric.closedBall x r) :=
-        compact_ball.uniformContinuousOn_of_continuous h_cont
-      rw [Metric.uniformContinuousOn_iff] at h_cont
+  · by_cases hxy' : p x ∧ p y
+    · rw [if_pos hxy'.1, if_pos hxy'.2]
+      exact lipschitzWith_iff_dist_le_mul.mp (hf.add hg) x y
+    · push_neg at hxy; push_neg at hxy'
 
+      let φ := fun a => if a ∈ ball c ε then f a + g a else f a
+      suffices ∀ a b, ¬ p a ∧ p b → dist (φ a) (φ b) ≤ (Kf + Kg) * dist a b by
+        by_cases hx : ¬ p x
+        · exact this x y ⟨hx, hxy hx⟩
+        · push_neg at hx
+          specialize this y x ⟨hxy' hx, hx⟩
+          rwa [dist_comm, dist_comm x y]
+      intro a b hab
+      simp only [φ]
+      rw [if_neg hab.1, if_pos hab.2]
+      show |f a - (f b + g b)| ≤ (Kf + Kg) * dist a b
+      rw [abs_sub_comm]
+      suffices h : ∃ e, e ∈ Metric.sphere c ε ∧ dist e b ≤ dist a b by
+        let e := h.choose
+        have : f b + g b - f a = f b - f a + g b := by ring
+        rw [this]
+        clear this
+        calc _ ≤ |f b - f a| + |g b| := abs_add_le _ _
+        _ ≤ Kf * dist b a + |g b| := by
+          rw [lipschitzWith_iff_dist_le_mul] at hf
+          exact add_le_add_right (hf b a) _
+        _ = Kf * dist a b + |g b| := by rw [dist_comm]
+        _ = Kf * dist a b + |g b - g e| := by
+          rw [hp h.choose h.choose_spec.1]
+          simp only [sub_zero]
+        _ ≤ Kf * dist a b + Kg * dist b e := by
+          rw [lipschitzWith_iff_dist_le_mul] at hg
+          exact add_le_add_left (hg b e) (Kf * dist a b)
+        _ ≤ Kf * dist a b + Kg * dist a b := by
+          have : Kg * dist b e ≤ Kg * dist a b := by
+            rw [dist_comm]
+            exact mul_le_mul_of_nonneg
+              (le_refl _) h.choose_spec.2 (NNReal.zero_le_coe) (dist_nonneg)
+          exact (add_le_add_iff_left _).mpr this
+        _ = (Kf + Kg) * dist a b := by ring
 
+      suffices ∃ e ∈ segment ℝ b a, e ∈ Metric.sphere c ε by
+        obtain ⟨e, e_mem⟩ := this
+        refine ⟨e, e_mem.2, ?_⟩
+        rw [NormedAddGroup.dist_eq e b, NormedAddGroup.dist_eq a b]
+        exact norm_sub_le_of_mem_segment e_mem.1
 
-      /- let r := dist x y
-      have compact_ball : IsCompact (Metric.closedBall x r) :=
-        isCompact_closedBall x r
+      let combo := fun t : I => (1 - t.1) • b + t.1 • a
+      have int := intermediate_value_univ (f := (dist · c) ∘ combo) 0 1 (by fun_prop)
+      simp only [Function.comp_apply, Icc.coe_zero, sub_zero, one_smul, zero_smul, add_zero,
+        Icc.coe_one, sub_self, zero_add, combo] at int
+      have ε_mem_icc : ε ∈ Icc (dist b c) (dist a c) := by
+        suffices h : Icc ε ε ⊆ Icc (dist b c) (dist a c) from h ⟨le_refl _, le_refl _⟩
+        refine Icc_subset_Icc (le_of_lt hab.2) ?_
+        simp only [mem_ball, gt_iff_lt, not_lt, p] at hab
+        exact hab.1
+      obtain ⟨t, ht⟩ := int ε_mem_icc
+      refine ⟨combo t, ?_, ht⟩
+      exact ⟨1 - t, t, sub_nonneg_of_le t.2.2, t.2.1, (by ring), rfl⟩
 
-      have nonempty_ball : (Metric.closedBall x r).Nonempty :=
-        Metric.nonempty_closedBall.mpr dist_nonneg
-
-
-
-      have compact_image : IsCompact (h '' (Metric.closedBall x r)) := compact_ball.image h_cont
-
-      obtain ⟨hz, ⟨z, z_mem, h_z⟩, h_hz⟩ := compact_image.exists_isGreatest (nonempty_ball.image h)
-
-      by_cases pz : p z
-      · have : ∀ x ∈ (Metric.closedBall x r), dist (f x) (f y) ≤ dist (f z) (f )
-        sorry
-      · sorry -/
-
-
-      /- replace : ContinuousOn (fun a ↦ if p a then f a else g a) (Metric.closedBall x r) :=
-        fun _ _ => Continuous.continuousWithinAt h_cont
-      replace : UniformContinuousOn (fun a ↦ if p a then f a else g a) (Metric.closedBall x r) := by
-        exact compact_ball.uniformContinuousOn_of_continuous this
-      rw [Metric.uniformContinuousOn_iff] at this -/
-
-
-
-      sorry
-    · sorry
-
-example (f : ℝ → ℝ) (s : Set ℝ) (hs : IsCompact s) (hf : ContinuousOn f s) :
-    UniformContinuousOn f s := by
-  exact IsCompact.uniformContinuousOn_of_continuous hs hf
-
-example (a : ℝ) (ε : ℝ) : (Metric.ball a ε).Nonempty := by
-  have : 0 < ε := by sorry
-  exact Metric.nonempty_ball.mpr this
+lemma Lipschitz.if {f g : α → ℝ} {c : α} {ε : ℝ} [∀ a, Decidable (a ∈ ball c ε)]
+    (hp : ∀ a ∈ sphere c ε, g a = 0) (hf : Lipschitz f) (hg : Lipschitz g) :
+    Lipschitz (fun a => if a ∈ ball c ε then f a + g a else f a) :=
+  ⟨hf.isLipschitz.choose + hg.isLipschitz.choose,
+   hf.isLipschitz.choose_spec.if hp hg.isLipschitz.choose_spec⟩
