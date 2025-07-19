@@ -11,8 +11,8 @@ import Mathlib.Analysis.RCLike.Basic
 
 open Tendsto Tuple MeasureTheory ENNReal Continuous Classical Set
 
-variable {α : Type*} [MeasurableSpace α] [SeminormedAddCommGroup α] [NormedSpace ℝ α]
-[CompactSpace α] [Nonempty α]
+variable {α : Type*} [MeasurableSpace α] [NormedAddCommGroup α] [NormedSpace ℝ α]
+[CompactSpace α] [Nonempty α] [Nontrivial α]
 
 theorem sample_iff_consistent (A : Algorithm α ℝ) :
     (∀ ⦃f : α → ℝ⦄, Lipschitz f → sample_whole_space A f)
