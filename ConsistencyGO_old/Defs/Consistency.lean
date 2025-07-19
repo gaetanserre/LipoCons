@@ -1,11 +1,11 @@
 /-
- - Created in 2025 by Gaëtan Serré
+- Created in 2025 by Gaëtan Serré
 -/
 
-import ConsistencyGO.Defs.Algorithm
-import ConsistencyGO.Defs.Lipschitz
-import ConsistencyGO.Defs.NPos
+import ConsistencyGO.Algorithm
 import ConsistencyGO.Utils.Compact
+import ConsistencyGO.Utils.Tendsto
+import ConsistencyGO.Defs.Lipschitz
 import Mathlib.Analysis.Normed.Order.Lattice
 
 variable {α : Type*} [PseudoMetricSpace α]
@@ -17,10 +17,10 @@ noncomputable def min_dist_x :=
 /-- `min_dist_x` is continuous -/
 lemma min_dist_x_continuous {n : ℕ} (u : Fin n → α) : Continuous (min_dist_x u) := by
   by_cases h : n = 0
-  · letI : ¬Nonempty (Fin n) := by
+  · have empty : ¬Nonempty (Fin n) := by
       rw [←Fin.pos_iff_nonempty]
       exact Eq.not_gt h
-    let e := Classical.arbitrary ℝ
+    let e : ℝ := instNonemptyOfInhabited.some
     suffices h : min_dist_x u = fun x => e by rw [h]; exact continuous_const
     ext x
     unfold min_dist_x Tuple.min Fintype.min_image Fintype.min_image'
@@ -29,24 +29,26 @@ lemma min_dist_x_continuous {n : ℕ} (u : Fin n → α) : Continuous (min_dist_
     rfl
 
   have ne_fin : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp (Nat.zero_lt_of_ne_zero h)
+  have ne : (Finset.univ : Finset (Fin n)).Nonempty :=
+    Finset.univ_nonempty_iff.mpr ne_fin
 
-  have ne_univ : (Finset.univ : Finset (Fin n)).Nonempty := Finset.univ_nonempty_iff.mpr ne_fin
   set g := fun (i : Fin n) (x : α) => dist (u i) x
 
-  have continuous_inf_g : Continuous (Finset.univ.inf' ne_univ g) := by
-    suffices h : ∀ i ∈ Finset.univ, Continuous (g i) from Continuous.finset_inf' ne_univ h
+  have continuous_inf_g : Continuous (Finset.univ.inf' ne g) := by
+    suffices h : ∀ i ∈ Finset.univ, Continuous (g i) from Continuous.finset_inf' ne h
     intro i _
-    fun_prop
+    exact Continuous.dist continuous_const continuous_id
 
-  suffices h : min_dist_x u = Finset.univ.inf' ne_univ g by rwa [h]
+  suffices h : min_dist_x u = Finset.univ.inf' ne g by rwa [h]
   ext x
   unfold min_dist_x Tuple.min Fintype.min_image Fintype.min_image'
   split
   · simp only [Function.comp_apply, Finset.inf'_apply, g]
-  · contradiction
+  contradiction
 
-variable [CompactSpace α] [Nonempty α] {β : Type*} [Nonempty β] [PseudoMetricSpace β]
-  [LinearOrder β] [ClosedIciTopology β] [ClosedIicTopology β]
+variable [CompactSpace α] [Nonempty α]
+variable {β : Type*} [Nonempty β] [PseudoMetricSpace β] [LinearOrder β] [ClosedIciTopology β]
+[ClosedIicTopology β]
 
 /-- The maximum of a Lipschitz function over `α`. -/
 noncomputable def fmax {f : α → β} (hf : Lipschitz f) := f (compact_argmax hf.continuous)
@@ -54,16 +56,12 @@ noncomputable def fmin {f : α → β} (hf : Lipschitz f) := f (compact_argmin h
 
 variable [MeasurableSpace α]
 
-/-- The set of sequences of size `n` such that the maximum of `f` over
-these sequences is at least `ε` away from from `fmax`. -/
-def set_dist_max {f : α → β} (hf : Lipschitz f) {n : ℕ} (ε : ℝ) : Set (Fin n → α) :=
-  {u | dist (Tuple.max (f ∘ u)) (fmax hf) > ε}
-
 /-- Given an algorithm `A`, the function that, given `ε` and `n`, returns
 the measure of the set of sequences of size `n` such that the maximum of
 `f` over these sequences is at least `ε` away from from `fmax`. -/
 def measure_dist_max (A : Algorithm α β) {f : α → β} (hf : Lipschitz f) :=
-  fun ε n => A.μ f n (set_dist_max hf ε)
+  fun ε n => A.μ f n {u | dist (Tuple.max (f ∘ u)) (fmax hf) > ε}
+
 
 open Filter Topology
 /-- **Main definition**: An algorithm `A` is consistent over a Lipschitz function `f`
@@ -87,16 +85,15 @@ noncomputable def sample_whole_space (A : Algorithm α β) (f : α → β) : Pro
 
 lemma ε_cover_ne {ε : ℝ} (hε : ε > 0) (α : Type*) [PseudoMetricSpace α]
     [Nonempty α] [CompactSpace α] :
-    {n : ℕ₀ | ∃ (t : Finset α), t.card = n ∧ Set.univ = ⋃ x ∈ t, Metric.ball x ε}.Nonempty := by
+    {n : nstar | ∃ (t : Finset α), t.card = n.1 ∧ Set.univ = ⋃ x ∈ t, Metric.ball x ε}.Nonempty
+    := by
   let U := fun (x : α) => Metric.ball x ε
   have hU : ∀ (x : α), U x ∈ nhds x := fun x => Metric.ball_mem_nhds x hε
   obtain ⟨t, ht⟩ := finite_cover_nhds hU
   refine ⟨⟨t.card, ?_⟩, t, rfl, ht.symm⟩
   by_contra h_contra
   have union_is_empty : ⋃ x ∈ t, U x = ∅ := by
-    rw [Finset.card_eq_zero.mp (Nat.eq_zero_of_le_zero <| Nat.le_of_not_lt h_contra)]
-    simp only [Finset.notMem_empty, Set.iUnion_of_empty, Set.iUnion_empty]
+      rw [Finset.card_eq_zero.mp (Nat.eq_zero_of_le_zero <| Nat.le_of_not_lt h_contra)]
+      simp only [Finset.notMem_empty, Set.iUnion_of_empty, Set.iUnion_empty]
   rw [union_is_empty] at ht
   exact Set.empty_ne_univ ht
-
-open unitInterval
