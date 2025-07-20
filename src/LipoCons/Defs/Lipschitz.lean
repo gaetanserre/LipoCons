@@ -136,7 +136,7 @@ lemma LipschitzWith.if {f g : α → ℝ} {c : α} {ε : ℝ} {Kf Kg : ℝ≥0}
       rw [if_neg hab.1, if_pos hab.2]
       show |f a - (f b + g b)| ≤ (Kf + Kg) * dist a b
       rw [abs_sub_comm]
-      suffices h : ∃ e, e ∈ Metric.sphere c ε ∧ dist e b ≤ dist a b by
+      suffices h : ∃ e, e ∈ sphere c ε ∧ dist e b ≤ dist a b by
         let e := h.choose
         have : f b + g b - f a = f b - f a + g b := by ring
         rw [this]
@@ -160,7 +160,7 @@ lemma LipschitzWith.if {f g : α → ℝ} {c : α} {ε : ℝ} {Kf Kg : ℝ≥0}
           exact (add_le_add_iff_left _).mpr this
         _ = (Kf + Kg) * dist a b := by ring
 
-      suffices ∃ e ∈ segment ℝ b a, e ∈ Metric.sphere c ε by
+      suffices ∃ e ∈ segment ℝ b a, e ∈ sphere c ε by
         obtain ⟨e, e_mem⟩ := this
         refine ⟨e, e_mem.2, ?_⟩
         rw [NormedAddGroup.dist_eq e b, NormedAddGroup.dist_eq a b]

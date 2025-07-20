@@ -1,15 +1,21 @@
-name = "LipoCons"
+name = "versowebsite"
 version = "0.1.0"
-keywords = ["math"]
-defaultTargets = ["LipoCons"]
+keywords = ["verso", "website", "documentation"]
 
 [leanOptions]
 pp.unicode.fun = true # pretty-prints `fun a ↦ b`
 autoImplicit = false
 
 [[require]]
-name = "mathlib"
-scope = "leanprover-community"
+name = "verso"
+git = "https://github.com/leanprover/verso"
 
 [[lean_lib]]
-name = "LipoCons"
+name = "VersoWebsite"
+srcDir = "verso_website"
+root = "VersoWebsite"
+
+[[lean_exe]]
+name = "versowebsite"
+srcDir = "verso_website"
+root = "VersoWebsite"

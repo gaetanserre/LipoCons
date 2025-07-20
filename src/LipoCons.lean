@@ -10,7 +10,7 @@ import LipoCons.Utils.Metric
 import LipoCons.Utils.Tendsto
 import Mathlib.Analysis.RCLike.Basic
 
-/-! In this file, we prove that an iterative stochastic global optimization algorithm
+/-! Here, we prove that an iterative stochastic global optimization algorithm
 is consistent over Lipschitz functions if and only if it, for any Lipschitz function,
 it samples the whole space.
 Please refer to
@@ -339,3 +339,12 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
     show dist (Tuple.max (f_tilde ∘ u)) (fmax hf_tilde) > δ
     rw [←hi]
     exact hδ (u i) (hu i)
+
+/-- Duplicate of `sample_iff_consistent` without the proof to include it in the Verso website. -/
+-- ANCHOR: thm_sample_iff_consistent
+theorem sample_iff_consistent' (A : Algorithm α ℝ) :
+    (∀ ⦃f : α → ℝ⦄, Lipschitz f → sample_whole_space A f)
+    ↔
+    (∀ ⦃f : α → ℝ⦄, (hf : Lipschitz f) → isConsistentOverLipschitz A hf) := by
+  sorry
+-- ANCHOR_END: thm_sample_iff_consistent
