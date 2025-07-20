@@ -24,9 +24,9 @@ is consistent over Lipschitz functions if and only if it, for any Lipschitz func
 it samples the whole space.
 Please refer to
 - [`Algorithm`](/Algorithm) for the definition of an algorithm;
-- [`sample_whole_space`](/Consistency) for the definition of sampling the whole space;
-- [`isConsistentOverLipschitz`](/Consistency) for the definition of consistency over Lipschitz functions;
 - [`Lipschitz`](/Lipschitz) for the definition of Lipschitz functions.
+- [`isConsistentOverLipschitz`](/Consistency) for the definition of consistency over Lipschitz functions;
+- [`sample_whole_space`](/Consistency) for the definition of sampling the whole space.
 
 ```anchor thm_sample_iff_consistent
 theorem sample_iff_consistent' (A : Algorithm α ℝ) :

@@ -1,7 +1,13 @@
-/* http://meyerweb.com/eric/tools/css/reset/
-   v2.0 | 20110126
-   License: none (public domain)
-*/
+/*
+ * Created in 2025 by Gaëtan Serré
+ */
+
+:root {
+  --accent: #657ed4;
+  --accent-compl: #d4bb65;
+  --background: #eef0f2;
+  --background-lighter: #fafafa;
+}
 
 html,
 body,
@@ -112,6 +118,7 @@ body {
   font-size: 12pt;
   display: hidden;
   text-justify: auto;
+  background-color: var(--background);
 }
 
 /***********************************/
@@ -168,8 +175,10 @@ em {
 
 .column_outline {
   flex: 20%;
-  background-color: #fafafa;
+  background-color: var(--background-lighter);
   padding-left: 1em;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  min-height: 100vh;
 }
 
 .column_content {
@@ -186,10 +195,10 @@ em {
 
 .toc {
   padding-top: 3.8em;
-  font-size: 13pt;
+  font-size: 15pt;
   font-weight: bold;
   font-family: sans-serif;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
 }
 
 .main {
@@ -291,7 +300,7 @@ p {
 p a:visited,
 p a:link {
   text-decoration: none;
-  color: #657ed4;
+  color: var(--accent);
 }
 
 p a:hover {
@@ -303,10 +312,11 @@ code {
 }
 
 .block {
-  background-color: #fafafa;
+  background-color: var(--background-lighter);
   padding: 0.4em;
   border: 2px solid black;
   border-radius: 0.5em;
+  font-size: 85%;
 }
 
 /**************************/
@@ -367,7 +377,7 @@ code {
   text-align: center;
   vertical-align: middle;
   position: fixed;
-  background-color: white;
+  background-color: var(--background-lighter);
   z-index: 1000;
   padding: 0.5em 0 0.5em 0;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -379,17 +389,13 @@ code {
 }
 
 .keyword {
-  color: #657ed4;
+  color: var(--accent);
 }
 
 .hl.lean .token.binding-hl,
 .hl.lean .literal.string:hover,
 .hl.lean .token.typed:hover {
-  background-color: #d4bb65;
+  background-color: var(--accent-compl);
   border-radius: 2px;
   transition: none;
-}
-
-.bot_triangle {
-  font-size: 12pt;
 }

@@ -28,31 +28,31 @@ def_literate_page def_consistency_page
 /- UTILS -/
 
 def_literate_page util_tuple_page
-  from LipoCons.Utils.Tuple in "src" as "Utils -- Tuple"
+  from LipoCons.Utils.Tuple in "src" as "Utils - Tuple"
 
 def_literate_page util_tendsto_page
-  from LipoCons.Utils.Tendsto in "src" as "Utils -- Tendsto"
+  from LipoCons.Utils.Tendsto in "src" as "Utils - Tendsto"
 
 def_literate_page util_metric_page
-  from LipoCons.Utils.Metric in "src" as "Utils -- Metric"
+  from LipoCons.Utils.Metric in "src" as "Utils - Metric"
 
 def_literate_page util_indistinguishable_page
   from LipoCons.Utils.Indistinguishable in "src" as "Indistinguishable function"
 
 def_literate_page util_fintype_page
-  from LipoCons.Utils.Fintype in "src" as "Utils -- Fintype"
+  from LipoCons.Utils.Fintype in "src" as "Utils - Fintype"
 
 def_literate_page util_finset_page
-  from LipoCons.Utils.Finset in "src" as "Utils -- Finset"
+  from LipoCons.Utils.Finset in "src" as "Utils - Finset"
 
 def_literate_page util_ennreal_page
-  from LipoCons.Utils.ENNReal in "src" as "Utils -- ENNReal"
+  from LipoCons.Utils.ENNReal in "src" as "Utils - ENNReal"
 
 def_literate_page util_ecover_page
   from LipoCons.Utils.ECover in "src" as "ε-cover of a compact space"
 
 def_literate_page util_compact_page
-  from LipoCons.Utils.Compact in "src" as "Utils -- Compact"
+  from LipoCons.Utils.Compact in "src" as "Utils - Compact"
 
 def demoSite : Site := site VersoWebsite.Front /
   static "static" ← "verso_website/static_files"

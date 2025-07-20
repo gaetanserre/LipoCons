@@ -17,7 +17,8 @@ def theme : Theme := { Theme.default with
         <head>
           <meta charset="UTF-8"/>
           <title>{{ (← param (α := String) "title") }}</title>
-          <script src="/static/scripts.js"></script>
+          <link rel="icon" type="image/x-icon" href="/static/favicon.svg"/>
+          <script src="/static/scripts.js"/>
           {{← builtinHeader }}
         </head>
         <body>
@@ -26,9 +27,7 @@ def theme : Theme := { Theme.default with
           </div>
           <div class="row">
             <div class="column_outline">
-              <div class="toc">
-                <span class="bot_triangle">{{"▼"}}</span><span>{{" Table of contents"}}</span>
-              </div>
+              <div class="toc">{{" Table of contents"}}</div>
               <div class="inner-wrap">
               {{ ← topNav }}
               </div>
