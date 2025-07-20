@@ -5,7 +5,7 @@
    "type": "git",
    "subDir": null,
    "scope": "leanprover-community",
-   "rev": "5bc0c3f89ef805739956ff1e3f32db857e0ba92a",
+   "rev": "75d6f9e2ea47fd9ce609c62142a999619a5261d0",
    "name": "mathlib",
    "manifestFile": "lake-manifest.json",
    "inputRev": "master",
@@ -91,5 +91,5 @@
    "inputRev": "main",
    "inherited": true,
    "configFile": "lakefile.toml"}],
- "name": "ConsistencyGO",
+ "name": "LipoCons",
  "lakeDir": ".lake"}

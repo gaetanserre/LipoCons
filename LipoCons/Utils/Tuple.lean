@@ -2,8 +2,8 @@
  - Created in 2025 by Gaëtan Serré
 -/
 
-import ConsistencyGO.Utils.Fintype
-import Mathlib
+import LipoCons.Utils.Fintype
+import Mathlib.Data.Fintype.Basic
 
 variable {α : Type*}
 

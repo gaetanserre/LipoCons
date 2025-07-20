@@ -2,8 +2,10 @@
  - Created in 2025 by Gaëtan Serré
 -/
 
-import ConsistencyGO.Defs.NPos
-import Mathlib
+import LipoCons.Defs.NPos
+import Mathlib.Algebra.Order.Archimedean.Basic
+import Mathlib.Algebra.Order.Ring.Star
+import Mathlib.Topology.Order.Basic
 
 open Filter Topology
 

@@ -2,7 +2,8 @@
  - Created in 2025 by Gaëtan Serré
 -/
 
-import Mathlib
+import Mathlib.Data.Finset.BooleanAlgebra
+import Mathlib.Data.Finset.Lattice.Fold
 
 open Classical
 

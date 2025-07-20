@@ -2,7 +2,7 @@
  - Created in 2025 by Gaëtan Serré
 -/
 
-import Mathlib
+import Mathlib.Data.Finset.Max
 
 
 namespace Finset

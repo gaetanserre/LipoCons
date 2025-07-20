@@ -1,1 +1,1 @@
-# ConsistencyGO
+# LipoCons

@@ -2,12 +2,22 @@
  - Created in 2025 by Gaëtan Serré
 -/
 
-import ConsistencyGO.Defs.Consistency
-import ConsistencyGO.Utils.Tendsto
-import ConsistencyGO.Utils.Metric
-import ConsistencyGO.Utils.ENNReal
-import ConsistencyGO.Utils.Finset
-import Mathlib
+import LipoCons.Utils.ECover
+import LipoCons.Utils.ENNReal
+import LipoCons.Utils.Finset
+import LipoCons.Utils.Indistinguishable
+import LipoCons.Utils.Metric
+import LipoCons.Utils.Tendsto
+import Mathlib.Analysis.RCLike.Basic
+
+/-! In this file, we prove that an iterative stochastic global optimization algorithm
+is consistent over Lipschitz functions if and only if it, for any Lipschitz function,
+it samples the whole space.
+Please refer to
+- `Algorithm` for the definition of an algorithm;
+- `sample_whole_space` for the definition of sampling the whole space;
+- `isConsistentOverLipschitz` for the definition of consistency over Lipschitz functions;
+- `Lipschitz` for the definition of Lipschitz functions. -/
 
 open Metric Tuple MeasureTheory Set ENNReal
 
@@ -122,12 +132,12 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
     -- Ball almost never hit by `A`. **RADIUS `ε₁/2` NOT `ε₁`!!!**
 
     -- To construct such a ball, we first select an arbitrary finite `ε₁`-cover of the universe.
-    obtain ⟨t, t_card, h_cover⟩ := (ε_cover_ne (half_pos ε₁_pos) α).some_mem
-    set N₁ := (ε_cover_ne (half_pos ε₁_pos) α).some
+    obtain ⟨t, t_card, h_cover⟩ := (ε_cover_ne α (half_pos ε₁_pos)).some_mem
+    set N₁ := (ε_cover_ne α (half_pos ε₁_pos)).some
 
     /- We construct a ball for which the probability to never sample inside is
     strictly positive for all `n > 0`. -/
-    obtain ⟨c, c_in_t, hc⟩ : ∃ c ∈ t, ∀ (n : ℕ₀),
+    obtain ⟨c, c_mem_t, hc⟩ : ∃ c ∈ t, ∀ (n : ℕ₀),
         ε₂/(2 * N₁) ≤ A.μ f n {u : Fin n → α | ∀ i, u i ∉ Metric.ball c (ε₁/2)} := by
       by_contra h_contra
       push_neg at h_contra
@@ -153,9 +163,11 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
 
       /- The set of iterations such that `max_x min_(u i) dist (u i) x > ε₁` is included
       in a set of iterations that are outside of a specific ball. As `t` is a
-      `ε₁`-cover of the universe, `∃ c ∈ t, max_x min_(u i) dist (u i) x > ε₁ ∈ B(c, ε₁)`
-      and thus, any point outside `B(c, ε₁)` is at least at `ε₁` away from the argmax
-      of the previous formula. -/
+      `ε₁`-cover of the universe, it exists a `c ∈ t` such that the argmax `x'` of
+      `max_x min_(u i) dist (u i) x` is in `B(c, ε₁/2)`. Then, for any sequence in
+      the set `{u | max_min_dist u > ε₁}`, its elements are more than `ε₁` away
+      from `x'`. This implies that its elements are not in `B(c, ε₁/2)`,
+      since the distance between any points in `B(c, ε₁/2)` is at most `ε₁`. -/
       have le_μ_cover : gε₁ n_max ≤ A.μ f n_max S := by
         suffices h : {u : Fin n_max → α | max_min_dist u > ε₁} ⊆ S from (A.μ f n_max).mono h
 
@@ -175,19 +187,19 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
 
         intro i
 
-        have : ε₁ < dist (u i) x' :=
-          suffices h : m ≤ dist (u i) x' from lt_of_le_of_lt' h hu
-          Tuple.le_min ((fun xi ↦ dist xi x') ∘ u) n_max.2 i
-
         by_contra h
-        suffices dist (u i) x' < ε₁ by linarith
-        calc dist (u i) x' ≤ dist (u i) c + dist c x' := dist_triangle (u i) c x'
+        suffices dist (u i) x' < ε₁ by
+          have : ε₁ < dist (u i) x' :=
+            suffices h : m ≤ dist (u i) x' from lt_of_le_of_lt' h hu
+            Tuple.le_min ((fun xi ↦ dist xi x') ∘ u) n_max.2 i
+          linarith
+        calc _ ≤ dist (u i) c + dist c x' := dist_triangle (u i) c x'
           _ < ε₁/2 + dist c x' := (add_lt_add_iff_right _).mpr h
           _ = ε₁/2 + dist x' c := by rw [dist_comm c x']
           _ < ε₁/2 + ε₁/2 := (add_lt_add_iff_left _).mpr hc
           _ = ε₁ := by ring
 
-      calc gε₁ n_max ≤ (A.μ f n_max) S := le_μ_cover
+      calc _ ≤ (A.μ f n_max) S := le_μ_cover
       _ ≤ A.μ f n_max (⋃ c ∈ t, {u | ∀ (i : Fin ↑n_max), u i ∉ Metric.ball c (ε₁/2)}) := by
         suffices h : S ⊆ ⋃ c ∈ t, {u | ∀ (i : Fin ↑n_max), u i ∉ Metric.ball c (ε₁/2)} from
           (A.μ f n_max).mono h
@@ -209,5 +221,121 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
             (natCast_ne_top ↑N₁), one_mul]
           rfl
 
+    /- A useful result that we will need later. -/
+    have ratio_ε₂_pos : ε₂ / (2 * N₁) ≠ 0 :=
+      ENNReal.div_ne_zero.mpr ⟨(ne_of_lt ε₂_pos).symm, (not_eq_of_beq_eq_false rfl)⟩
 
-    sorry
+    /- We now construct a function Lipschitz `f~` that is indistinguishable from `f`
+    outside of `B(c, ε₁/2)` and that is maximized over this ball.
+    Its maximum is greater than the maximum of `f`. The idea is to use the fact that
+    probability of `A` not sampling in `Metric.ball c (ε₁/2)` is positive and therefore,
+    the probability of `A` to not find a point arbitrarily close to the maximum of `f~`
+    is also positive. This is a contradiction with the hypothesis that `A` is consistent
+    over Lipschitz functions. -/
+
+    have hfc := hf.continuous
+    let f_tilde := hf.f_tilde c ε₁
+    have hf_tilde : Lipschitz f_tilde := hf.f_tilde_lipschitz c ε₁_pos
+    have hf_tildec := hf_tilde.continuous
+
+    let x' := compact_argmax hf_tilde.continuous
+
+    /- This construction of `f~` allows us to show that, as `max f < f~(c) ≤ max f~`,
+    setting `δ := (max f~ - max f) / 2 > 0` gives that for any `x ∉ B(c, ε₁/2)`,
+    `max f~ - f~(x) = max f~ - f(x) ≥ max f~ - max f = 2δ > δ`. This will be useful to
+    that `A` is not consistent over `f~`. -/
+    obtain ⟨δ, δ_pos, hδ⟩ :
+        ∃ δ > 0, ∀ x ∉ Metric.ball c (ε₁/2), dist (f_tilde x) (f_tilde x') > δ := by
+
+      /- As `max f < f~ c ≤ f~ x'`, `x'` must belong in `B(c, ε₁/2)`
+      otherwise, `f~ x' = f x' ≤ max f` which is a contradiction. -/
+      have x'_in_ball : x' ∈ Metric.ball c (ε₁/2) := by
+        by_contra h_contra
+
+        have f_tilde_x'_lt_f_tilde_c : f_tilde x' < f_tilde c := by
+          refine lt_of_le_of_lt ?_ (hf.max_f_lt_f_tilde_c c ε₁_pos)
+          simp only [f_tilde, hf.f_tilde_apply_out c h_contra]
+          exact compact_argmax_apply hfc x'
+
+        have f_tilde_c_le_f_tilde_x' : f_tilde c ≤ f_tilde x' :=
+          compact_argmax_apply hf_tildec c
+        linarith
+
+      set fma := fmax hf
+      have f_tilde_max_gt_fma : 0 < f_tilde x' - fma :=
+        suffices fma < f_tilde x' from sub_pos.mpr this
+        hf.max_f_lt_max_f_tilde c ε₁_pos
+
+      refine ⟨(f_tilde x' - fma)/2, half_pos f_tilde_max_gt_fma, ?_⟩
+      intro y hy
+      rw [dist_comm]
+      rw [show dist (f_tilde x') (f_tilde y) = |f_tilde x' - f_tilde y| by rfl]
+      rw [abs_of_nonneg (sub_nonneg_of_le (compact_argmax_apply hf_tildec y))]
+      simp only [f_tilde, hf.f_tilde_apply_out c hy]
+
+      apply lt_of_le_of_lt' (b := f_tilde x' - fma)
+      · exact tsub_le_tsub_left (compact_argmax_apply hfc y) (f_tilde x')
+      · exact div_two_lt_of_pos f_tilde_max_gt_fma
+
+    /- We can now specialize the hypothesis, i.e., that the algorithm is consistent
+    over continuous and non-constant functions, to `f~` and `δ`. -/
+    specialize h hf_tilde δ_pos
+    rw [←Filter.Tendsto.nstar_tendsto_iff_tendsto, ENNReal.tendsto_atTop_zero] at h
+    obtain ⟨N, hN⟩ := h ((ε₂ / (2 * N₁)) / 2) (ENNReal.half_pos ratio_ε₂_pos)
+    let N_succ : ℕ₀ := ⟨N + 1, Nat.add_pos_left N.2 1⟩
+    specialize hN N_succ (Nat.le_add_right N 1)
+    specialize hc N_succ
+    unfold measure_dist_max at hN
+
+    set S := {u : Fin N_succ → α | ∀ i, u i ∉ Metric.ball c (ε₁/2)}
+    set E := set_dist_max hf_tilde δ
+
+    /- Finally, it is enough to show that any sequence that does not belong in `B(c, ε₁/2)`
+    failed to approximate `x'` with a `delta` precision. Indeed, we know by consistency
+    hypothesis that `(A.μ f~ ↑N_succ) C ≤ ε₂ / (4 * N₁)`. Moreover, we constructed
+    the ball `B(c, ε₁/2)` such that the measure of the set of sequences generated by `A`
+    over `f` that do not belong to this ball is greater or equal to `ε₂ / (2 * N₁)`,
+    implying that it is smaller than `ε₂ / (4 * N₁)`. To summarize, we have
+    1. `A.μ f~ N_succ E ≤ ε₂ / (4 * N₁)`
+    2. `ε₂ / (4 * N₁) < (A.μ f N_succ) S`
+    Using the fact that `f` and `f~` are indistinguishable outside of `B(c, ε₁/2)`,
+    the inequality (2) becomes
+    2. `ε₂ / (4 * N₁) < (A.μ f~ N_succ) S`.
+    If we can show that `S` is included in `E`, we conclude that
+    `ε₂ / (4 * N₁) < (A.μ f~ N_succ) S ≤ (A.μ f~ N_succ) E`,
+    which contradicts the inequality (1). -/
+    suffices h_suff : S ⊆ E by
+      refine ENNReal.contra_ineq (measure_ne_top _ _) ?_ hN
+      have mono : A.μ f_tilde N_succ S ≤ A.μ f_tilde N_succ E :=
+          (A.μ f_tilde N_succ).mono h_suff
+
+      have half_lt_ε₂ : (ε₂ / (2 * N₁)) / 2 < ε₂ / (2 * N₁) := by
+        refine ENNReal.half_lt_self ?_ ?_
+        · exact ratio_ε₂_pos
+        have neq_top : (2 * (N₁ : ℝ≥0∞))⁻¹ ≠ ⊤ := by
+          suffices h : (2 * (N₁ : ℝ≥0∞)) ≠ 0 from inv_ne_top.mpr h
+          have pos_2 : (2 : ℝ≥0∞) ≠ 0 := (NeZero.ne' 2).symm
+          have pos_N₁ : (N₁ : ℝ≥0∞) ≠ 0 := Nat.cast_ne_zero.mpr <| Nat.ne_zero_of_lt N₁.2
+          exact (mul_ne_zero_iff_right pos_N₁).mpr pos_2
+        rw [show ε₂ / (2 * N₁) = ε₂ * (2 * (N₁ : ℝ≥0∞))⁻¹ by rfl]
+        exact mul_ne_top (LT.lt.ne_top (not_sample_space N₁)) neq_top
+
+      /- We use the fact that, as `f and f~` are indistinguishable outside `B(c, ε₁/2)`,
+        `A.μ f (N+1) {u | u ∉ B(c, ε₁/2)} = A.μ f~ (N+1) {u | u ∉ B(c, ε₁/2)}`
+        (See `Algorithm.μ_eq_restrict` in `Algorithm.lean`). -/
+      have measure_eq_f_set : A.μ f N_succ S = A.μ f_tilde N_succ S := by
+        have μ_eq_restrict :=
+          have f_eq_f_tilde : ∀ a ∈ (Metric.ball c (ε₁/2))ᶜ, f a = f_tilde a :=
+            fun _ ha => (hf.f_tilde_apply_out c ha).symm
+          A.μ_eq_restrict f_eq_f_tilde N_succ
+        rwa [compl_compl] at μ_eq_restrict
+
+      rw [measure_eq_f_set] at hc
+      exact lt_of_le_of_lt' mono (lt_of_le_of_lt' hc half_lt_ε₂)
+
+    -- This is given by the construction of `δ`.
+    intro u hu
+    obtain ⟨i, hi⟩ := tuple_argmax f_tilde N_succ.2 u
+    show dist (Tuple.max (f_tilde ∘ u)) (fmax hf_tilde) > δ
+    rw [←hi]
+    exact hδ (u i) (hu i)

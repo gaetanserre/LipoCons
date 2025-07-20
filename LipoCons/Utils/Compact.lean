@@ -2,7 +2,7 @@
  - Created in 2025 by Gaëtan Serré
 -/
 
-import Mathlib
+import Mathlib.Analysis.Normed.Order.Lattice
 
 open Set
 
@@ -44,6 +44,14 @@ noncomputable def compact_argmax [ClosedIciTopology β] (hf : Continuous f) :=
 
 lemma compact_argmax_apply [ClosedIciTopology β] (hf : Continuous f) :
     ∀ y, f y ≤ f (compact_argmax hf) := (compact_exists_argmax hf).choose_spec
+
+lemma compact_argmin_le_argmax [ClosedIciTopology β] [ClosedIicTopology β] (hf : Continuous f) :
+    f (compact_argmin hf) ≤ f (compact_argmax hf) :=
+  compact_argmin_apply hf (compact_argmax hf)
+
+lemma compact_argmax_sub_argmin_pos [ClosedIciTopology β] [ClosedIicTopology β] [AddGroup β]
+    [AddRightMono β] (hf : Continuous f) : 0 ≤ f (compact_argmax hf) - f (compact_argmin hf) :=
+  sub_nonneg_of_le (compact_argmin_le_argmax hf)
 
 lemma dist_max_compact {f : α → ℝ} (hf : Continuous f) (a : α) :
     dist (f a) (f (compact_argmax hf)) = f (compact_argmax hf) - (f a) := by
