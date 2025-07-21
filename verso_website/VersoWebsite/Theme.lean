@@ -6,7 +6,6 @@ import VersoBlog
 import VersoWebsite.Front
 import VersoWebsite.Constant
 
-
 open Verso Genre Blog Site Syntax
 
 open Output Html Template Theme in
@@ -29,7 +28,15 @@ def theme : Theme := { Theme.default with
             <div class="column_outline">
               <div class="toc">{{" Table of contents"}}</div>
               <div class="inner-wrap">
-              {{ ← topNav }}
+                <div class="first">
+                  {{ ← topNav }}
+                </div>
+                <div class="last">
+                  <ul>
+                    <li><a href={{source_link}}>{{"Source code"}}</a></li>
+                    <li><a href={{issue_link}}>{{"Report issues"}}</a></li>
+                  </ul>
+                </div>
               </div>
             </div>
             <div class="column_content">

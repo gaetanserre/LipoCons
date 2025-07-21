@@ -3,3 +3,6 @@
 -/
 
 def website_title := "Consistency of global optimization algorithms on Lipchitz functions"
+
+def source_link := "https://github.com/gaetanserre/LipoCons"
+def issue_link := "https://github.com/gaetanserre/LipoCons/issues"

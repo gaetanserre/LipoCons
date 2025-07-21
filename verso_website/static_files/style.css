@@ -123,10 +123,6 @@ body {
 
 /***********************************/
 
-li {
-  margin-left: 1.5em;
-}
-
 pre {
   font-family: monospace;
 }
@@ -176,8 +172,10 @@ em {
 .column_outline {
   flex: 20%;
   background-color: var(--background-lighter);
-  padding-left: 1em;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  color: #333333;
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
 }
 
@@ -191,12 +189,54 @@ em {
   margin: auto;
   width: 85%;
   text-align: justify;
+  font-family: sans-serif;
+}
+
+.inner-wrap {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.inner-wrap ul li a:visited,
+.inner-wrap ul li a:link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.inner-wrap ul li a:hover {
+  text-decoration: underline
+}
+
+.first {
+  padding-left: 1em;
+  font-size: 11pt;
+}
+
+.first ul>li {
+  margin-left: 1.5em;
+}
+
+.last {
+  font-size: 11pt;
+  margin-top: auto;
+  margin-bottom: 1em;
+}
+
+.last ul {
+  display: flex;
+  justify-content: space-between;
+  list-style-type: none;
+  padding-left: 1em;
+  padding-right: 1em;
+  margin: 0;
+  font-family: sans-serif;
 }
 
 .toc {
-  padding-top: 3.8em;
-  font-size: 15pt;
+  padding: 5em 0 0 1em;
   font-weight: bold;
+  font-size: 12pt;
   font-family: sans-serif;
   margin-bottom: 10px;
 }
@@ -360,16 +400,6 @@ code {
 
 .top ul li {
   margin-bottom: 0.5em;
-}
-
-.top ul li a:visited,
-.top ul li a:link {
-  text-decoration: none;
-  color: inherit;
-}
-
-.top ul li a:hover {
-  text-decoration: underline
 }
 
 .title {
