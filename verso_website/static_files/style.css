@@ -316,7 +316,10 @@ code {
   padding: 0.4em;
   border: 2px solid black;
   border-radius: 0.5em;
-  font-size: 85%;
+  display: block;
+  overflow-x: auto;
+  padding: 1rem;
+  max-width: 100%;
 }
 
 /**************************/
