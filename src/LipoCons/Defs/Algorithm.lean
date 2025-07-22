@@ -33,11 +33,10 @@ However, in most convergence analyses of iterative algorithms, only the converge
 structure Algorithm (α β : Type*) [MeasurableSpace α] where
   μ : (α → β) → (n : ℕ) → Measure (Fin n → α)
 
-  private μ_prob : (f : α → β) → (n : ℕ) → IsProbabilityMeasure (μ f n)
+  private μ_prob f n : IsProbabilityMeasure (μ f n)
 
   /-- Equivalent to `∀ n ≤ m, μ f n A = μ f m {u | u[1:n] ∈ A}` -/
-  μ_mono : ∀ (f : α → β), ∀ ⦃n m A B⦄,
-      {u | toTuple n u ∈ A} ⊆ {u | toTuple m u ∈ B} → μ f n A ≤ μ f m B
+  μ_mono f : ∀ ⦃n m A B⦄, {u | toTuple n u ∈ A} ⊆ {u | toTuple m u ∈ B} → μ f n A ≤ μ f m B
 
   /-- If two functions are indistinguishable on a set `s`, then the probability
   that no iteration lies in `sᶜ` is the same for both functions.
