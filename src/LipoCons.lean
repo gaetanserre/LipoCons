@@ -156,8 +156,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
 
       obtain ⟨n_max, hn_max⟩ := h_contra
       suffices h : gε₁ n_max ≤ ε₂ / 2 from
-        ENNReal.contra_ineq (measure_ne_top _ _) (not_sample_space n_max)
-          (le_trans h ENNReal.half_le_self)
+        ENNReal.contra_ineq (not_sample_space n_max) (le_trans h ENNReal.half_le_self)
 
       set S := {u : Fin n_max → α | ∃ c ∈ t, ∀ (i : Fin ↑n_max), u i ∉ Metric.ball c (ε₁/2)}
 
@@ -305,7 +304,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
     `ε₂ / (4 * N₁) < (A.μ f~ N_succ) S ≤ (A.μ f~ N_succ) E`,
     which contradicts the inequality (1). -/
     suffices h_suff : S ⊆ E by
-      refine ENNReal.contra_ineq (measure_ne_top _ _) ?_ hN
+      refine ENNReal.contra_ineq ?_ hN
       have mono : A.μ f_tilde N_succ S ≤ A.μ f_tilde N_succ E :=
           (A.μ f_tilde N_succ).mono h_suff
 
