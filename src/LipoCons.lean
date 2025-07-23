@@ -22,7 +22,7 @@ Please refer to
 open Metric Tuple MeasureTheory Set ENNReal
 
 variable {α : Type*} [MeasurableSpace α] [NormedAddCommGroup α] [NormedSpace ℝ α]
-  [CompactSpace α] [Nonempty α] [OpensMeasurableSpace α] [SecondCountableTopology α]
+  [CompactSpace α] [Nonempty α] [OpensMeasurableSpace α]
 
 theorem sample_iff_consistent (A : Algorithm α ℝ) :
     (∀ ⦃f : α → ℝ⦄, Lipschitz f → sample_whole_space A f)
@@ -61,7 +61,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
       specialize hdist (e i) hcontra
       rw [dist_max_compact hfc (e i)] at hdist
 
-      obtain ⟨j, hj⟩ := tuple_argmax f n_pos e
+      obtain ⟨j, hj⟩ := argmax f n_pos e
       rw [←hj] at he
       unfold fmax at he
       rw [dist_max_compact hfc (e j)] at he
@@ -81,7 +81,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
 
     intro u hu
     replace hu : ∀ i, dist (u i) x' > δ := fun i => lt_of_not_ge (hu i)
-    obtain ⟨i, hi⟩ := tuple_argmin (fun xi => dist xi x') n_pos u
+    obtain ⟨i, hi⟩ := argmin (fun xi => dist xi x') n_pos u
     specialize hu i
     rw [hi] at hu
     have argmax_le : min_dist_x u x' ≤ max_min_dist u :=
@@ -93,35 +93,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
     set gε₁ := fun (n : ℕ₀) => A.μ f n {u | max_min_dist u > ε₁}
     /- We show that `gε₁` in order to change the goal to show that for any positive
     `ε`, it exists a `n : ℕ₀` such that `g ε₁ < ε`. -/
-    rw [ENNReal.tendsto_atTop_zero_iff_le_of_antitone ?_]
-    swap
-    · /- The function `gε₁` is antitone as, for any `n ≤ m`, the set of sequence of size `m`
-      such that their max-min distance between any element of `α` and their elements is greater
-      than `ε₁` is included in the set of sequence of size `n` with the same property.
-      We use `Algorithm.μ_mono` to show that this inclusion implies the inequality. -/
-      intro n m hnm
-      let S := fun n => {u : Fin n → α | max_min_dist u > ε₁}
-      have : MeasurableSet (S n) := by
-        simp only [S]
-        exact measurableSet_lt measurable_const max_min_dist_continuous.measurable
-      suffices h : {u : ℕ → α | toTuple m u ∈ S m} ⊆ {u | toTuple n u ∈ S n}
-        from A.μ_mono f this hnm h
-      intro u (hu : max_min_dist (toTuple m u) > ε₁)
-      unfold max_min_dist min_dist_x at hu
-      set x' := compact_argmax (min_dist_x_continuous (toTuple m u))
-      obtain ⟨i, hi⟩ :=
-        tuple_argmin (f := (fun xi ↦ dist xi x')) m.2 (toTuple m u)
-      rw [←hi] at hu
-      obtain ⟨j, hj⟩ :=
-        tuple_argmin (f := (fun xi ↦ dist xi x')) n.2 (toTuple n u)
-
-      suffices h : dist (toTuple m u i) x' ≤ dist (toTuple n u j) x' from
-        lt_of_le_of_lt'
-        (compact_argmax_apply (min_dist_x_continuous (toTuple n u)) x')
-        (lt_of_lt_of_eq (lt_of_le_of_lt' h hu) hj)
-      have le_min :=
-        Tuple.le_min (f := (fun xi ↦ dist xi x') ∘ (toTuple m u)) m.2 ⟨j, Fin.val_lt_of_le j hnm⟩
-      rwa [←hi] at le_min
+    rw [ENNReal.tendsto_atTop_zero]
 
     /- We suppose by contradiction that there exists a `ε₂ > 0` such that the measure
     of `{u | max_min_dist u > ε₁}` is greater than `ε₂` for all `n`. That means that
@@ -146,9 +118,10 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
       push_neg at h_contra
 
       /- We take the maximum image of the choice function `f : t → ℕ₀`. -/
-      replace h_contra : ∃ (n : ℕ₀), ∀ c ∈ t,
-          A.μ f n {u : Fin n → α | ∀ i, u i ∉ Metric.ball c (ε₁/2)} < ε₂/(2 * N₁) := by
-        refine Finset.extract_mono (Finset.card_pos.mp ?_) _ h_contra ?_
+      replace h_contra : ∃ (n : ℕ₀),
+          (∀ c ∈ t, A.μ f n {u : Fin n → α | ∀ i, u i ∉ Metric.ball c (ε₁/2)} < ε₂/(2 * N₁))
+          ∧ ε₂ < gε₁ n := by
+        refine Finset.extract_mono (Finset.card_pos.mp ?_) h_contra ?_ ?_
         · rw [t_card]
           exact N₁.2
         · intro c c_mem n m hnm hn
@@ -163,10 +136,15 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
           suffices h : {u | toTuple m u ∈ S m} ⊆ {u | toTuple n u ∈ S n} from
             lt_of_le_of_lt (A.μ_mono f this hnm h) hn
           exact fun _ hu i => hu ⟨i.1, Fin.val_lt_of_le i hnm⟩
+        · intro _ _ n'
+          exact not_sample_space n'
 
       obtain ⟨n_max, hn_max⟩ := h_contra
+      replace not_sample_space := hn_max.2
+      replace hn_max := hn_max.1
+
       suffices h : gε₁ n_max ≤ ε₂ / 2 from
-        ENNReal.contra_ineq (not_sample_space n_max) (le_trans h ENNReal.half_le_self)
+        ENNReal.contra_ineq not_sample_space (le_trans h ENNReal.half_le_self)
 
       set S := {u : Fin n_max → α | ∃ c ∈ t, ∀ (i : Fin ↑n_max), u i ∉ Metric.ball c (ε₁/2)}
 
@@ -327,7 +305,8 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
           have pos_N₁ : (N₁ : ℝ≥0∞) ≠ 0 := Nat.cast_ne_zero.mpr <| Nat.ne_zero_of_lt N₁.2
           exact (mul_ne_zero_iff_right pos_N₁).mpr pos_2
         rw [show ε₂ / (2 * N₁) = ε₂ * (2 * (N₁ : ℝ≥0∞))⁻¹ by rfl]
-        exact mul_ne_top (LT.lt.ne_top (not_sample_space N₁)) neq_top
+        obtain ⟨n, _, hn⟩ := not_sample_space N₁
+        exact mul_ne_top (LT.lt.ne_top hn) neq_top
 
       /- We use the fact that, as `f and f~` are indistinguishable outside `B(c, ε₁/2)`,
         `A.μ f (N+1) {u | u ∉ B(c, ε₁/2)} = A.μ f~ (N+1) {u | u ∉ B(c, ε₁/2)}`
@@ -344,7 +323,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
 
     -- This is given by the construction of `δ`.
     intro u hu
-    obtain ⟨i, hi⟩ := tuple_argmax f_tilde N_succ.2 u
+    obtain ⟨i, hi⟩ := argmax f_tilde N_succ.2 u
     show dist (Tuple.max (f_tilde ∘ u)) (fmax hf_tilde) > δ
     rw [←hi]
     exact hδ (u i) (hu i)

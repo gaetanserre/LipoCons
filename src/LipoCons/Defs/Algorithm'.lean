@@ -489,8 +489,3 @@ example (n m : ℕ) {s : Set (iter α n)} (hs : MeasurableSet s) {e : Set (iter 
           (hk (e := {u | subTuple' hn u ∈ s}) hn (fun ⦃a⦄ a ↦ a))
 
 end Algo
-
-example (a c : ℝ) : MeasurableSet ({x | dist x c > a}) := by
-  refine measurableSet_lt measurable_const ?_
-  have := measurable_dist (α := ℝ)
-  exact Measurable.of_uncurry_right this
