@@ -36,7 +36,7 @@ structure Algorithm (α β : Type*) [MeasurableSpace α] where
   private μ_prob f n : IsProbabilityMeasure (μ f n)
 
   /-- Equivalent to `∀ n ≤ m, μ f n A = μ f m {u | u[1:n] ∈ A}` -/
-  μ_mono f : ∀ ⦃n m A B⦄, {u | toTuple n u ∈ A} ⊆ {u | toTuple m u ∈ B} → μ f n A ≤ μ f m B
+  μ_mono f : ∀ ⦃n m A B⦄, MeasurableSet B → n ≤ m → {u | toTuple m u ∈ A} ⊆ {u | toTuple n u ∈ B} → μ f m A ≤ μ f n B
 
   /-- If two functions are indistinguishable on a set `s`, then the probability
   that no iteration lies in `sᶜ` is the same for both functions.

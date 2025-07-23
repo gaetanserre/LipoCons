@@ -8,6 +8,8 @@ import LipoCons.Defs.NPos
 import LipoCons.Utils.Compact
 import Mathlib.Analysis.Normed.Order.Lattice
 
+set_option maxHeartbeats 0
+
 variable {α : Type*} [PseudoMetricSpace α]
 
 /-! Given a sequence `u` and a element `x`, returns `min_(0 ≤ i < n) dist (u i) x. -/
@@ -15,9 +17,10 @@ noncomputable def min_dist_x :=
   fun {n : ℕ} (u : Fin n → α) (x : α) => Tuple.min ((fun xi => dist xi x) ∘ u)
 
 /-- `min_dist_x` is continuous -/
+@[continuity]
 lemma min_dist_x_continuous {n : ℕ} (u : Fin n → α) : Continuous (min_dist_x u) := by
   by_cases h : n = 0
-  · letI : ¬Nonempty (Fin n) := by
+  · haveI : ¬Nonempty (Fin n) := by
       rw [←Fin.pos_iff_nonempty]
       exact Eq.not_gt h
     let e := Classical.arbitrary ℝ
@@ -44,6 +47,13 @@ lemma min_dist_x_continuous {n : ℕ} (u : Fin n → α) : Continuous (min_dist_
   split
   · simp only [Function.comp_apply, Finset.inf'_apply, g]
   · contradiction
+
+/- lemma min_dist_x_continuous' (n : ℕ) : Continuous (min_dist_x (α := α) (n := n)) := by
+  refine continuous_pi ?_
+  intro i
+  exact?
+
+  sorry -/
 
 variable [CompactSpace α] [Nonempty α] {β : Type*} [Nonempty β] [PseudoMetricSpace β]
   [LinearOrder β] [ClosedIciTopology β] [ClosedIicTopology β]
@@ -79,6 +89,109 @@ def isConsistentOverLipschitz (A : Algorithm α β) {f : α → β} (hf : Lipsch
 any element in `α` and `u`. -/
 noncomputable def max_min_dist {n : ℕ} (u : Fin n → α) :=
   min_dist_x u (compact_argmax (min_dist_x_continuous u))
+
+lemma max_min_dist_continuous {n : ℕ₀} : Continuous (max_min_dist (n := n) (α := α)) := by
+  /- have : ∀ (u : Fin n → α), Continuous (min_dist_x u) :=
+    fun u ↦ min_dist_x_continuous u
+  refine Continuous.comp' (by exact?) ?_ -/
+  let f := fun u : Fin n → α => compact_argmax (min_dist_x_continuous u)
+  have t : ∀ u1 u2, dist (max_min_dist u1) (max_min_dist u2) ≤ dist u1 u2 + dist (f u1) (f u2) := by
+    intro u1 u2
+    unfold max_min_dist
+    set x1 := compact_argmax (min_dist_x_continuous u1)
+    set x2 := compact_argmax (min_dist_x_continuous u2)
+    rw [show f u1 = x1 by rfl]
+    rw [show f u2 = x2 by rfl]
+    unfold min_dist_x
+    obtain ⟨i1, hi1⟩ := Tuple.argmin (fun xi ↦ dist xi x1) n.2 u1
+    obtain ⟨i2, hi2⟩ := Tuple.argmin (fun xi ↦ dist xi x2) n.2 u2
+    rw [←hi1, ←hi2]
+    have : 0 ≤ dist (u1 i1) x1 - dist (u2 i2) x2 := by sorry
+    show |dist (u1 i1) x1 - dist (u2 i2) x2| ≤ dist u1 u2 + dist x1 x2
+    rw [abs_of_nonneg this]
+    suffices dist (u1 i1) x1 ≤ dist u1 u2 + dist x1 x2 + dist (u2 i2) x2 from
+      (OrderedSub.tsub_le_iff_right _ _ _).mpr this
+
+    let i := (Tuple.dist_exists n.2 u1 u2).choose
+    have di : dist u1 u2 = dist (u1 i) (u2 i) :=
+      (Tuple.dist_exists n.2 u1 u2).choose_spec
+    rw [di]
+
+    have : ∀ i, dist (u1 i1) x1 ≤ dist (u1 i) x1 :=
+
+
+
+    sorry
+
+  have : Continuous f := by sorry
+
+  rw [Metric.continuous_iff]
+  intro u1 ε ε_pos
+
+  have ε_4_pos : 0 < ε / 4 := by
+    rw [show ε / 4 = ε / 2 / 2 by ring]
+    exact half_pos (half_pos ε_pos)
+  obtain ⟨δ, δ_pos, hδ⟩ := Metric.continuous_iff.mp this u1 (ε / 4) ε_4_pos
+  refine ⟨min δ (ε/4), ?_, ?_⟩
+  · show 0 < min δ (ε / 4)
+    rw [lt_min_iff]
+    exact ⟨δ_pos, ε_4_pos⟩
+  intro u2 hu2
+  have : dist u2 u1 < δ := by
+    rw [lt_min_iff] at hu2
+    exact hu2.1
+  specialize hδ u2 this
+  have : dist u2 u1 < ε/4 := by
+    rw [lt_min_iff] at hu2
+    exact hu2.2
+  rw [dist_comm]
+  specialize t u1 u2
+  calc _ ≤ dist u1 u2 + dist (f u1) (f u2) := t
+  _ < ε/4 + dist (f u1) (f u2) := by
+    rw [dist_comm] at this
+    exact (add_lt_add_iff_right (dist (f u1) (f u2))).mpr this
+  _ < ε/4 + ε/4 := by
+    rw [dist_comm] at hδ
+    exact (Real.add_lt_add_iff_left (ε / 4)).mpr hδ
+  _ = ε/2 := by ring
+  _ < ε := div_two_lt_of_pos ε_pos
+
+
+  /- suffices LipschitzWith 1 max_min_dist from this.continuous
+  refine LipschitzWith.of_le_add ?_
+  intro u1 u2
+  let i := (Tuple.dist_exists n.2 u1 u2).choose
+  have di : dist u1 u2 = dist (u1 i) (u2 i) :=
+    (Tuple.dist_exists n.2 u1 u2).choose_spec
+  rw [di]
+  simp [max_min_dist]
+  set x1 := compact_argmax (min_dist_x_continuous u1)
+  set x2 := compact_argmax (min_dist_x_continuous u2)
+  have : |min_dist_x u1 x1 - min_dist_x u1 x2| ≤ |dist u1 u2 + dist x1 x2| := by sorry -/
+  --have : ∀ u1, ∀ ε > 0, ∃ δ > 0, ∀ u2, dist u1 u2 < δ → dist
+
+  /- refine Metric.continuous_iff.mpr ?_
+  intro u₁ ε ε_pos
+  refine ⟨ε, ε_pos, ?_⟩
+  intro u₂ hu₁u₂
+  let i := (Tuple.dist_exists n.2 u₂ u₁).choose
+  have di : dist u₂ u₁ = dist (u₂ i) (u₁ i) :=
+    (Tuple.dist_exists n.2 u₂ u₁).choose_spec
+  rw [di] at hu₁u₂
+  simp [max_min_dist]
+  replace hu₁u₂ : dist (u₂ i) (u₁ i) < ε := hu₁u₂
+  set x₂ := compact_argmax (min_dist_x_continuous u₂)
+  set x₁ := compact_argmax (min_dist_x_continuous u₁)
+  have : ∀ j, dist (u₂ j) (u₁ j) ≤ dist (u₂ i) (u₁ i) := Tuple.dist_exists_le n.2 u₂ u₁
+  have : ∀ x, min_dist_x u₂ x ≤ min_dist_x u₂ x₂ :=
+    fun x => compact_argmax_apply (min_dist_x_continuous u₂) x
+  have : ∀ x, min_dist_x u₁ x ≤ min_dist_x u₁ x₁ :=
+    fun x => compact_argmax_apply (min_dist_x_continuous u₁) x -/
+
+  --sorry
+
+
+
 
 /-! **Main definition**: Given a function `f`, an algorithm `A` sample the whole space
 if `∀ ε > 0, lim_(n → ∞) A.μ f n {u | max_min_dist u > ε} = 0`. -/

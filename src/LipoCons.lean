@@ -8,7 +8,7 @@ import LipoCons.Utils.Finset
 import LipoCons.Utils.Indistinguishable
 import LipoCons.Utils.Metric
 import LipoCons.Utils.Tendsto
-import Mathlib.Analysis.RCLike.Basic
+import Mathlib
 
 /-! Here, we prove that an iterative stochastic global optimization algorithm
 is consistent over Lipschitz functions if and only if it, for any Lipschitz function,
@@ -22,7 +22,7 @@ Please refer to
 open Metric Tuple MeasureTheory Set ENNReal
 
 variable {α : Type*} [MeasurableSpace α] [NormedAddCommGroup α] [NormedSpace ℝ α]
-  [CompactSpace α] [Nonempty α]
+  [CompactSpace α] [Nonempty α] [OpensMeasurableSpace α] [SecondCountableTopology α]
 
 theorem sample_iff_consistent (A : Algorithm α ℝ) :
     (∀ ⦃f : α → ℝ⦄, Lipschitz f → sample_whole_space A f)
@@ -101,8 +101,11 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
       We use `Algorithm.μ_mono` to show that this inclusion implies the inequality. -/
       intro n m hnm
       let S := fun n => {u : Fin n → α | max_min_dist u > ε₁}
-      suffices h : {u : ℕ → α | toTuple m u ∈ S m} ⊆ {u | Tuple.toTuple n u ∈ S n}
-        from A.μ_mono f h
+      have : MeasurableSet (S n) := by
+        simp only [S]
+        exact measurableSet_lt measurable_const max_min_dist_continuous.measurable
+      suffices h : {u : ℕ → α | toTuple m u ∈ S m} ⊆ {u | toTuple n u ∈ S n}
+        from A.μ_mono f this hnm h
       intro u (hu : max_min_dist (toTuple m u) > ε₁)
       unfold max_min_dist min_dist_x at hu
       set x' := compact_argmax (min_dist_x_continuous (toTuple m u))
@@ -150,8 +153,15 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
           exact N₁.2
         · intro c c_mem n m hnm hn
           let S := fun n => {u : Fin n → α | ∀ i, u i ∉ Metric.ball c (ε₁/2)}
+          have : MeasurableSet (S n) := by
+            have : S n = univ.pi (fun _ => (Metric.ball c (ε₁/2))ᶜ) := by
+              ext _
+              simp_all only [S, mem_setOf_eq, mem_pi, mem_univ, mem_compl_iff, mem_ball,
+                not_lt, forall_const]
+            rw [this]
+            exact MeasurableSet.univ_pi (fun i => MeasurableSet.compl_iff.mpr measurableSet_ball)
           suffices h : {u | toTuple m u ∈ S m} ⊆ {u | toTuple n u ∈ S n} from
-            lt_of_le_of_lt (A.μ_mono f h) hn
+            lt_of_le_of_lt (A.μ_mono f this hnm h) hn
           exact fun _ hu i => hu ⟨i.1, Fin.val_lt_of_le i hnm⟩
 
       obtain ⟨n_max, hn_max⟩ := h_contra

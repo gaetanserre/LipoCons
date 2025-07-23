@@ -11,21 +11,26 @@ import Mathlib
 
 set_option maxHeartbeats 0
 
-open MeasureTheory ProbabilityTheory
+open MeasureTheory ProbabilityTheory Set
 
 namespace Tuple
 
 variable {α β : Type*}
 
-def prod_eval (n : ℕ) (f : α → β) (u : Fin n → α) := (u, f ∘ u)
+abbrev subTuple {n m : ℕ} (hmn : n ≤ m) (u : Fin m → α) : Fin n → α := u ∘ (Fin.castLE hmn)
+
+abbrev subTuple' {n m : ℕ} (hmn : n ≤ m) (u : Fin (m + 1) → α) : Fin (n + 1) → α :=
+  u ∘ Fin.castLE (Nat.add_le_add_right hmn 1)
+
+abbrev prod_eval (n : ℕ) (f : α → β) (u : Fin n → α) := (u, f ∘ u)
 
 lemma prod_eval_eq_restrict (n : ℕ) {f g : α → β} (s : Set α) (hfg : s.restrict f = s.restrict g)
     {u : Fin n → α} (hu : ∀ i, u i ∈ s) : prod_eval n f u = prod_eval n g u := by
   ext i
   · rfl
   · specialize hu i
-    simp_all only [Set.restrict_eq_restrict_iff]
-    have fwd : f (u i) = g (u i) := Set.EqOn.eq_of_mem hfg hu
+    simp_all only [restrict_eq_restrict_iff]
+    have fwd : f (u i) = g (u i) := EqOn.eq_of_mem hfg hu
     exact fwd
 
 variable [MeasurableSpace α] [MeasurableSpace β]
@@ -42,7 +47,7 @@ lemma measurable_prod_eval (n : ℕ) {f : α → β} (hf : Measurable f) :
 
 abbrev append {n : ℕ} (u : Fin n → α) (a : α) : Fin (n + 1) → α := Fin.snoc u a
 
-def pop {n : ℕ} (u : Fin (n + 1) → α) : Fin n → α := fun i => u i.castSucc
+abbrev pop {n : ℕ} (u : Fin (n + 1) → α) : Fin n → α := fun i => u i.castSucc
 
 end Tuple
 
@@ -86,7 +91,7 @@ structure Algo (α β : Type*) [MeasurableSpace α] [MeasurableSpace β] where
 namespace Algo
 
 
-open Tuple Set ENNReal
+open Tuple ENNReal
 
 variable {α β : Type*} [MeasurableSpace α] [MeasurableSpace β] (A : Algo α β)
 
@@ -394,4 +399,98 @@ example {f g : α → β} (hf : Measurable f) (hg : Measurable g) {s : Set α}
     exact fun i => (u_mem i trivial).2
 
 
+example (n m : ℕ) {s : Set (iter α n)} (hs : MeasurableSet s) {e : Set (iter α m)} (hmn : n ≤ m)
+    (hse : e ⊆ {u | subTuple' hmn u ∈ s}) {f : α → β} (hf : Measurable f) :
+    A.marginal m hf e ≤ A.marginal n hf s := by
+  induction m with
+  | zero =>
+    have : n = 0 := by exact Nat.eq_zero_of_le_zero hmn
+    subst this
+    suffices e ⊆ s from (A.marginal 0 hf).mono this
+    intro u hu
+    exact hse hu
+  | succ k hk =>
+      by_cases hn : n = k + 1
+      · subst hn
+        suffices e ⊆ s from (A.marginal (k + 1) hf).mono this
+        intro u hu
+        exact hse hu
+
+      · push_neg at hn
+        replace hn : n ≤ k := Nat.le_of_lt_succ (Nat.lt_of_le_of_ne hmn hn)
+        suffices (A.marginal (k + 1) hf) {u | subTuple' hmn u ∈ s} ≤ (A.marginal n hf) s from
+          le_trans ((A.marginal (k + 1) hf).mono hse) this
+
+        rw [marginal]
+        split
+        · contradiction
+        next succ_k_ne_zero =>
+        set μf : Measure (iter α (k + 1)) := by
+          rw [←Nat.succ_pred_eq_of_ne_zero succ_k_ne_zero]
+          exact A.jsp hf (A.marginal (k + 1 - 1) hf)
+        have : μf = A.jsp hf (A.marginal k hf) := by rfl
+        rw [this]
+        clear this
+
+        have s_m : MeasurableSet {u | subTuple' hmn u ∈ s} := by
+          suffices Measurable (subTuple' (α := α) hmn) by
+            specialize this hs
+            exact this
+          unfold subTuple'
+          unfold Function.comp
+          apply measurable_pi_lambda
+          intro a
+          exact measurable_pi_apply _
+
+        simp [jsp, Measure.ofMeasurable_apply _ s_m]
+
+
+        have : ∀ u x, {u | subTuple' hmn u ∈ s}.indicator 1 (append u x) =
+            ({u | subTuple' hn u ∈ s}.indicator 1 u : ℝ≥0∞) := by
+          intro u x
+          refine indicator_eq_indicator ?_ rfl
+          constructor
+          · intro (hu : subTuple' hmn (append u x) ∈ s)
+            suffices subTuple' hmn (append u x) = subTuple' hn u by
+              rwa [this] at hu
+            simp [subTuple', append]
+            ext i
+            simp only [Function.comp_apply]
+            have : n + 1 ≤ k + 1 := Nat.add_le_add_right hn 1
+            have : Fin.castLE (Nat.add_le_add_right hmn 1) i =
+                Fin.castSucc ⟨i, Fin.val_lt_of_le i this⟩ := by
+              rfl
+            rw [this, Fin.snoc_castSucc]
+            rfl
+          · intro (hu : subTuple' hn u ∈ s)
+            show subTuple' hmn (append u x) ∈ s
+            suffices subTuple' hn u = subTuple' hmn (append u x) by
+              rwa [←this]
+            simp [subTuple', append]
+            ext i
+            simp only [Function.comp_apply]
+            have : n + 1 ≤ k + 1 := Nat.add_le_add_right hn 1
+            have : Fin.castLE (Nat.add_le_add_right hmn 1) i =
+                Fin.castSucc ⟨i, Fin.val_lt_of_le i this⟩ := by
+              rfl
+            rw [this, Fin.snoc_castSucc]
+            rfl
+
+        simp_rw [this]
+        simp_rw [lintegral_const]
+        haveI : IsMarkovKernel (A.iter_comap (n := k) hf) := by
+          simp [iter_comap]
+          infer_instance
+        have : ∀ (u : iter α k), A.iter_comap hf u univ = 1 := fun u ↦ measure_univ
+        simp_rw [this]
+        simp only [mul_one, ge_iff_le]
+
+        exact le_trans (lintegral_indicator_one_le _)
+          (hk (e := {u | subTuple' hn u ∈ s}) hn (fun ⦃a⦄ a ↦ a))
+
 end Algo
+
+example (a c : ℝ) : MeasurableSet ({x | dist x c > a}) := by
+  refine measurableSet_lt measurable_const ?_
+  have := measurable_dist (α := ℝ)
+  exact Measurable.of_uncurry_right this
