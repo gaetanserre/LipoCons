@@ -2,9 +2,12 @@
  - Created in 2025 by Gaëtan Serré
 -/
 
-import LipoCons.Defs.NPos
 import Mathlib.Topology.Compactness.Compact
 import Mathlib.Topology.MetricSpace.Pseudo.Defs
+
+/-! The subtype of positive natural numbers. -/
+abbrev pos_nat := {n : ℕ // 0 < n}
+notation "ℕ₀" => pos_nat
 
 variable (α : Type*) [Nonempty α] [PseudoMetricSpace α] [CompactSpace α]
 

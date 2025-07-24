@@ -2,7 +2,8 @@
  - Created in 2025 by Gaëtan Serré
 -/
 
-import Mathlib
+import Mathlib.Order.CompletePartialOrder
+import Mathlib.Topology.Algebra.InfiniteSum.Basic
 
 namespace Set
 
@@ -50,5 +51,77 @@ lemma sum_indicator_iUnion {α β : Type*} [AddCommMonoid β] [TopologicalSpace 
     push_neg at h_contra
     have : x ∈ f y := mem_of_indicator_ne_zero h_contra
     exact hy (hi y this)
+
+lemma indicator_one_mem {α β ι γ : Type*} [Zero ι] [One ι] (f : α → γ → β) (s₁ : Set β)
+    (s₂ : Set ι) :
+    ({e : γ × α | s₁.indicator 1 (f e.2 e.1) ∈ s₂} = ∅) ∨
+    ({e : γ × α | s₁.indicator 1 (f e.2 e.1) ∈ s₂} = univ) ∨
+    ({e : γ × α | s₁.indicator 1 (f e.2 e.1) ∈ s₂} = {e | (f e.2 e.1) ∈ s₁}) ∨
+    ({e : γ × α | s₁.indicator 1 (f e.2 e.1) ∈ s₂} = {e | (f e.2 e.1) ∈ s₁}ᶜ) := by
+  by_cases hs₂ : 0 ∉ s₂ ∧ 1 ∉ s₂
+  · suffices {e : γ × α | s₁.indicator 1 (f e.2 e.1) ∈ s₂} = ∅ by
+      rw [this]
+      exact Or.inl rfl
+    ext e
+    constructor
+    swap
+    · intro _
+      contradiction
+    · intro (he : s₁.indicator 1 (f e.2 e.1) ∈ s₂)
+      by_cases e_mem : f e.2 e.1 ∈ s₁
+      · rw [indicator_of_mem e_mem] at he
+        exact hs₂.2 he
+      · rw [indicator_of_notMem e_mem] at he
+        exact hs₂.1 he
+  by_cases hs₂' : 0 ∈ s₂ ∧ 1 ∈ s₂
+  · suffices {e : γ × α | s₁.indicator 1 (f e.2 e.1) ∈ s₂} = univ by
+      rw [this]
+      exact Or.inr <| Or.inl rfl
+    ext e
+    constructor
+    · intro _
+      trivial
+    · intro _
+      show s₁.indicator 1 (f e.2 e.1) ∈ s₂
+      by_cases e_mem : f e.2 e.1 ∈ s₁
+      · rw [indicator_of_mem e_mem]
+        exact hs₂'.2
+      · rw [indicator_of_notMem e_mem]
+        exact hs₂'.1
+  push_neg at hs₂
+  push_neg at hs₂'
+  by_cases hs₂'' : 1 ∈ s₂
+  · suffices {e : γ × α | s₁.indicator 1 (f e.2 e.1) ∈ s₂} = {e | f e.2 e.1 ∈ s₁} by
+      rw [this]
+      exact Or.inr <| Or.inr <| Or.inl rfl
+    ext e
+    constructor
+    · simp only [mem_setOf_eq]
+      intro he
+      by_contra h
+      rw [indicator_of_notMem h] at he
+      exact hs₂' he hs₂''
+    · intro (he : f e.2 e.1 ∈ s₁)
+      show s₁.indicator 1 (f e.2 e.1) ∈ s₂
+      rw [indicator_of_mem he]
+      exact hs₂''
+
+  · have hs₂''' : 0 ∈ s₂ := by
+      by_contra h
+      exact hs₂'' (hs₂ h)
+    suffices {e : γ × α | s₁.indicator 1 (f e.2 e.1) ∈ s₂} = {e | f e.2 e.1 ∈ s₁}ᶜ by
+      rw [this]
+      exact Or.inr <| Or.inr <| Or.inr rfl
+    ext e
+    constructor
+    · simp only [mem_compl_iff, mem_setOf_eq]
+      intro he
+      by_contra h
+      rw [indicator_of_mem h] at he
+      exact hs₂'' he
+    · simp only [mem_compl_iff, mem_setOf_eq]
+      intro he
+      rw [indicator_of_notMem he]
+      exact hs₂'''
 
 end Set

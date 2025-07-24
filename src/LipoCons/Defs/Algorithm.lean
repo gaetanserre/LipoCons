@@ -2,64 +2,412 @@
  - Created in 2025 by Gaëtan Serré
 -/
 
+import LipoCons.Defs.Iter
+import LipoCons.Utils.Measure
+import LipoCons.Utils.Set
 import LipoCons.Utils.Tuple
-import Mathlib.MeasureTheory.Measure.Typeclasses.Probability
-import Mathlib.Order.CompletePartialOrder
+import Mathlib.Algebra.Order.Star.Basic
+import Mathlib.MeasureTheory.Constructions.Pi
+import Mathlib.Probability.Kernel.Composition.MapComap
+import Mathlib.Probability.Kernel.MeasurableLIntegral
 
-open MeasureTheory Tuple
+open MeasureTheory ProbabilityTheory
 
-/-! One way to define an iterative algorithm applied to a function is to represent it as a probability measure over sequences in `Ω`: `ν : Measure (ℕ → Ω)`.
+/-- `Algorithm α β` represents a general iterative stochastic optimization algorithm.
 
-This measure represents the distribution of the iteration sequences produced by the algorithm in infinite time. This definition also allows us to study finite iteration sequences: for any integer `n` and any predicate `P : (Fin n → Ω) → Prop`, we can measure the set of iterations of size `n` that satisfy `P`: `ν {u : ℕ → Ω | P (u[1:n])}`.
+It models a sequence of updates where:
+- `α` is the search space (e.g., parameters, candidate solutions),
+- `β` is the evaluation space (e.g., objective values, feedback),
+- `ν` is the initial probability measure over `α` (the starting distribution of candidates),
+- `kernel_iter n` is a Markov kernel that outputs a new candidate in `α`
+  given the history of the first `n` points and their evaluations,
+  i.e., from the space `prod_iter_image α β n` = (`α × β`)ⁿ,
+- `markov_kernel n` asserts that each such `kernel_iter n` is a valid Markov kernel.
 
-However, this measure `ν` may be difficult to define. Indeed, it is necessary to know the distribution of the limits of the iteration sequences of the algorithm.
-
-A simpler way to define an iterative algorithm is to represent it by a sequence of probability measures `μ : (n : ℕ) → Measure (Fin n → Ω)`. For any integer `n`, the measure `μ n` acts on the space of sequences of length `n` and represents the distribution of the first `n` iterations of the algorithm.
-
-It is very simple to define `μ` from `ν`:
-`μ = λ n (s : Set (Fin n → Ω)) ↦ ν {u : ℕ → Ω | u[1:n] ∈ s}`.
-From this definition, it is trivial to show that
-`μ n {u : Fin n → Ω | P u} = ν {u : ℕ → Ω | P (u[1:n])}`,
-which implies
-`lim_(n → ∞) μ n {u : Fin n → Ω | P u} = lim_(n → ∞) ν {u : ℕ → Ω | P (u[1:n])}`
-
-Thus, `f g : (n : ℕ) → Fin n → Ω` converge in measure (with respect to `ν`) to one another if and only if
-`∀ ε > 0, lim_(n → ∞) μ n {u : Fin n → Ω | |f n u - g n u| > ε} = 0`.
-
-The drawback of this definition is that the object `μ ∞ = ν` is not directly accessible: for a predicate `P` on sequences, it will be necessary to construct a predicate `P'` on finite sequences such that
-`lim_(n → ∞) μ n {u : Fin n → Ω | P' u} = ν {u : ℕ → Ω | P u}`.
-
-However, in most convergence analyses of iterative algorithms, only the convergence in measure of predicates on iteration sequences is studied. Thus, we will use the sequence of measures `μ (n : ℕ) → Measure (Fin n → Ω)` to represent an iterative algorithm. -/
-structure Algorithm (α β : Type*) [MeasurableSpace α] where
-  μ : (α → β) → (n : ℕ) → Measure (Fin n → α)
-
-  private μ_prob f n : IsProbabilityMeasure (μ f n)
-
-  /-- Equivalent to `∀ n ≤ m, μ f n A = μ f m {u | u[1:n] ∈ A}` -/
-  μ_mono f : ∀ ⦃n m A B⦄, MeasurableSet B → n ≤ m → {u | toTuple m u ∈ A} ⊆ {u | toTuple n u ∈ B} → μ f m A ≤ μ f n B
-
-  /-- If two functions are indistinguishable on a set `s`, then the probability
-  that no iteration lies in `sᶜ` is the same for both functions.
-
-  Indeed, since the algorithm only has access to function evaluations,
-  the distribution of the i-th point in the iteration sequence depends
-  on the previous points.
-
-  Now, if none of these points are in `sᶜ` and `f = g` on `s`, then the
-  distribution of the i-th point is the same for both functions.
-
-  Thus, the distribution of iteration sequences that contain no point in `sᶜ`
-  is the same for both functions.
-
-  However, the distribution of iteration sequences that contain one or more points
-  may differ (e.g., if `g` is minimized on `sᶜ`). -/
-  μ_eq_restrict : ∀ ⦃f g : α → β⦄, ∀ ⦃s : Set α⦄, (∀ a ∈ s, f a = g a) → ∀ n,
-      μ f n {u | ∀ i, u i ∉ sᶜ} = μ g n {u | ∀ i, u i ∉ sᶜ}
+It allows formal reasoning over joint distributions of evaluated points and convergence
+properties. -/
+structure Algorithm (α β : Type*) [MeasurableSpace α] [MeasurableSpace β] where
+  ν : Measure α
+  prob_measure : IsProbabilityMeasure ν
+  kernel_iter (n : ℕ) : Kernel (prod_iter_image α β n) α
+  markov_kernel (n : ℕ) : IsMarkovKernel (kernel_iter n)
 
 namespace Algorithm
 
-variable {α β : Type*} [MeasurableSpace α] (A : Algorithm α β)
+open Tuple ENNReal Set
 
-instance {f : α → β} {n : ℕ} : IsProbabilityMeasure (A.μ f n) := A.μ_prob f n
+variable {α β : Type*} [MeasurableSpace α] [TopologicalSpace α] [OpensMeasurableSpace α]
+  [MeasurableSpace β] [TopologicalSpace β] [BorelSpace β] (A : Algorithm α β)
+
+instance : IsProbabilityMeasure A.ν := A.prob_measure
+instance {n : ℕ} : IsMarkovKernel (A.kernel_iter n) := A.markov_kernel n
+
+/-- Given a continuous function `f : α → β` representing the evaluation (e.g., objective function),
+this constructs a new kernel that maps a history of points (in `iter α n`)
+to a probability distribution over the next point in `α`.
+
+The original algorithm `A` provides a transition kernel `A.kernel_iter n` that depends on
+both the previously proposed points and their corresponding evaluations.
+However, in practice, the algorithm itself only generates the sequence of points,
+and the evaluations are computed externally by applying `f` to each point.
+
+The function `prod_eval n f` deterministically reconstructs the full history
+(points and their evaluations) from the point sequence alone, using `f` and
+the `comap` pulls back the original kernel along this map,
+resulting in a kernel that operates directly on the sequence of points. -/
+def iter_comap {f : α → β} (hf : Continuous f) {n : ℕ} :
+  Kernel (iter α n) α :=
+  (A.kernel_iter n).comap
+    (prod_eval n f)
+    (measurable_prod_eval n hf.measurable)
+
+/-- Given:
+- a continuous evaluation function `f : α → β`,
+- a measure `μ` on the space of point histories `iter α n` (i.e., sequences of length `n + 1`),
+
+`next_measure` defines the measure on `iter α (n + 1)` (sequences of length `n + 2`)
+by pushing forward `μ` through the kernel that produces the next point
+conditioned on the current history.
+
+The kernel is pulled back via `prod_eval n f`, so that evaluations are
+computed deterministically from the point history.
+
+This function corresponds to one step of the recursive construction of the joint distribution
+over the sequence of points generated by the algorithm. -/
+noncomputable def next_measure {f : α → β} (hf : Continuous f) {n : ℕ} (μ : Measure (iter α n)) :
+    Measure (iter α (n + 1)) := by
+  refine Measure.ofMeasurable
+    (fun s hs => ∫⁻ u, (∫⁻ x, s.indicator 1 (append u x) ∂ A.iter_comap hf u) ∂ μ) ?_ ?_
+  · simp only [mem_empty_iff_false,
+      not_false_eq_true, indicator_of_notMem, lintegral_const, zero_mul]
+  · intro f f_m f_d
+    simp only
+    set g := fun i x (u : iter α n) => ((f i).indicator 1 (append u x) : ℝ≥0∞)
+    have g_m : ∀ i, Measurable (Function.uncurry (g i)) := by
+      intro i
+      intro s s_m
+      rw [preimage]
+      simp only [Function.uncurry, g]
+      suffices MeasurableSet {e : α × iter α n | append e.2 e.1 ∈ f i} by
+        cases indicator_one_mem append (f i) s with
+        | inl h =>
+          rw [h]
+          exact MeasurableSet.empty
+        | inr h =>
+          cases h with
+          | inl h =>
+            rw [h]
+            exact MeasurableSet.univ
+          | inr h =>
+            cases h with
+            | inl h =>
+              rw [h]
+              exact this
+            | inr h =>
+              rw [h]
+              exact MeasurableSet.compl_iff.mpr this
+      let eq := iter_mequiv α n
+      suffices {e : α × iter α n | append e.2 e.1 ∈ f i} = eq '' (f i) by
+        rw [this]
+        exact eq.measurableSet_image.mpr (f_m i)
+      ext e
+      constructor
+      · intro he
+        rw [image]
+        refine ⟨append e.2 e.1, he, ?_⟩
+        simp [append]
+        let snoc : Fin (n + 1 + 1) → α := Fin.snoc e.2 e.1
+        show (snoc (Fin.last (n + 1)), Fin.removeNth (Fin.last (n + 1)) snoc) = e
+        simp_all only [mem_setOf_eq, Fin.snoc_last,
+          Fin.removeNth_last, Fin.init_snoc, Prod.mk.eta, snoc]
+      · rintro ⟨a, a_mem, ha⟩
+        suffices a = append e.2 e.1 by
+          rwa [this] at a_mem
+        replace ha : (a (Fin.last (n + 1)), Fin.removeNth (Fin.last (n + 1)) a) = e := ha
+        rw [←ha]
+        subst ha
+        simp_all only [Fin.removeNth_last, Fin.snoc_init_self]
+
+    simp_rw [sum_indicator_iUnion f_d]
+    have : ∀ u, ∫⁻ x, ∑' i, (f i).indicator 1 (append u x) ∂(A.iter_comap hf) u =
+        ∑' i, ∫⁻ x, (f i).indicator 1 (append u x) ∂(A.iter_comap hf) u := by
+      intro u
+      refine lintegral_tsum ?_
+      intro i
+      exact (g_m i).of_uncurry_right.aemeasurable
+    simp_rw [this]
+    refine lintegral_tsum ?_
+    intro i
+    haveI : IsFiniteKernel (A.iter_comap (n := n) hf) := by
+      simp [iter_comap]
+      infer_instance
+    exact (g_m i).lintegral_kernel_prod_left.aemeasurable
+
+/-- Given a continuous evaluation function `f : α → β`, this defines
+the joint distribution over the sequence of proposed points
+up to iteration `n`, as a measure on `iter α n`.
+
+The construction is recursive:
+- At step `n = 0`, the measure is the initial distribution `ν`, viewed as a constant sequence of length 1.
+- At step `n + 1`, the measure is obtained by applying the algorithm's transition kernel
+  (with evaluations computed via `f`) to extend the previous history by one point.
+
+The function `next_measure` performs this step, using `iter_comap` to inject evaluations into
+the kernel’s input space.
+
+This defines the full law of the trajectory of proposed points, up to time `n`. -/
+noncomputable def measure {f : α → β} (hf : Continuous f) (n : ℕ) : Measure (iter α n) :=
+  if h : n = 0 then
+    Measure.pi (fun _ => A.ν)
+  else by
+    rw [←Nat.succ_pred_eq_of_ne_zero h]
+    exact A.next_measure hf (measure hf (n - 1))
+
+instance {n : ℕ} {f : α → β} {hf : Continuous f} : IsProbabilityMeasure (A.measure hf n) := by
+  induction n with
+  | zero =>
+    simp [measure]
+    infer_instance
+  | succ m hm =>
+    have succ_m_ne_zero : m + 1 ≠ 0 := (Nat.zero_ne_add_one m).symm
+    rw [measure] at ⊢
+    split
+    · contradiction
+    set μf : Measure (iter α (m + 1)) := by
+      rw [←Nat.succ_pred_eq_of_ne_zero succ_m_ne_zero]
+      exact A.next_measure hf (A.measure hf (m + 1 - 1))
+    have : μf = A.next_measure hf (A.measure hf m) := by rfl
+    rw [this]
+    clear this
+    suffices (A.next_measure hf (A.measure hf m)) univ = 1 from isProbabilityMeasure_iff.mpr this
+    simp [next_measure, Measure.ofMeasurable_apply _ MeasurableSet.univ]
+    haveI : IsMarkovKernel (A.iter_comap (n := m) hf) := by
+      simp [iter_comap]
+      infer_instance
+    simp only [measure_univ, lintegral_const, mul_one]
+
+/-- Monotonicity of the algorithm's induced measures under trajectory extension.
+
+Let `s : Set iter α n` be a measurable set of point sequences of length `n`,
+and `e : Set iter α m` for some `m ≥ n` a set of longer trajectories such that
+every `u ∈ e` satisfies `subTuple hmn u ∈ s`.
+
+Then the measure assigned to `e` by the algorithm at step `m` is less than or equal to
+the measure assigned to `s` at step `n`.
+
+This expresses that the family of measures is projectively consistent:
+the measure on longer trajectories contracts to the measure on shorter ones via truncation.
+
+Formally: if `e ⊆ {u | subTuple hmn u ∈ s}`, then `A.measure hf m e ≤ A.measure hf n s`. -/
+lemma mono {n m : ℕ} {s : Set (iter α n)} (hs : MeasurableSet s) {e : Set (iter α m)} (hmn : n ≤ m)
+    (hse : e ⊆ {u | subTuple hmn u ∈ s}) {f : α → β} (hf : Continuous f) :
+    A.measure hf m e ≤ A.measure hf n s := by
+  induction m with
+  | zero =>
+    have : n = 0 := Nat.eq_zero_of_le_zero hmn
+    subst this
+    suffices e ⊆ s from (A.measure hf 0).mono this
+    exact hse
+  | succ k hk =>
+      by_cases hn : n = k + 1
+      · subst hn
+        suffices e ⊆ s from (A.measure hf (k + 1)).mono this
+        exact hse
+      · push_neg at hn
+        replace hn : n ≤ k := Nat.le_of_lt_succ (Nat.lt_of_le_of_ne hmn hn)
+        suffices (A.measure hf (k + 1)) {u | subTuple hmn u ∈ s} ≤ (A.measure hf n) s from
+          le_trans ((A.measure hf (k + 1)).mono hse) this
+
+        rw [measure]
+        split
+        · contradiction
+        next succ_k_ne_zero =>
+        set μf : Measure (iter α (k + 1)) := by
+          rw [←Nat.succ_pred_eq_of_ne_zero succ_k_ne_zero]
+          exact A.next_measure hf (A.measure hf (k + 1 - 1))
+        have : μf = A.next_measure hf (A.measure hf k) := by rfl
+        rw [this]
+        clear this
+
+        have s_m : MeasurableSet {u | subTuple hmn u ∈ s} := by
+          suffices Measurable (subTuple (α := α) hmn) from this hs
+          unfold subTuple Function.comp
+          apply measurable_pi_lambda
+          intro a
+          exact measurable_pi_apply _
+
+        simp [next_measure, Measure.ofMeasurable_apply _ s_m]
+
+        suffices ∀ u x, {u | subTuple hmn u ∈ s}.indicator 1 (append u x) =
+            ({u | subTuple hn u ∈ s}.indicator 1 u : ℝ≥0∞) by
+          simp_rw [this, lintegral_const]
+          haveI : IsMarkovKernel (A.iter_comap (n := k) hf) := by
+            simp [iter_comap]
+            infer_instance
+          simp_rw [measure_univ]
+          simp only [mul_one]
+
+          exact le_trans (lintegral_indicator_one_le _)
+            (hk (e := {u | subTuple hn u ∈ s}) hn (fun ⦃a⦄ a ↦ a))
+
+        intro u x
+        refine indicator_eq_indicator ?_ rfl
+        constructor
+        · intro (hu : subTuple hmn (append u x) ∈ s)
+          suffices subTuple hmn (append u x) = subTuple hn u by rwa [this] at hu
+          simp only [subTuple, append]
+          ext i
+          simp only [Function.comp_apply]
+          have cast_fin : Fin.castLE (Nat.add_le_add_right hmn 1) i =
+              Fin.castSucc ⟨i, Fin.val_lt_of_le i (Nat.add_le_add_right hn 1)⟩ := rfl
+          rw [cast_fin, Fin.snoc_castSucc]
+          rfl
+        · intro hu
+          show subTuple hmn (append u x) ∈ s
+          suffices subTuple hn u = subTuple hmn (append u x) by rwa [←this]
+          simp only [subTuple, append]
+          ext i
+          simp only [Function.comp_apply]
+          have cast_fin : Fin.castLE (Nat.add_le_add_right hmn 1) i =
+              Fin.castSucc ⟨i, Fin.val_lt_of_le i (Nat.add_le_add_right hn 1)⟩ := by
+            rfl
+          rw [cast_fin, Fin.snoc_castSucc]
+          rfl
+
+/-- If two continuous functions `f` and `g` agree on a measurable set `s`, then the algorithm's
+induced measures at iteration `n` are identical when restricted to trajectories that stay
+within `s`. This establishes that the algorithm depends only on the objective function values
+on the relevant domain. -/
+lemma eq_restrict {f g : α → β} (hf : Continuous f) (hg : Continuous g) {s : Set α}
+    (hs : MeasurableSet s) (h : s.restrict f = s.restrict g) (n : ℕ) :
+    (A.measure hf n).restrict (univ.pi (fun _ => s)) =
+    (A.measure hg n).restrict (univ.pi (fun _ => s)) := by
+  induction n with
+  | zero =>
+    simp only [Nat.reduceAdd, measure, ↓reduceDIte]
+  | succ m hm =>
+    refine Measure.pi_space_eq ?_
+    intro B hB
+    simp [Measure.restrict_apply <| MeasurableSet.univ_pi hB]
+
+    let C := fun i => (B i) ∩ s
+    have : univ.pi B ∩ (univ.pi (fun _ => s)) = univ.pi C := pi_inter_distrib.symm
+    rw [this]
+    clear this
+
+    rw (occs := .pos [1]) [measure]
+    rw (occs := .pos [2]) [measure]
+    split
+    · contradiction
+    next succ_m_ne_zero =>
+    set μf : Measure (iter α (m + 1)) := by
+      rw [←Nat.succ_pred_eq_of_ne_zero succ_m_ne_zero]
+      exact A.next_measure hf (A.measure hf (m + 1 - 1))
+    have : μf = A.next_measure hf (A.measure hf m) := by rfl
+    rw [this]
+    clear this
+
+    set μg : Measure (iter α (m + 1)) := by
+      rw [←Nat.succ_pred_eq_of_ne_zero succ_m_ne_zero]
+      exact A.next_measure hg (A.measure hg (m + 1 - 1))
+    have : μg = A.next_measure hg (A.measure hg m) := by rfl
+    rw [this]
+    clear this
+
+    have measurable_prod : MeasurableSet (univ.pi C : Set (iter α (m + 1))) :=
+      MeasurableSet.univ_pi (fun i => (hB i).inter hs)
+    simp [next_measure, Measure.ofMeasurable_apply _ measurable_prod]
+
+    let C_head := fun i : Fin (m + 1) => (B i.castSucc) ∩ s
+    let C_last := C ⟨m + 1, lt_add_one (m + 1)⟩
+
+    have split_indicator : ∀ ⦃f⦄, (hf : Continuous f) → ∀ u,
+        ∫⁻ (x : α), (univ.pi C).indicator 1 (append u x) ∂(A.iter_comap hf) u =
+        (univ.pi C_head).indicator
+          (fun u => ∫⁻ (x : α), C_last.indicator 1 x ∂(A.iter_comap hf) u) u :=
+      by
+        intro f hf u
+        by_cases u_mem : u ∉ univ.pi C_head
+        · rw [indicator_of_notMem u_mem]
+          suffices ∀ x, (append u x) ∉ (univ.pi C) by
+            have : ∀ x, (univ.pi C).indicator 1 (append u x) = (0 : ℝ≥0∞) :=
+              fun x => indicator_of_notMem (this x) _
+            simp_rw [this]
+            exact lintegral_zero
+          by_contra h_contra
+          push_neg at h_contra
+          obtain ⟨x, hx⟩ := h_contra
+          obtain ⟨i, hi⟩ := not_forall.mp fun a ↦ u_mem fun i _ ↦ a i
+          specialize hx i.castSucc trivial
+          rw [append, Fin.snoc_castSucc] at hx
+          contradiction
+        · push_neg at u_mem
+          rw [indicator_of_mem u_mem]
+          suffices ∀ x, (univ.pi C).indicator 1 (append u x) = (C_last.indicator 1 x : ℝ≥0∞) by
+            simp_rw [this]
+          intro x
+          suffices x ∈ C_last ↔ (append u x) ∈ univ.pi C by
+            by_cases hx : x ∈ C_last
+            · rw [indicator_of_mem hx, indicator_of_mem (this.mp hx)]
+              rfl
+            · rw [indicator_of_notMem hx]
+              rw [this] at hx
+              rw [indicator_of_notMem hx]
+          constructor
+          · intro hx i _
+            by_cases hi : i = m + 1
+            · have : append u x i = x := by
+                simp only [append]
+                have : i = Fin.last (m + 1) := Fin.eq_of_val_eq hi
+                simp only [this, Fin.snoc_last]
+              rwa [this, Fin.eq_mk_iff_val_eq.mpr hi]
+            · have le : i < m + 1 :=
+                Nat.lt_of_le_of_ne (Fin.is_le i) hi
+              have : append u x i = u ⟨i, le⟩ := by
+                simp [append]
+                exact Fin.snoc_castSucc (α := fun _ => α) x u ⟨i, le⟩
+              rw [this]
+              exact u_mem ⟨i, le⟩ trivial
+
+          · intro hx
+            specialize hx (Fin.last (m + 1)) trivial
+            simp only [append, Fin.snoc_last] at hx
+            exact hx
+
+    simp_rw [split_indicator hf, split_indicator hg]
+    clear split_indicator
+
+    have measurable_head : MeasurableSet (univ.pi C_head) :=
+      MeasurableSet.univ_pi (fun i => (hB i.castSucc).inter hs)
+
+    rw [lintegral_indicator measurable_head, lintegral_indicator measurable_head]
+
+    set f_int := fun u : iter α m => ∫⁻ (x : α), C_last.indicator 1 x ∂(A.iter_comap hf) u
+    set g_int := fun u : iter α m => ∫⁻ (x : α), C_last.indicator 1 x ∂(A.iter_comap hg) u
+
+    set μf := (A.measure hf m).restrict (univ.pi C_head)
+    set μg := (A.measure hg m).restrict (univ.pi C_head)
+
+    have : μf = μg := by
+      simp [μf, μg]
+      have C_head_ss : univ.pi C_head ⊆ univ.pi (fun _ => s) :=
+        fun _ u_mem i _ => (u_mem i trivial).2
+      rw [←(A.measure hf m).restrict_restrict_of_subset C_head_ss,
+        ←(A.measure hg m).restrict_restrict_of_subset C_head_ss]
+      ext E hE
+      rw [Measure.restrict_apply hE, Measure.restrict_apply hE]
+      exact congrFun (congrArg DFunLike.coe hm) (E ∩ univ.pi C_head)
+    rw [this]
+
+    suffices EqOn f_int g_int (univ.pi C_head) from
+      setLIntegral_congr_fun measurable_head this
+
+    intro u u_mem
+    suffices (A.iter_comap hf) u = (A.iter_comap hg) u by
+      simp [f_int, g_int]
+      rw [this]
+    simp only [iter_comap, Kernel.coe_comap, Function.comp_apply]
+    suffices ∀ i, u i ∈ s by rw [prod_eval_eq_restrict m h this]
+    exact fun i => (u_mem i trivial).2
 
 end Algorithm

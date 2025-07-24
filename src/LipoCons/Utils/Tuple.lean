@@ -3,7 +3,7 @@
 -/
 
 import LipoCons.Utils.Fintype
-import Mathlib
+import Mathlib.MeasureTheory.MeasurableSpace.Constructions
 
 variable {α : Type*}
 
@@ -11,69 +11,56 @@ namespace Tuple
 
 def toTuple (n : ℕ) (u : ℕ → α) : Fin n → α := fun i => u i.val
 
-variable {n : ℕ}
+noncomputable def min [LinearOrder α] [Nonempty α] {n : ℕ} (f : Fin n → α) := Fintype.min_image f
 
-noncomputable def min [LinearOrder α] [Nonempty α] (f : Fin n → α) := Fintype.min_image f
-
-lemma le_min [LinearOrder α] [Nonempty α] (f : Fin n → α) (h : 0 < n) : ∀ j, min f ≤ f j := by
-  haveI : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp h
+lemma le_min [LinearOrder α] [Nonempty α] {n : ℕ} (f : Fin (n + 1) → α) : ∀ j, min f ≤ f j := by
+  haveI : Nonempty (Fin (n + 1)) := instNonemptyOfInhabited
   exact Fintype.le_min_image f
 
-noncomputable def max [LinearOrder α] [Nonempty α] (f : Fin n → α) := Fintype.max_image f
+noncomputable def max [LinearOrder α] [Nonempty α] {n : ℕ} (f : Fin n → α) := Fintype.max_image f
 
-lemma le_max [LinearOrder α] [Nonempty α] (f : Fin n → α) (h : 0 < n) : ∀ j, f j ≤ max f := by
-  letI : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp h
+lemma le_max [LinearOrder α] [Nonempty α] {n : ℕ} (f : Fin (n + 1) → α) : ∀ j, f j ≤ max f := by
+  haveI : Nonempty (Fin (n + 1)) := instNonemptyOfInhabited
   exact Fintype.le_max_image f
 
-lemma dist_eq [PseudoMetricSpace α] (u₁ u₂ : Fin n → α) : dist u₁ u₂ =
-    Finset.univ.sup fun b => nndist (u₁ b) (u₂ b) := by
-  exact rfl
+variable {β : Type*}
 
-lemma dist_exists [PseudoMetricSpace α] (hn : 0 < n) (u₁ u₂ : Fin n → α) :
-    ∃ i, dist u₁ u₂ = dist (u₁ i) (u₂ i) := by
-  show ∃ i, dist u₁ u₂ = nndist (u₁ i) (u₂ i)
-  rw [dist_eq]
-  have : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hn
-  have univ_ne : (Finset.univ : Finset (Fin n)).Nonempty := Finset.univ_nonempty_iff.mpr this
+abbrev subTuple {n m : ℕ} (hmn : n ≤ m) (u : Fin (m + 1) → α) : Fin (n + 1) → α :=
+  u ∘ Fin.castLE (Nat.add_le_add_right hmn 1)
 
-  have : (Finset.univ.sup fun b ↦ nndist (u₁ b) (u₂ b)) =
-      (Finset.univ.sup' univ_ne fun b ↦ nndist (u₁ b) (u₂ b)) :=
-    (Finset.sup'_eq_sup univ_ne fun b ↦ nndist (u₁ b) (u₂ b)).symm
-  rw [this]
-  simp
-  let A := {x | ∃ i, nndist (u₁ i) (u₂ i) = x}
-  suffices Finset.univ.sup' univ_ne (fun b ↦ nndist (u₁ b) (u₂ b)) ∈ A by
-    obtain ⟨i, hi⟩ := this
-    use i
-    rw [←hi]
-    rfl
-  refine Finset.sup'_mem A ?_ Finset.univ univ_ne _ ?_
-  · intro x x_mem y y_mem
-    cases max_choice x y with
-    | inl inl => rwa [inl]
-    | inr inr => rwa [inr]
-  · intro i _
-    use i
+abbrev prod_eval (n : ℕ) (f : α → β) (u : Fin (n + 1) → α) := (u, f ∘ u)
 
-noncomputable abbrev dist_arg [PseudoMetricSpace α] (hn : 0 < n) (u₁ u₂ : Fin n → α) :=
-  (dist_exists hn u₁ u₂).choose
+lemma prod_eval_eq_restrict (n : ℕ) {f g : α → β} {s : Set α} (hfg : s.restrict f = s.restrict g)
+    {u : Fin (n + 1) → α} (hu : ∀ i, u i ∈ s) : prod_eval n f u = prod_eval n g u := by
+  ext i
+  · rfl
+  · specialize hu i
+    simp_all only [Set.restrict_eq_restrict_iff]
+    have fwd : f (u i) = g (u i) := Set.EqOn.eq_of_mem hfg hu
+    exact fwd
 
-lemma dist_exists_le [PseudoMetricSpace α] (hn : 0 < n) (u₁ u₂ : Fin n → α) :
-    ∀ i, dist (u₁ i) (u₂ i) ≤ dist (u₁ (dist_arg hn u₁ u₂)) (u₂ (dist_arg hn u₁ u₂)) := by
-  intro i
-  rw [←(dist_exists hn u₁ u₂).choose_spec]
-  exact dist_le_pi_dist u₁ u₂ i
+lemma measurable_prod_eval [MeasurableSpace α] [MeasurableSpace β] (n : ℕ)
+    {f : α → β} (hf : Measurable f) : Measurable (prod_eval n f) := by
+  refine Measurable.prodMk measurable_id ?_
+  unfold Function.comp
+  apply measurable_pi_lambda
+  intro a
+  apply Measurable.comp'
+  · exact hf
+  · exact measurable_pi_apply _
 
-variable {β : Type*} [LinearOrder β] [Nonempty β] (f : α → β)
+abbrev append {n : ℕ} (u : Fin n → α) (a : α) : Fin (n + 1) → α := Fin.snoc u a
 
-lemma argmin {n : ℕ} (hn : 0 < n) (u : Fin n → α) : ∃ i, f (u i) = min (f ∘ u) := by
-  have : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hn
+variable [LinearOrder β] [Nonempty β] (f : α → β)
+
+lemma argmin {n : ℕ} (u : Fin (n + 1) → α) : ∃ i, f (u i) = min (f ∘ u) := by
+  haveI : Nonempty (Fin (n + 1)) := instNonemptyOfInhabited
   unfold min Fintype.min_image
   split
   swap
   · contradiction
   unfold Fintype.min_image'
-  have univ_ne : (Finset.univ : Finset (Fin n)).Nonempty := Finset.univ_nonempty_iff.mpr this
+  have univ_ne : (Finset.univ : Finset (Fin (n + 1))).Nonempty := Finset.univ_nonempty_iff.mpr this
   let A := {x | ∃ i, u i = x}
   suffices h : Finset.univ.inf' univ_ne (f ∘ u) ∈ (f '' A) by
     obtain ⟨x, ⟨i, hi⟩, h⟩ := h
@@ -88,14 +75,14 @@ lemma argmin {n : ℕ} (hn : 0 < n) (u : Fin n → α) : ∃ i, f (u i) = min (f
   intro i _
   exact ⟨u i, ⟨i, rfl⟩, rfl⟩
 
-lemma argmax {n : ℕ} (hn : 0 < n) (u : Fin n → α) : ∃ i, f (u i) = max (f ∘ u) := by
-  have : Nonempty (Fin n) := Fin.pos_iff_nonempty.mp hn
+lemma argmax {n : ℕ} (u : Fin (n + 1) → α) : ∃ i, f (u i) = max (f ∘ u) := by
+  haveI : Nonempty (Fin (n + 1)) := instNonemptyOfInhabited
   unfold max Fintype.max_image
   split
   swap
   · contradiction
   unfold Fintype.max_image'
-  have univ_ne : (Finset.univ : Finset (Fin n)).Nonempty := Finset.univ_nonempty_iff.mpr this
+  have univ_ne : (Finset.univ : Finset (Fin (n + 1))).Nonempty := Finset.univ_nonempty_iff.mpr this
   let A := {x | ∃ i, u i = x}
   suffices h : Finset.univ.sup' univ_ne (f ∘ u) ∈ (f '' A) by
     obtain ⟨x, ⟨i, hi⟩, h⟩ := h
