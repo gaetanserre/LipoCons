@@ -7,9 +7,10 @@ import Mathlib.Topology.Algebra.InfiniteSum.Basic
 
 namespace Set
 
+/-- For a pairwise disjoint family of sets, an element belongs to their union if and only if
+it belongs to exactly one of the sets in the family. -/
 lemma mem_iUnion_disjoint {α : Type*} {f : ℕ → Set α}
-    (h : Pairwise (Function.onFun Disjoint f)) (x : α) :
-    (∃! i, x ∈ f i) ↔ (x ∈ ⋃ i, f i) := by
+    (h : Pairwise (Function.onFun Disjoint f)) (x : α) : (∃! i, x ∈ f i) ↔ (x ∈ ⋃ i, f i) := by
   constructor
   · rintro ⟨i, fi, _⟩
     rw [mem_iUnion]
@@ -24,6 +25,8 @@ lemma mem_iUnion_disjoint {α : Type*} {f : ℕ → Set α}
   rw [Disjoint.inter_eq (h y_neq_i)] at this
   contradiction
 
+/-- For a pairwise disjoint family of sets, the indicator function of their union equals the
+infinite sum of the individual indicator functions. -/
 lemma sum_indicator_iUnion {α β : Type*} [AddCommMonoid β] [TopologicalSpace β]
     {f : ℕ → Set α} (h : Pairwise (Function.onFun Disjoint f))
     {g : α → β} : ∀ x, ((⋃ i, f i).indicator g x) = ∑' i, (f i).indicator g x := by
@@ -52,6 +55,9 @@ lemma sum_indicator_iUnion {α β : Type*} [AddCommMonoid β] [TopologicalSpace 
     have : x ∈ f y := mem_of_indicator_ne_zero h_contra
     exact hy (hi y this)
 
+/-- The set of pairs where the indicator function of `s₁` applied to `f e.2 e.1` belongs to `s₂`
+can only take one of four forms: empty, universal, equal to `{e | f e.2 e.1 ∈ s₁}`,
+or its complement. -/
 lemma indicator_one_mem {α β ι γ : Type*} [Zero ι] [One ι] (f : α → γ → β) (s₁ : Set β)
     (s₂ : Set ι) :
     ({e : γ × α | s₁.indicator 1 (f e.2 e.1) ∈ s₂} = ∅) ∨

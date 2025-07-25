@@ -11,7 +11,7 @@ namespace Lipschitz
 variable {α : Type*} [NormedAddCommGroup α] [NormedSpace ℝ α] [CompactSpace α]
   [Nonempty α] {f : α → ℝ} (hf : Lipschitz f) (c : α)
 
-/-! Given a `Lipschitz` function `f` over a `CompactSpace α`, construct a `Lipschitz`
+/-- Given a `Lipschitz` function `f` over a `CompactSpace α`, construct a `Lipschitz`
 function (see `Lipschitz.f_tilde_lipschitz`) that is indistinguishable from `f` outside
 of a ball of radius `ε` such that the maximum of this new function is greater than the
 maximum of `f` and is located in the ball. -/

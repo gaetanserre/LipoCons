@@ -11,7 +11,7 @@ notation "ℕ₀" => pos_nat
 
 variable (α : Type*) [Nonempty α] [PseudoMetricSpace α] [CompactSpace α]
 
-/-! For any nonempty compact space `a` equipped with a pseudo-metric, there exists a finite cover
+/-- For any nonempty compact space `a` equipped with a pseudo-metric, there exists a finite cover
  of `α` by balls of radius `ε`. -/
 lemma ε_cover_ne {ε : ℝ} (hε : ε > 0) :
     {n : ℕ₀ | ∃ (t : Finset α), t.card = n ∧ Set.univ = ⋃ x ∈ t, Metric.ball x ε}.Nonempty := by

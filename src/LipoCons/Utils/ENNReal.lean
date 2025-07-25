@@ -9,6 +9,7 @@ open ENNReal MeasureTheory
 
 namespace ENNReal
 
+/-- Contradiction lemma: if `a < b` and `b ≤ a` for `ℝ≥0∞`, then false. -/
 lemma contra_ineq {a b : ℝ≥0∞} (i1 : a < b) (i2 : b ≤ a) : False := by
   have ha : a ≠ ⊤ := LT.lt.ne_top i1
   have hb : b ≠ ⊤ := ne_top_of_le_ne_top ha i2

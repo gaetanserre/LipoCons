@@ -9,7 +9,7 @@ open NNReal
 
 variable {α β : Type*}
 
-/-! A wrapper around `LipschitzWith` of Mathlib. A function is `Lipschitz` if it exists
+/-- A wrapper around `LipschitzWith` of Mathlib. A function is `Lipschitz` if it exists
 a `K : ℝ≥0` such that `LipschitzWith K f. -/
 @[fun_prop]
 structure Lipschitz [PseudoEMetricSpace α] [PseudoEMetricSpace β] (f : α → β) : Prop where

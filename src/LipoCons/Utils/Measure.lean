@@ -12,8 +12,10 @@ namespace MeasureTheory.Measure
 variable {ι : Type*} [Fintype ι] {α : ι → Type*} [∀ i, MeasurableSpace (α i)]
   {μ ν : Measure (∀ i, α i)} [IsFiniteMeasure μ]
 
+/-- Two measures on a finite product space are equal if they agree on all measurable rectangles
+of the form `univ.pi s`, provided one of them is finite. -/
 lemma pi_space_eq
-    (h : ∀ s : ∀ i, Set (α i), (∀ i, MeasurableSet (s i)) → μ (pi univ s) = ν (pi univ s)) :
+    (h : ∀ s : ∀ i, Set (α i), (∀ i, MeasurableSet (s i)) → μ (univ.pi s) = ν (univ.pi s)) :
     μ = ν := by
   refine Measure.FiniteSpanningSetsIn.ext
     generateFrom_pi.symm (IsPiSystem.pi (fun _ => MeasurableSpace.isPiSystem_measurableSet)) ?_ ?_
