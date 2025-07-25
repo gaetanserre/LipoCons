@@ -15,10 +15,12 @@ variable {α : Type*} [NormedAddCommGroup α] [NormedSpace ℝ α] [CompactSpace
 function (see `Lipschitz.f_tilde_lipschitz`) that is indistinguishable from `f` outside
 of a ball of radius `ε` such that the maximum of this new function is greater than the
 maximum of `f` and is located in the ball. -/
+-- ANCHOR: f_tilde
 noncomputable def f_tilde (ε : ℝ) := fun x =>
   if x ∈ Metric.ball c (ε/2) then
     f x + 2 * ((1 - (dist x c) / (ε/2)) * (fmax hf - fmin hf + 1))
   else f x
+-- ANCHOR_END: f_tilde
 
 omit [NormedSpace ℝ α] in
 lemma f_tilde_apply_out {ε : ℝ} {x : α} (hx : x ∉ Metric.ball c (ε/2)) :
@@ -52,6 +54,7 @@ lemma max_f_lt_f_tilde_c {ε : ℝ} (ε_pos : 0 < ε) : fmax hf < hf.f_tilde c �
 
 open Set unitInterval
 
+-- ANCHOR: f_tilde_lipschitz
 lemma f_tilde_lipschitz {ε : ℝ} (ε_pos : 0 < ε) : Lipschitz (hf.f_tilde c ε) := by
   let g := fun a => 2 * ((1 - (dist a c) / (ε/2)) * (fmax hf - fmin hf + 1))
   have hg : Lipschitz g := by
@@ -66,11 +69,14 @@ lemma f_tilde_lipschitz {ε : ℝ} (ε_pos : 0 < ε) : Lipschitz (hf.f_tilde c �
     rw [h]
     ring
   exact CommGroupWithZero.mul_inv_cancel _ ((ne_of_lt (half_pos ε_pos)).symm)
+-- ANCHOR_END: f_tilde_lipschitz
 
+-- ANCHOR: max_f_lt_max_f_tilde
 lemma max_f_lt_max_f_tilde {ε : ℝ} (ε_pos : 0 < ε) :
     fmax hf < fmax (hf.f_tilde_lipschitz c ε_pos) :=
   suffices h : fmax hf < hf.f_tilde c ε c from
     lt_of_le_of_lt' (compact_argmax_apply (hf.f_tilde_lipschitz c ε_pos).continuous c) h
   hf.max_f_lt_f_tilde_c c ε_pos
+-- ANCHOR_END: max_f_lt_max_f_tilde
 
 end Lipschitz

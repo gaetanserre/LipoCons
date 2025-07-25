@@ -19,7 +19,9 @@ It consists of:
 - and their corresponding evaluations in `β`.
 
 This pair encodes the full information available up to iteration `n`. -/
+-- ANCHOR: prod_iter_image
 abbrev prod_iter_image (α β : Type*) (n : ℕ) := (iter α n) × (iter β n)
+-- ANCHOR_END: prod_iter_image
 
 /-- `iter_mequiv α n` is a measurable equivalence between `iter α (n + 1)` and `α × iter α n`.
 

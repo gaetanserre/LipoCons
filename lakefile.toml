@@ -1,21 +1,21 @@
-name = "versowebsite"
+name = "manual"
 version = "0.1.0"
-keywords = ["verso", "website", "documentation"]
+keywords = ["math"]
 
 [leanOptions]
-pp.unicode.fun = true # pretty-prints `fun a ↦ b`
-autoImplicit = false
+autoImplicit = true
 
 [[require]]
 name = "verso"
 git = "https://github.com/leanprover/verso"
 
 [[lean_lib]]
-name = "VersoWebsite"
-srcDir = "verso_website"
-root = "VersoWebsite"
+name = "Manual"
+srcDir = "verso_manual"
+root = "Manual"
+
 
 [[lean_exe]]
-name = "versowebsite"
-srcDir = "verso_website"
-root = "VersoWebsite"
+name = "manual"
+srcDir = "verso_manual"
+root = "Manual"

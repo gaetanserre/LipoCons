@@ -16,7 +16,7 @@ it samples the whole space.
 Please refer to
 - `Algorithm` for the definition of an algorithm;
 - `sample_whole_space` for the definition of sampling the whole space;
-- `isConsistentOverLipschitz` for the definition of consistency over Lipschitz functions;
+- `is_consistent_over_Lipschitz` for the definition of consistency over Lipschitz functions;
 - `Lipschitz` for the definition of Lipschitz functions. -/
 
 open Metric Tuple MeasureTheory Set ENNReal
@@ -27,7 +27,7 @@ variable {α : Type*} [MeasurableSpace α] [NormedAddCommGroup α] [NormedSpace 
 theorem sample_iff_consistent (A : Algorithm α ℝ) :
     (∀ ⦃f : α → ℝ⦄, (hf : Lipschitz f) → sample_whole_space A hf.continuous)
     ↔
-    (∀ ⦃f : α → ℝ⦄, (hf : Lipschitz f) → isConsistentOverLipschitz A hf) := by
+    (∀ ⦃f : α → ℝ⦄, (hf : Lipschitz f) → is_consistent_over_Lipschitz A hf) := by
   constructor
   · intro h f hf ε ε_pos
     have hfc := hf.continuous

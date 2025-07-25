@@ -12,8 +12,10 @@ set_option maxHeartbeats 0
 variable {α : Type*} [PseudoMetricSpace α]
 
 /-- Given a sequence `u` and a element `x`, returns `min_(0 ≤ i < n) dist (u i) x. -/
+-- ANCHOR: min_dist_x
 noncomputable def min_dist_x :=
   fun {n : ℕ} (u : iter α n) (x : α) => Tuple.min ((fun xi => dist xi x) ∘ u)
+-- ANCHOR_END: min_dist_x
 
 /-- `min_dist_x` is continuous -/
 lemma min_dist_x_continuous {n : ℕ} (u : iter α n) : Continuous (min_dist_x u) := by
@@ -41,6 +43,8 @@ variable [CompactSpace α] [Nonempty α] {β : Type*} [Nonempty β] [PseudoMetri
 
 /-- The maximum of a Lipschitz function over `α`. -/
 noncomputable def fmax {f : α → β} (hf : Lipschitz f) := f (compact_argmax hf.continuous)
+
+/-- The minimum of a Lipschitz function over `α`. -/
 noncomputable def fmin {f : α → β} (hf : Lipschitz f) := f (compact_argmin hf.continuous)
 
 variable [MeasurableSpace α] [MeasurableSpace β] [OpensMeasurableSpace α] [BorelSpace β]
@@ -59,21 +63,27 @@ noncomputable def measure_dist_max (A : Algorithm α β) {f : α → β} (hf : L
 open Filter Topology
 /-- **Main definition**: An algorithm `A` is consistent over a Lipschitz function `f`
 if for any `ε > 0`, `lim_(n → ∞) measure_dist_max n = 0`. -/
-def isConsistent (A : Algorithm α β) {f : α → β} (hf : Lipschitz f) : Prop :=
+-- ANCHOR: is_consistent
+def is_consistent (A : Algorithm α β) {f : α → β} (hf : Lipschitz f) : Prop :=
   ∀ ⦃ε⦄, 0 < ε → Tendsto (measure_dist_max A hf ε) atTop (𝓝 0)
+-- ANCHOR_END: is_consistent
 
 /-- An algorithm `A` is consistent over all Lipschitz functions. -/
-def isConsistentOverLipschitz (A : Algorithm α β) {f : α → β} (hf : Lipschitz f) : Prop :=
-  isConsistent A hf
+def is_consistent_over_Lipschitz (A : Algorithm α β) {f : α → β} (hf : Lipschitz f) : Prop :=
+  is_consistent A hf
 
 /-- Given a sequence `u`, maximum over `α` of `min_dist_x u`: the maximum distance between
 any element in `α` and `u`. -/
+-- ANCHOR: max_min_dist
 noncomputable def max_min_dist {n : ℕ} (u : iter α n) :=
   min_dist_x u (compact_argmax (min_dist_x_continuous u))
+-- ANCHOR_END: max_min_dist
 
 /-- **Main definition**: Given a function `f`, an algorithm `A` sample the whole space
 if `∀ ε > 0, lim_(n → ∞) A.measure f n {u | max_min_dist u > ε} = 0`. -/
+-- ANCHOR: sample_whole_space
 noncomputable def sample_whole_space (A : Algorithm α β) {f : α → β} (hf : Continuous f) : Prop :=
   ∀ ε > 0, Tendsto (fun n => A.measure hf n {u | max_min_dist u > ε}) atTop (𝓝 0)
+-- ANCHOR_END: sample_whole_space
 
 open unitInterval
