@@ -17,7 +17,7 @@ noncomputable def min_dist_x :=
   fun {n : ℕ} (u : iter α n) (x : α) => Tuple.min ((fun xi => dist xi x) ∘ u)
 -- ANCHOR_END: min_dist_x
 
-/-- `min_dist_x` is continuous -/
+/-- For any `(u : iter α n)`, `min_dist_x u` is continuous -/
 lemma min_dist_x_continuous {n : ℕ} (u : iter α n) : Continuous (min_dist_x u) := by
 
   haveI ne_fin : Nonempty (Fin (n + 1)) := instNonemptyOfInhabited
@@ -49,27 +49,31 @@ noncomputable def fmin {f : α → β} (hf : Lipschitz f) := f (compact_argmin h
 
 variable [MeasurableSpace α] [MeasurableSpace β] [OpensMeasurableSpace α] [BorelSpace β]
 
-/-- The set of sequences of size `n` such that the maximum of `f` over
+/-- The set of sequences of size `n + 1` such that the maximum of `f` over
 these sequences is at least `ε` away from from `fmax`. -/
+-- ANCHOR: set_dist_max
 def set_dist_max {f : α → β} (hf : Lipschitz f) {n : ℕ} (ε : ℝ) : Set (iter α n) :=
   {u | dist (Tuple.max (f ∘ u)) (fmax hf) > ε}
+-- ANCHOR_END: set_dist_max
 
 /-- Given an algorithm `A`, the function that, given `ε` and `n`, returns
-the measure of the set of sequences of size `n` such that the maximum of
+the measure of the set of sequences of size `n + 1` such that the maximum of
 `f` over these sequences is at least `ε` away from from `fmax`. -/
+-- ANCHOR: measure_dist_max
 noncomputable def measure_dist_max (A : Algorithm α β) {f : α → β} (hf : Lipschitz f) :=
   fun ε n => A.measure hf.continuous n (set_dist_max hf ε)
+-- ANCHOR_END: measure_dist_max
 
 open Filter Topology
 /-- **Main definition**: An algorithm `A` is consistent over a Lipschitz function `f`
 if for any `ε > 0`, `lim_(n → ∞) measure_dist_max n = 0`. -/
 -- ANCHOR: is_consistent
-def is_consistent (A : Algorithm α β) {f : α → β} (hf : Lipschitz f) : Prop :=
+def is_consistent (A : Algorithm α β) {f : α → β} (hf : Lipschitz f) :=
   ∀ ⦃ε⦄, 0 < ε → Tendsto (measure_dist_max A hf ε) atTop (𝓝 0)
 -- ANCHOR_END: is_consistent
 
 /-- An algorithm `A` is consistent over all Lipschitz functions. -/
-def is_consistent_over_Lipschitz (A : Algorithm α β) {f : α → β} (hf : Lipschitz f) : Prop :=
+def is_consistent_over_Lipschitz (A : Algorithm α β) {f : α → β} (hf : Lipschitz f) :=
   is_consistent A hf
 
 /-- Given a sequence `u`, maximum over `α` of `min_dist_x u`: the maximum distance between
@@ -82,7 +86,7 @@ noncomputable def max_min_dist {n : ℕ} (u : iter α n) :=
 /-- **Main definition**: Given a function `f`, an algorithm `A` sample the whole space
 if `∀ ε > 0, lim_(n → ∞) A.measure f n {u | max_min_dist u > ε} = 0`. -/
 -- ANCHOR: sample_whole_space
-noncomputable def sample_whole_space (A : Algorithm α β) {f : α → β} (hf : Continuous f) : Prop :=
+noncomputable def sample_whole_space (A : Algorithm α β) {f : α → β} (hf : Continuous f) :=
   ∀ ε > 0, Tendsto (fun n => A.measure hf n {u | max_min_dist u > ε}) atTop (𝓝 0)
 -- ANCHOR_END: sample_whole_space
 

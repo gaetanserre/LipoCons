@@ -4,7 +4,7 @@
 
 import Manual.Pages.Algorithm
 import Manual.Pages.Consistency
-import Manual.Pages.Indistinguishable
+import Manual.Pages.Indistinguishable.Indistinguishable
 import Manual.Pages.LipoCons
 import Manual.Papers
 import VersoManual
@@ -39,6 +39,6 @@ This manual is dedicated to the [`L∃∀N`](https://lean-lang.org/) formalizati
 
 {include 0 Manual.Pages.Consistency}
 
-{include 0 Manual.Pages.Indistinguishable}
-
 {include 0 Manual.Pages.LipoCons}
+
+{include 0 Manual.Pages.Indistinguishable.Indistinguishable}

@@ -5,8 +5,8 @@
 import LipoCons.Utils.ECover
 import LipoCons.Utils.ENNReal
 import LipoCons.Utils.Finset
-import LipoCons.Utils.Indistinguishable
 import LipoCons.Utils.Metric
+import LipoCons.Defs.Indistinguishable
 import Mathlib.Analysis.RCLike.Basic
 import Mathlib.MeasureTheory.Constructions.BorelSpace.Metric
 
@@ -19,7 +19,7 @@ variable {α : Type*} [MeasurableSpace α] [NormedAddCommGroup α] [NormedSpace 
   [CompactSpace α] [Nonempty α] [OpensMeasurableSpace α]
 
 -- ANCHOR: sample_iff_consistent
-theorem sample_iff_consistent' (A : Algorithm α ℝ) :
+theorem sample_iff_consistent (A : Algorithm α ℝ) :
     (∀ ⦃f : α → ℝ⦄, (hf : Lipschitz f) → sample_whole_space A hf.continuous)
     ↔
     (∀ ⦃f : α → ℝ⦄, (hf : Lipschitz f) → is_consistent_over_Lipschitz A hf) := by

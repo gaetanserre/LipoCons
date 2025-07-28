@@ -12,7 +12,7 @@ def extraCss : List String := ["static/style.css"]
 
 def extraHead : Array Verso.Output.Html := #[
     {{<link rel="icon" type="image/x-icon" href="static/favicon.svg"/>}},
-    {{<script src="static/adjust_style.js"></script>}},
+    {{<script src="static/scripts.js"></script>}},
   ]
 
 def config : Config :=

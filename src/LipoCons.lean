@@ -5,8 +5,8 @@
 import LipoCons.Utils.ECover
 import LipoCons.Utils.ENNReal
 import LipoCons.Utils.Finset
-import LipoCons.Utils.Indistinguishable
 import LipoCons.Utils.Metric
+import LipoCons.Defs.Indistinguishable
 import Mathlib.Analysis.RCLike.Basic
 import Mathlib.MeasureTheory.Constructions.BorelSpace.Metric
 
@@ -53,17 +53,14 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
     intro n
 
     /- We show that a sequence produced by `A` such that its maximum image by `f` is
-    greater than `ε` has all its elements outside of the closed ball centered in `x'`
+    at least `ε`-away from `f x'` has all its elements outside of the closed ball centered in `x'`
     of radius `δ`. Otherwise, by continuity of `f`, the maximum image of this sequence
     would be `ε`-close to `f x'`. -/
     have max_dist_ss_ball : set_dist_max hf ε ⊆ {u : iter α n | ∀ i, u i ∉ B} := by
       intro u (he : dist (Tuple.max (f ∘ u)) (fmax hf) > ε) i
       by_contra hcontra
-      have le_lt_half : ∀ ⦃x⦄, x ≤ δ/2 → x < δ :=
-          fun _ hx => lt_of_le_of_lt hx (div_two_lt_of_pos hδ)
       specialize hdist (u i) hcontra
       rw [dist_max_compact hfc (u i)] at hdist
-
       obtain ⟨j, hj⟩ := argmax f u
       rw [←hj] at he
       unfold fmax at he
@@ -73,7 +70,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
       rw [hj]
       exact le_max (f ∘ u) i
 
-    /- We know have that any sequence of `set_dist_max hf ε` has all its elements
+    /- We now have that any sequence of `set_dist_max hf ε` has all its elements
     outside of `B`. It means that the max-min distance between any element of `α`
     and a sequence of `set_dist_max hf ε` is greater than `δ` as the minimum
     distance between `x'` and any element of such a sequence greater than `δ`. -/
@@ -106,7 +103,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
     push_neg at not_sample_space
     obtain ⟨ε₂, ε₂_pos, not_sample_space⟩ := not_sample_space
 
-    -- Ball almost never hit by `A`. **RADIUS `ε₁/2` NOT `ε₁`!!!**
+    -- Ball almost never hit by `A` of radius `ε₁/2`.
 
     -- To construct such a ball, we first select an arbitrary finite `ε₁`-cover of the universe.
     obtain ⟨t, t_card, h_cover⟩ := (ε_cover_ne α (half_pos ε₁_pos)).some_mem
@@ -119,7 +116,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
       by_contra h_contra
       push_neg at h_contra
 
-      /- We take `N` of `not_sample_space` specialized to the maximum image of
+      /- We take the `N` of `not_sample_space` specialized to the maximum image of
         the choice function `f : t → ℕ₀` of `h_contra`. -/
       replace h_contra : ∃ n,
           (∀ c ∈ t, A.measure hfc n {u : iter α n | ∀ i, u i ∉ ball c (ε₁/2)} < ε₂/(2 * N₁))
@@ -229,15 +226,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
 
       /- As `max f < f~ c ≤ f~ x'`, `x'` must belong in `B(c, ε₁/2)`
       otherwise, `f~ x' = f x' ≤ max f` which is a contradiction. -/
-      have x'_in_ball : x' ∈ ball c (ε₁/2) := by
-        by_contra h_contra
-        have f_tilde_x'_lt_f_tilde_c : f_tilde x' < f_tilde c := by
-          refine lt_of_le_of_lt ?_ (hf.max_f_lt_f_tilde_c c ε₁_pos)
-          simp only [f_tilde, hf.f_tilde_apply_out c h_contra]
-          exact compact_argmax_apply hfc x'
-        have f_tilde_c_le_f_tilde_x' : f_tilde c ≤ f_tilde x' :=
-          compact_argmax_apply hf_tildec c
-        linarith
+      have x'_in_ball : x' ∈ ball c (ε₁/2) := hf.max_f_tilde_in_ball c ε₁_pos
 
       set fma := fmax hf
       have f_tilde_max_gt_fma : 0 < f_tilde x' - fma :=

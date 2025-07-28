@@ -5,6 +5,11 @@
   --background-lighter: #fafafa;
 }
 
+@font-face {
+  font-family: "LigaMenlo";
+  src: url("LigaMenlo-Regular.ttf");
+}
+
 body {
   text-align: justify;
   background-color: var(--background);
@@ -44,4 +49,9 @@ p a:hover {
 
 .tippy-box[data-theme~='lean'] {
   background-color: var(--background-lighter) !important;
+}
+
+code {
+  font-family: "LigaMenlo";
+  font-variant-ligatures: normal;
 }

@@ -4,7 +4,7 @@
 
 import LipoCons.Defs.Consistency
 
-open Classical
+open Classical Metric
 
 namespace Lipschitz
 
@@ -17,25 +17,25 @@ of a ball of radius `ε` such that the maximum of this new function is greater t
 maximum of `f` and is located in the ball. -/
 -- ANCHOR: f_tilde
 noncomputable def f_tilde (ε : ℝ) := fun x =>
-  if x ∈ Metric.ball c (ε/2) then
+  if x ∈ ball c (ε/2) then
     f x + 2 * ((1 - (dist x c) / (ε/2)) * (fmax hf - fmin hf + 1))
   else f x
 -- ANCHOR_END: f_tilde
 
 omit [NormedSpace ℝ α] in
-lemma f_tilde_apply_out {ε : ℝ} {x : α} (hx : x ∉ Metric.ball c (ε/2)) :
+lemma f_tilde_apply_out {ε : ℝ} {x : α} (hx : x ∉ ball c (ε/2)) :
     hf.f_tilde c ε x = f x := by
   simp only [f_tilde, if_neg hx]
 
 omit [NormedSpace ℝ α] in
-lemma f_tilde_apply_in {ε : ℝ} {x : α} (hx : x ∈ Metric.ball c (ε/2)) :
+lemma f_tilde_apply_in {ε : ℝ} {x : α} (hx : x ∈ ball c (ε/2)) :
     hf.f_tilde c ε x = f x + 2 * ((1 - (dist x c) / (ε/2)) * (fmax hf - fmin hf + 1)) := by
   simp only [f_tilde, if_pos hx]
 
 omit [NormedSpace ℝ α] in
 lemma f_tilde_c {ε : ℝ} (ε_pos : 0 < ε) :
     hf.f_tilde c ε c = fmax hf + ((f c - fmin hf) + (fmax hf - fmin hf) + 2) := by
-  have c_in_ball : c ∈ Metric.ball c (ε/2) := Metric.mem_ball_self (half_pos ε_pos)
+  have c_in_ball : c ∈ ball c (ε/2) := mem_ball_self (half_pos ε_pos)
   rw [hf.f_tilde_apply_in c c_in_ball]
   rw [dist_self, zero_div]
   ring
@@ -56,19 +56,15 @@ open Set unitInterval
 
 -- ANCHOR: f_tilde_lipschitz
 lemma f_tilde_lipschitz {ε : ℝ} (ε_pos : 0 < ε) : Lipschitz (hf.f_tilde c ε) := by
-  let g := fun a => 2 * ((1 - (dist a c) / (ε/2)) * (fmax hf - fmin hf + 1))
-  have hg : Lipschitz g := by
-    refine const_mul ?_
-    refine mul_const ?_
-    refine sub lipschitz_const ?_
+  refine hf.if ?_ ?_
+  · intro a ha
+    rw [ha]
+    suffices h : ε / 2 / (ε / 2) = 1 by
+      rw [h]
+      ring
+    exact CommGroupWithZero.mul_inv_cancel _ ((ne_of_lt (half_pos ε_pos)).symm)
+  · refine const_mul <| mul_const <| sub lipschitz_const ?_
     exact div_const (dist_left c)
-  refine hf.if ?_ hg
-  intro a ha
-  rw [ha]
-  suffices h : ε / 2 / (ε / 2) = 1 by
-    rw [h]
-    ring
-  exact CommGroupWithZero.mul_inv_cancel _ ((ne_of_lt (half_pos ε_pos)).symm)
 -- ANCHOR_END: f_tilde_lipschitz
 
 -- ANCHOR: max_f_lt_max_f_tilde
@@ -78,5 +74,17 @@ lemma max_f_lt_max_f_tilde {ε : ℝ} (ε_pos : 0 < ε) :
     lt_of_le_of_lt' (compact_argmax_apply (hf.f_tilde_lipschitz c ε_pos).continuous c) h
   hf.max_f_lt_f_tilde_c c ε_pos
 -- ANCHOR_END: max_f_lt_max_f_tilde
+
+-- ANCHOR: max_f_tilde_in_ball
+lemma max_f_tilde_in_ball {ε : ℝ} (ε_pos : 0 < ε) :
+    compact_argmax (hf.f_tilde_lipschitz c ε_pos).continuous ∈ ball c (ε/2) := by
+  set x' := compact_argmax (hf.f_tilde_lipschitz c ε_pos).continuous
+  by_contra h_contra
+  have : fmax (hf.f_tilde_lipschitz c ε_pos) ≤ fmax hf := by
+    simp only [fmax, hf.f_tilde_apply_out c h_contra, x']
+    exact compact_argmax_apply hf.continuous x'
+  have := hf.max_f_lt_max_f_tilde c ε_pos
+  linarith
+-- ANCHOR_END: max_f_tilde_in_ball
 
 end Lipschitz

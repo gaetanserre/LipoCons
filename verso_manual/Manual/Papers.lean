@@ -12,6 +12,12 @@ def Malherbe2017 : InProceedings where
   year := 2017
   booktitle := inlines!"International conference on machine learning"
 
+def Malherbe2017ArXiv : ArXiv where
+  title := inlines!"Global optimization of Lipschitz functions"
+  authors := #[inlines!"Cédric Malherbe", inlines!"Nicolas Vayatis"]
+  year := 2017
+  id := "1703.02628"
+
 def Kallenberg2021 : InProceedings where
   title := inlines!"Foundations of Modern Probability"
   authors := #[inlines!"Olav Kallenberg"]
