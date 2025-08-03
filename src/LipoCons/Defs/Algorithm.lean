@@ -304,12 +304,12 @@ lemma eq_restrict {f g : α → β} (hf : Continuous f) (hg : Continuous g) {s :
     simp [Measure.restrict_apply <| MeasurableSet.univ_pi hB]
 
     let C := fun i => (B i) ∩ s
-    have : univ.pi B ∩ (univ.pi (fun _ => s)) = univ.pi C := pi_inter_distrib.symm
-    rw [this]
-    clear this
+    have pi_inter : univ.pi B ∩ (univ.pi (fun _ => s)) = univ.pi C := pi_inter_distrib.symm
+    rw [pi_inter]
+    clear pi_inter
 
-    rw (occs := .pos [1]) [measure]
-    rw (occs := .pos [2]) [measure]
+    nth_rw 1 [measure]
+    nth_rw 2 [measure]
     split
     · contradiction
     next succ_m_ne_zero =>
@@ -370,14 +370,13 @@ lemma eq_restrict {f g : α → β} (hf : Continuous f) (hg : Continuous g) {s :
           · intro hx i _
             by_cases hi : i = m + 1
             · have : append u x i = x := by
-                simp only [append]
-                have : i = Fin.last (m + 1) := Fin.eq_of_val_eq hi
-                simp only [this, Fin.snoc_last]
+                have fin_last : i = Fin.last (m + 1) := Fin.eq_of_val_eq hi
+                simp only [append, fin_last, Fin.snoc_last]
               rwa [this, Fin.eq_mk_iff_val_eq.mpr hi]
             · have le : i < m + 1 :=
                 Nat.lt_of_le_of_ne (Fin.is_le i) hi
               have : append u x i = u ⟨i, le⟩ := by
-                simp [append]
+                simp only [append]
                 exact Fin.snoc_castSucc (α := fun _ => α) x u ⟨i, le⟩
               rw [this]
               exact u_mem ⟨i, le⟩ trivial
@@ -401,7 +400,7 @@ lemma eq_restrict {f g : α → β} (hf : Continuous f) (hg : Continuous g) {s :
     set μf := (A.measure hf m).restrict (univ.pi C_head)
     set μg := (A.measure hg m).restrict (univ.pi C_head)
 
-    have : μf = μg := by
+    have μf_eq_μg : μf = μg := by
       simp [μf, μg]
       have C_head_ss : univ.pi C_head ⊆ univ.pi (fun _ => s) :=
         fun _ u_mem i _ => (u_mem i trivial).2
@@ -410,7 +409,8 @@ lemma eq_restrict {f g : α → β} (hf : Continuous f) (hg : Continuous g) {s :
       ext E hE
       rw [Measure.restrict_apply hE, Measure.restrict_apply hE]
       exact congrFun (congrArg DFunLike.coe hm) (E ∩ univ.pi C_head)
-    rw [this]
+    rw [μf_eq_μg]
+    clear μf_eq_μg
 
     suffices EqOn f_int g_int (univ.pi C_head) from
       setLIntegral_congr_fun measurable_head this
