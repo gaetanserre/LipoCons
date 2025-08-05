@@ -32,7 +32,7 @@ structure Algorithm (α β : Type*) [MeasurableSpace α] [MeasurableSpace β] wh
 ```
 The type {anchorTerm Algorithm}`prod_iter_image` is the product type `(Fin (n + 1) → α) × (Fin (n + 1) → β)` which represents the sequence of samples and their evaluations at each iteration. The measure {anchorTerm Algorithm}`ν` is the initial probability measure from which the first sample is drawn, and {anchorTerm Algorithm}`kernel_iter` is the Markov kernel that defines how to sample the next element based on the previous ones.
 
-*We give three concrete examples of algorithms that fit this definition.*
+*To assess the validity of this definition, we encompass three well-known algorithms in the literature into this framework.*
 
 ## Pure Random Search
 The Pure Random Search algorithm is a simple stochastic iterative global optimization algorithm that samples uniformly from the search space at each iteration. It can be defined as follows:
@@ -44,17 +44,17 @@ The Pure Random Search algorithm is a simple stochastic iterative global optimiz
 The AdaLIPO algorithm has been introduced in {citep Malherbe2017}[] and is a more sophisticated stochastic iterative global optimization algorithm made for Lipschitz functions. It uses a estimation of the Lipschitz constant to adaptively sample the search space. The algorithm can be defined as follows:
 - {anchorTerm Algorithm}`ν` := $`\mathcal{U}(\alpha)` is the uniform measure on the search space $`\alpha`.
 
-- {anchorTerm Algorithm}`kernel_iter n` `:=` $`(X, f(x)) \mapsto \mathcal{U}(E(X, f(X)))` is the Markov kernel that maps any pair of samples/evaluations to the uniform measure on the set $`E(X, f(X))` defined as
+- {anchorTerm Algorithm}`kernel_iter n` `:=` $`(X, f(X)) \mapsto \mathcal{U}(E(X, f(X)))` is the Markov kernel that maps any pair of samples/evaluations to the uniform measure on the set $`E(X, f(X))` defined as
   $$`
   E(X, f(X)) := \{x : \alpha \; | \; \max_{1 \le i \le n} f(X_i) \le \min_{1 \le i \le n} f(X_i) + \kappa(X, f(X)) \cdot d(x, X_i)\}
   `
-  where $`\kappa(X, f(X))` is an estimation of the Lipschitz constant of the function $`f` based on the previous samples and their evaluations.
+  where $`(X, f(X)) \triangleq \left[(X_1, \dots, X_n), (f(X_1), \dots, f(X_n))\right]` and $`\kappa(X, f(X))` is an estimation of the Lipschitz constant of the function $`f` based on the previous samples and their evaluations.
 
 ### CMA-ES
 The CMA-ES (Covariance Matrix Adaptation Evolution Strategy) is a popular stochastic iterative global introduced in {citep Hansen1996}[]. It samples from a multivariate normal distribution whose mean and covariance matrix is adapted based on the previous samples. The algorithm can be defined as follows:
 - {anchorTerm Algorithm}`ν` := $`\mathcal{N}(\mu, \Sigma)` is the multivariate normal measure on the search space $`\alpha` with mean $`\mu` and covariance matrix $`\Sigma`.
 
-- {anchorTerm Algorithm}`kernel_iter n` `:=` $`(X, f(X)) \mapsto \mathcal{N}(\mu(X, f(x)), \Sigma(X, f(X)))` is the Markov kernel that maps any pair of samples/evaluations to the multivariate normal distribution with mean $`\mu(X, f(x))` and covariance matrix $`\Sigma(X, f(x))` adapted based on the previous samples and their evaluations.
+- {anchorTerm Algorithm}`kernel_iter n` `:=` $`(X, f(X)) \mapsto \mathcal{N}(\mu(X, f(X)), \Sigma(X, f(X)))` is the Markov kernel that maps any pair of samples/evaluations to the multivariate normal distribution with mean $`\mu(X, f(X))` and covariance matrix $`\Sigma(X, f(X))` adapted based on the previous samples and their evaluations.
 
 # Measure on sequences
 To use the definition of consistency of a stochastic iterative global optimization algorithm, we need to use the initial probability measure and the Markov kernels of an algorithm to define a probability measure on sequences of samples produced. This measure is defined as a finite composition of the initial measure and the Markov kernels, i.e.:

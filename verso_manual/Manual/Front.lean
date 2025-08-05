@@ -25,13 +25,13 @@ In 2017, the paper _*{citehere Malherbe2017}[]*_ introduced two global optimizat
 
 More formally, *Proposition 3* states that, for any stochastic iterative global optimization algorithm $`A`, the two following statements are equivalent:
 1. For any Lipschitz function $`f` defined on $`\mathcal{X}`,
-  $$`\max_{i = 1 \dots n} f(X_i) \xrightarrow{p} \max_{x \in \mathcal{X}} f(x).`
-1. For any Lipschitz function $`f` defined on $`\mathcal{X}`,
   $$`\sup_{x \in \mathcal{X}} \min_{i = 1 \dots n} f(X_i) \xrightarrow{p} 0.`
+1. For any Lipschitz function $`f` defined on $`\mathcal{X}`,
+  $$`\max_{i = 1 \dots n} f(X_i) \xrightarrow{p} \max_{x \in \mathcal{X}} f(x).`
 
 Here $`\mathcal{X} \subset \mathbb{R}^d` is compact, $`(X_i)_{1 \le i \le n}` are the samples produced by the algorithm $`A` after $`n` iterations, and $`\xrightarrow{p}` denotes the convergence in probability.
 
-One can see that *(1)* is a popular definition of the consistency of a stochastic iterative global optimization algorithm while *(2)* means that $`A` samples the whole domain $`\mathcal{X}`.
+One can see that *(2)* is a popular definition of the consistency of a stochastic iterative global optimization algorithm while *(1)* means that $`A` samples the whole domain $`\mathcal{X}`.
 
 This manual is dedicated to the [`L∃∀N`](https://lean-lang.org/) formalization of this proposition.
 
