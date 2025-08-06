@@ -59,7 +59,7 @@ The CMA-ES (Covariance Matrix Adaptation Evolution Strategy) is a popular stocha
 # Measure on sequences
 To use the definition of consistency of a stochastic iterative global optimization algorithm, we need to use the initial probability measure and the Markov kernels of an algorithm to define a probability measure on sequences of samples produced. This measure is defined as a finite composition of the initial measure and the Markov kernels, i.e.:
 $$`
-\mathbb{P}(X_1, \dots, X_n) := \nu(X_1) \otimes \kappa_1(X_1, f(X_1)) \otimes \dots \otimes \kappa_{n-1}(X_1, \dots X_{n - 1}, f(X_1), \dots, f(X_{n-1})),
+\mathbb{P}(X_1, \dots, X_n \in E) := \left[ \nu \otimes \kappa_1 \otimes \dots \otimes \kappa_{n-1} \right] (E),
 `
 where $`\kappa_i` is {anchorTerm Algorithm}`kernel_iter` `i` (see {citep Kallenberg2021}[] for more details on decomposition of product measures using Markov kernels).
 
@@ -99,7 +99,7 @@ noncomputable def measure {f : α → β} (hf : Continuous f) (n : ℕ) : Measur
     Measure.pi (fun _ => A.ν)
   else by
     rw [←Nat.succ_pred_eq_of_ne_zero h]
-    exact A.next_measure hf (measure hf (n - 1))
+    exact A.next_measure hf <| measure hf (n - 1)
 ```
 
 Because {anchorTerm Algorithm}`ν` is a probability measure, and all kernels {anchorTerm Algorithm}`kernel_iter` are Markov kernels, {anchorTerm measure}`measure` is a also probability measure on sequences of samples.

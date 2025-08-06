@@ -167,7 +167,7 @@ noncomputable def measure {f : α → β} (hf : Continuous f) (n : ℕ) : Measur
     Measure.pi (fun _ => A.ν)
   else by
     rw [←Nat.succ_pred_eq_of_ne_zero h]
-    exact A.next_measure hf (measure hf (n - 1))
+    exact A.next_measure hf <| measure hf (n - 1)
 -- ANCHOR_END: measure
 
 -- ANCHOR: measure_isProbability
