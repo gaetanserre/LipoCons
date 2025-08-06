@@ -75,15 +75,14 @@ def iter_comap {f : α → β} (hf : Continuous f) {n : ℕ} :
 
 It allows to define a measure on sequences of size $`n + 1` given a measure on sequences of size $`n` and a continuous function $`f`. This corresponds to one step of the stochastic iterative global optimization algorithm. This new measure is defined using the composition between the measure (noted $`\mu`) on the previous sequences of size $`n` and the kernel that maps a sequence to the next sample (noted $`\kappa`):
 $$`
-(\mu \otimes \kappa) A = \int_{u} \int_{x} \mathbf{1}_A (u_1, \dots, u_n, x) \, \mathrm{d} \kappa(u, x) \, \mathrm{d} \mu(u).
+(\mu \otimes \kappa) (A) = \int_{u} \int_{x} \mathbf{1}_A (u_1, \dots, u_n, x) \, \mathrm{d} \kappa(u, x) \, \mathrm{d} \mu(u).
 `
 
 ```anchor next_measure_def
 noncomputable def next_measure {f : α → β} (hf : Continuous f) {n : ℕ} (μ : Measure (iter α n)) :
-    Measure (iter α (n + 1)) := by
-  refine Measure.ofMeasurable
-    (fun s hs => ∫⁻ u, (∫⁻ x, s.indicator 1 (append u x) ∂ A.iter_comap hf u) ∂ μ) ?_ ?_
+    Measure (iter α (n + 1)) := (μ ⊗ₘ A.iter_comap hf).comap (iter_mequiv α n)
 ```
+Note that the resulting measure-kernel product measure is defined on {anchorTerm next_measure_def}`iter α (n + 1)` `×` {anchorTerm next_measure_def}`α`. In order to obtain a measure defined on {anchorTerm next_measure_def}`iter α (n + 1)`, we pullback the resulting measure along the measurable equivalence {anchorTerm next_measure_def}`iter_mequiv` `: iter α (n + 1) ≃ᵐ iter α n × α` (using {anchorTerm next_measure_def}`comap`).
 
 Finally, we can define the measure on sequences of samples of size `n` (noted $`\mu_n`) as a recursive composition of the initial measure and the Markov kernels:
 $$`

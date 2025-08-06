@@ -33,5 +33,5 @@ where `g : Fin (n + 1) → α` is defined by `g i = f (Fin.castSucc i)`.
 
 This is useful for inductive constructions on iterative sequences, allowing to separate
 the "current" step from the "history" of previous steps. -/
-def iter_mequiv (α : Type*) [MeasurableSpace α] (n : ℕ) : iter α (n + 1) ≃ᵐ α × iter α n :=
-  MeasurableEquiv.piFinSuccAbove (fun _ => α) (Fin.last (n + 1))
+def iter_mequiv (α : Type*) [MeasurableSpace α] (n : ℕ) : iter α (n + 1) ≃ᵐ iter α n × α :=
+  (MeasurableEquiv.piFinSuccAbove (fun _ => α) (Fin.last (n + 1))).trans MeasurableEquiv.prodComm
