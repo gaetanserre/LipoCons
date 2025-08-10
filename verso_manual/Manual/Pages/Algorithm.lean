@@ -112,7 +112,7 @@ This definition of a stochastic iterative global optimization algorithm allows t
 ## Monotone
 The first lemma states that, given two natural integers such that $`n \le m`, a measurable set $`S` of sequences of size $`n`, and a set $`E` of sequences of size $`m`, if the subsequences of size $`n` in $`E` are contained in $`S`, then the measure of $`E` is less than or equal to the measure of $`S`.
 
-The informal intuition behind this lemma is that a sequence of size $`m` can be seen as a "continuation" of a sequence of size $`n`. Thus, the hypothesis that the subsequences of size $`n` in $`E` are contained in $`S` means that $`E` is a subset of all possible continuations of sequences in $`S`. Therefore, the measure of $`E` is less than or equal to the measure of $`S`.
+The informal intuition behind this lemma is that a sequence of size $`m` can be seen as a "continuations" of a sequence of size $`n`. Thus, the hypothesis that the sequences of size $`m` in $`E` are contained in the set of sequences of size $`m` that are continuations of $`S` means that `$E` is a subset of all possible continuations of sequences in $`S`. Therefore, the measure of $`E` is less than or equal to the measure of $`S`.
 ```anchor mono
 lemma mono {n m : ℕ} {s : Set (iter α n)} (hs : MeasurableSet s) {e : Set (iter α m)} (hmn : n ≤ m)
     (hse : e ⊆ {u | subTuple hmn u ∈ s}) {f : α → β} (hf : Continuous f) :
