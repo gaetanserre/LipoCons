@@ -52,8 +52,8 @@ variable [MeasurableSpace α] [MeasurableSpace β] [OpensMeasurableSpace α] [Bo
 /-- The set of sequences of size `n + 1` such that the maximum of `f` over
 these sequences is at least `ε` away from from `fmax`. -/
 -- ANCHOR: set_dist_max
-def set_dist_max {f : α → β} (hf : Lipschitz f) {n : ℕ} (ε : ℝ) : Set (iter α n) :=
-  {u | dist (Tuple.max (f ∘ u)) (fmax hf) > ε}
+def set_dist_max {f : α → β} (hf : Lipschitz f) {n : ℕ} (ε : ℝ) :=
+  {u : iter α n | dist (Tuple.max (f ∘ u)) (fmax hf) > ε}
 -- ANCHOR_END: set_dist_max
 
 /-- Given an algorithm `A`, the function that, given `ε` and `n`, returns
@@ -71,10 +71,6 @@ if for any `ε > 0`, `lim_(n → ∞) measure_dist_max n = 0`. -/
 def is_consistent (A : Algorithm α β) {f : α → β} (hf : Lipschitz f) :=
   ∀ ⦃ε⦄, 0 < ε → Tendsto (measure_dist_max A hf ε) atTop (𝓝 0)
 -- ANCHOR_END: is_consistent
-
-/-- An algorithm `A` is consistent over all Lipschitz functions. -/
-def is_consistent_over_Lipschitz (A : Algorithm α β) {f : α → β} (hf : Lipschitz f) :=
-  is_consistent A hf
 
 /-- Given a sequence `u`, maximum over `α` of `min_dist_x u`: the maximum distance between
 any element in `α` and `u`. -/
