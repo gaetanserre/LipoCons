@@ -38,8 +38,25 @@ lemma min_dist_x_continuous {n : ℕ} (u : iter α n) : Continuous (min_dist_x u
   · simp only [Function.comp_apply, Finset.inf'_apply, g]
   · contradiction
 
-variable [CompactSpace α] [Nonempty α] {β : Type*} [Nonempty β] [PseudoMetricSpace β]
-  [LinearOrder β] [ClosedIciTopology β] [ClosedIicTopology β]
+variable {β : Type*} [CompactSpace α] [Nonempty α] [MeasurableSpace α] [MeasurableSpace β]
+  [PseudoMetricSpace β] [OpensMeasurableSpace α] [BorelSpace β]
+
+/-- Given a sequence `u`, maximum over `α` of `min_dist_x u`: the maximum distance between
+any element in `α` and `u`. -/
+-- ANCHOR: max_min_dist
+noncomputable def max_min_dist {n : ℕ} (u : iter α n) :=
+  min_dist_x u (compact_argmax (min_dist_x_continuous u))
+-- ANCHOR_END: max_min_dist
+
+open Filter Topology in
+/-- **Main definition**: Given a function `f`, an algorithm `A` sample the whole space
+if `∀ ε > 0, lim_(n → ∞) A.measure f n {u | max_min_dist u > ε} = 0`. -/
+-- ANCHOR: sample_whole_space
+noncomputable def sample_whole_space (A : Algorithm α β) {f : α → β} (hf : Continuous f) :=
+  ∀ ε > 0, Tendsto (fun n => A.measure hf n {u | max_min_dist u > ε}) atTop (𝓝 0)
+-- ANCHOR_END: sample_whole_space
+
+variable [Nonempty β] [LinearOrder β] [ClosedIciTopology β] [ClosedIicTopology β]
 
 /-- The maximum of a Lipschitz function over `α`. -/
 noncomputable def fmax {f : α → β} (hf : Lipschitz f) := f (compact_argmax hf.continuous)
@@ -71,19 +88,5 @@ if for any `ε > 0`, `lim_(n → ∞) measure_dist_max n = 0`. -/
 def is_consistent (A : Algorithm α β) {f : α → β} (hf : Lipschitz f) :=
   ∀ ⦃ε⦄, 0 < ε → Tendsto (measure_dist_max A hf ε) atTop (𝓝 0)
 -- ANCHOR_END: is_consistent
-
-/-- Given a sequence `u`, maximum over `α` of `min_dist_x u`: the maximum distance between
-any element in `α` and `u`. -/
--- ANCHOR: max_min_dist
-noncomputable def max_min_dist {n : ℕ} (u : iter α n) :=
-  min_dist_x u (compact_argmax (min_dist_x_continuous u))
--- ANCHOR_END: max_min_dist
-
-/-- **Main definition**: Given a function `f`, an algorithm `A` sample the whole space
-if `∀ ε > 0, lim_(n → ∞) A.measure f n {u | max_min_dist u > ε} = 0`. -/
--- ANCHOR: sample_whole_space
-noncomputable def sample_whole_space (A : Algorithm α β) {f : α → β} (hf : Continuous f) :=
-  ∀ ε > 0, Tendsto (fun n => A.measure hf n {u | max_min_dist u > ε}) atTop (𝓝 0)
--- ANCHOR_END: sample_whole_space
 
 open unitInterval
