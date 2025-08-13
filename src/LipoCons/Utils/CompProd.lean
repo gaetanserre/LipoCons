@@ -2,7 +2,7 @@
  - Created in 2025 by Gaëtan Serré
 -/
 
-import LipoCons.Defs.Iter
+/- import LipoCons.Defs.Iter
 import LipoCons.Utils.Tuple
 import Mathlib.Data.ENNReal.Basic
 import Mathlib.Probability.Kernel.Composition.MeasureCompProd
@@ -64,4 +64,4 @@ lemma MeasureTheory.Measure.compProd_apply' (μ : Measure (iter α n)) [SFinite 
   swap
   · exact fun _ hs => (iter_mequiv α n).measurableSet_image.mpr hs
   rw [Measure.compProd_apply ((iter_mequiv α n).measurableSet_image.mpr hs)]
-  exact lintegral_pi_section_eq_indicator_pi μ κ hs
+  exact lintegral_pi_section_eq_indicator_pi μ κ hs -/
