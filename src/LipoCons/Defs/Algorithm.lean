@@ -13,6 +13,8 @@ import Mathlib.MeasureTheory.Constructions.Pi
 import Mathlib.Probability.Kernel.Composition.MapComap
 import Mathlib.Probability.Kernel.MeasurableLIntegral -/
 
+set_option maxHeartbeats 0
+
 open MeasureTheory ProbabilityTheory
 
 /-- `Algorithm α β` represents a general iterative stochastic optimization algorithm.
@@ -129,36 +131,90 @@ lemma fin_measure_biUnion {ι : Type*} {f : α → β} (hf : Continuous f)
     {n : ℕ} (s : Set (iter α n)) := (A.measure hf).restrict (from_iter_set s) -/
 
 lemma eq_restrict {f g : α → β} (hf : Continuous f) (hg : Continuous g)
-    {s : Set α} (hs : MeasurableSet s) (h : s.restrict f = s.restrict g) (n : ℕ) :
+    {s : Set α} (hs : MeasurableSet s) (h : s.EqOn f g) (n : ℕ) :
     (A.fin_measure hf).restrict (univ.pi (fun (_ : Finset.Iic n) => s)) =
     (A.fin_measure hg).restrict (univ.pi (fun (_ : Finset.Iic n) => s)) := by
   haveI : ∀ n, IsProbabilityMeasure (A.fin_measure (n := n) hf) := by sorry
   refine Measure.pi_space_eq ?_
   intro B B_m
   have : MeasurableSet (univ.pi B) := MeasurableSet.univ_pi B_m
-  rw [Measure.restrict_apply this]
-  rw [Measure.restrict_apply this]
-  simp [fin_measure]
+
   let C := fun i => (B i) ∩ s
+
+  set E := univ.pi (fun (i : Finset.Iic 0) => C ⟨i, mem_iic_le (Nat.zero_le n) i.2⟩)
+  have t : E.EqOn (fun a => (Kernel.partialTraj (X := fun _ => α) (A.iter_comap hf) 0 n a).restrict (univ.pi C)) (fun a => (Kernel.partialTraj (X := fun _ => α) (A.iter_comap hg) 0 n a).restrict (univ.pi C)) := by
+    intro a a_mem
+    induction n with
+    | zero => simp
+    | succ m hm =>
+      ext D D_m
+      simp only [Kernel.partialTraj_succ_eq_comp (Nat.zero_le m)]
+      simp [Kernel.partialTraj_succ_self]
+      simp [Measure.restrict_apply D_m]
+      have : MeasurableSet (univ.pi C) := MeasurableSet.univ_pi fun i => (B_m i).inter hs
+      rw [Kernel.comp_apply' _ _ _ (D_m.inter this)]
+
+      sorry
+  simp only [Measure.restrict_apply this, fin_measure]
   have pi_inter : univ.pi B ∩ (univ.pi (fun _ => s)) = univ.pi C := pi_inter_distrib.symm
   rw [pi_inter]
   clear pi_inter
 
-  --have : MeasurableSet (univ.pi C) := MeasurableSet.univ_pi fun i => (B_m i).inter hs
-  rw [Kernel.traj_map_frestrictLe]
-  rw [Kernel.traj_map_frestrictLe]
-
+  simp [Kernel.traj_map_frestrictLe]
   rw [Kernel.partialTraj_avg_rect_eq _ (Nat.zero_le n) _ (fun i ↦ (B_m i).inter hs)]
   rw [Kernel.partialTraj_avg_rect_eq _ (Nat.zero_le n) _ (fun i ↦ (B_m i).inter hs)]
 
-  set E := univ.pi (fun (i : Finset.Iic 0) => C ⟨i, mem_iic_le (Nat.zero_le n) i.2⟩)
+  have tt : E.EqOn (fun a => Kernel.partialTraj (X := fun _ => α) (A.iter_comap hf) 0 n a (univ.pi C)) (fun a => Kernel.partialTraj (X := fun _ => α) (A.iter_comap hg) 0 n a (univ.pi C)) := by
+    intro a a_mem
+    specialize t a_mem
+    have : univ.pi C ⊆ univ.pi C := subset_refl _
+    simp_all only
+    rw [← Measure.restrict_eq_self _ this]
+    nth_rw 2 [← Measure.restrict_eq_self _ this]
+    rw [t]
 
-  suffices E.EqOn (fun a => Kernel.partialTraj (X := fun _ => α) (A.iter_comap hf) 0 n a (univ.pi C)) (fun a => Kernel.partialTraj (X := fun _ => α) (A.iter_comap hg) 0 n a (univ.pi C)) by
-    rw [setLIntegral_congr_fun ?_ this]
-    exact MeasurableSet.univ_pi (fun i => (B_m ⟨i, mem_iic_le (Nat.zero_le n) i.2⟩).inter hs)
-  intro a a_mem
 
-  sorry
+  rw [setLIntegral_congr_fun ?_ tt]
+  exact MeasurableSet.univ_pi (fun i => (B_m ⟨i, mem_iic_le (Nat.zero_le n) i.2⟩).inter hs)
+/-
+  induction n with
+  | zero =>
+    simp [fin_measure, Kernel.traj_map_frestrictLe]
+  | succ m hm =>
+    refine Measure.pi_space_eq ?_
+    intro B B_m
+    have : MeasurableSet (univ.pi B) := MeasurableSet.univ_pi B_m
+    rw [Measure.restrict_apply this]
+    rw [Measure.restrict_apply this]
+    simp [fin_measure]
+    let C := fun i => (B i) ∩ s
+    have pi_inter : univ.pi B ∩ (univ.pi (fun _ => s)) = univ.pi C := pi_inter_distrib.symm
+    rw [pi_inter]
+    clear pi_inter
+
+    --have : MeasurableSet (univ.pi C) := MeasurableSet.univ_pi fun i => (B_m i).inter hs
+    rw [Kernel.traj_map_frestrictLe]
+    rw [Kernel.traj_map_frestrictLe]
+
+    rw [Kernel.partialTraj_avg_rect_eq _ (Nat.zero_le (m + 1)) _ (fun i ↦ (B_m i).inter hs)]
+    rw [Kernel.partialTraj_avg_rect_eq _ (Nat.zero_le (m + 1)) _ (fun i ↦ (B_m i).inter hs)]
+
+    set E := univ.pi (fun (i : Finset.Iic 0) => C ⟨i, mem_iic_le (Nat.zero_le (m + 1)) i.2⟩)
+
+    suffices E.EqOn (fun a => Kernel.partialTraj (X := fun _ => α) (A.iter_comap hf) 0 (m + 1) a (univ.pi C)) (fun a => Kernel.partialTraj (X := fun _ => α) (A.iter_comap hg) 0 (m + 1) a (univ.pi C)) by
+      rw [setLIntegral_congr_fun ?_ this]
+      exact MeasurableSet.univ_pi (fun i => (B_m ⟨i, mem_iic_le (Nat.zero_le (m + 1)) i.2⟩).inter hs)
+    intro a a_mem
+
+    simp [Kernel.partialTraj_succ_eq_comp (Nat.zero_le m)] -/
+
+
+    /- rw [Kernel.map_apply _ (by exact measurable_IicProdIoc)]
+    rw [Measure.map_apply _ (MeasurableSet.univ_pi fun i => (B_m i).inter hs)]
+    rw [Kernel.comp_apply']
+    simp [Kernel.prod_apply, Kernel.id_apply] -/
+
+    --sorry
 
 end Algorithm
 

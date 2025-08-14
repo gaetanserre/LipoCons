@@ -1,11 +1,6 @@
-/-
- - Created in 2025 by Gaëtan Serré
--/
+import Mathlib
 
-import Mathlib.MeasureTheory.MeasurableSpace.Pi
-import Mathlib.MeasureTheory.Measure.Typeclasses.SFinite
-
-open Set
+open MeasureTheory ProbabilityTheory Set
 
 namespace MeasureTheory.Measure
 
@@ -31,3 +26,22 @@ lemma pi_space_eq
     exact h s hs
 
 end MeasureTheory.Measure
+
+variable {α : Type*} [MeasurableSpace α]
+  (κ₁ κ₂ : (n : ℕ) → Kernel (Π _ : Finset.Iic n, α) α)
+  [∀ n, IsMarkovKernel (κ₁ n)] [∀ n, IsMarkovKernel (κ₂ n)]
+  {s : Set α} (hs : MeasurableSet s)
+  (h : ∀ n, (univ.pi (fun _ => s)).EqOn (fun a => κ₁ n a) (fun a => κ₂ n a))
+
+example {a b : ℕ} (hab : a ≤ b) : ∀ e ∈ univ.pi (fun _ => s),
+    (Kernel.partialTraj (X := fun _ => α) κ₁ a b e).restrict (univ.pi (fun _ => s)) =
+    (Kernel.partialTraj (X := fun _ => α) κ₂ a b e).restrict (univ.pi (fun _ => s)) := by
+  intro e e_mem
+  refine Measure.pi_space_eq ?_
+  intro B B_m
+  let C := fun i => (B i) ∩ s
+  induction b, hab using Nat.le_induction with
+    | base => simp
+    | succ k h hk =>
+      simp only [Kernel.partialTraj_succ_eq_comp h, Kernel.partialTraj_succ_self]
+      sorry
