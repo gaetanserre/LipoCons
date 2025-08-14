@@ -63,7 +63,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
       specialize hdist (u i) hcontra
       rw [dist_max_compact hfc (u i)] at hdist
       obtain ⟨j, hj⟩ := argmax f u
-      rw [←hj] at he
+      rw [← hj] at he
       unfold fmax at he
       rw [dist_max_compact hfc (u j)] at he
       suffices f (compact_argmax hfc) - f (u j) ≤ ε by linarith
@@ -165,7 +165,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
         let x' := (compact_argmax (min_dist_x_continuous u))
         obtain ⟨c, c_in_t, hc⟩ : ∃ c ∈ t, x' ∈ ball c (ε₁/2) := by
           have x'_in_cover : x' ∈ ⋃ c ∈ t, ball c (ε₁/2) := by
-            rw [←h_cover]
+            rw [← h_cover]
             trivial
           simp_all only [mem_iUnion, exists_prop]
         refine ⟨c, c_in_t, ?_⟩
@@ -315,5 +315,5 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
     intro u hu
     obtain ⟨i, hi⟩ := argmax f_tilde u
     show dist (Tuple.max (f_tilde ∘ u)) (fmax hf_tilde) > δ
-    rw [←hi]
+    rw [← hi]
     exact hδ (u i) (hu i trivial)

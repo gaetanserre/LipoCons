@@ -73,9 +73,6 @@ variable {f : α → β} (hf : Continuous f)
 
 #check Kernel.traj (X := fun _ => α) (A.iter_comap hf) 0
 
-noncomputable def measure' (A : Algorithm α β) {f : α → β} (hf : Continuous f) :=
-  A.ν_mequiv ⊗ₘ (Kernel.traj (X := fun _ => α) (A.iter_comap hf) 0)
-
 noncomputable def measure (A : Algorithm α β) {f : α → β} (hf : Continuous f) : Measure (ℕ → α) :=
   (Kernel.traj (A.iter_comap hf) 0).avg A.ν_mequiv
 
@@ -147,17 +144,19 @@ lemma eq_restrict {f g : α → β} (hf : Continuous f) (hg : Continuous g)
   rw [pi_inter]
   clear pi_inter
 
-  have : MeasurableSet (univ.pi C) := MeasurableSet.univ_pi fun i => (B_m i).inter hs
-  rw [Kernel.avg_apply _ _ this]
-  rw [Kernel.avg_apply _ _ this]
-
+  --have : MeasurableSet (univ.pi C) := MeasurableSet.univ_pi fun i => (B_m i).inter hs
   rw [Kernel.traj_map_frestrictLe]
   rw [Kernel.traj_map_frestrictLe]
 
-  suffices ∀ a, Kernel.partialTraj (X := fun _ => α) (A.iter_comap hf) 0 n a (univ.pi C) =
-    Kernel.partialTraj (X := fun _ => α) (A.iter_comap hg) 0 n a (univ.pi C) by
-    simp_rw [this]
-  intro a
+  rw [Kernel.partialTraj_avg_rect_eq _ (Nat.zero_le n) _ (fun i ↦ (B_m i).inter hs)]
+  rw [Kernel.partialTraj_avg_rect_eq _ (Nat.zero_le n) _ (fun i ↦ (B_m i).inter hs)]
+
+  set E := univ.pi (fun (i : Finset.Iic 0) => C ⟨i, mem_iic_le (Nat.zero_le n) i.2⟩)
+
+  suffices E.EqOn (fun a => Kernel.partialTraj (X := fun _ => α) (A.iter_comap hf) 0 n a (univ.pi C)) (fun a => Kernel.partialTraj (X := fun _ => α) (A.iter_comap hg) 0 n a (univ.pi C)) by
+    rw [setLIntegral_congr_fun ?_ this]
+    exact MeasurableSet.univ_pi (fun i => (B_m ⟨i, mem_iic_le (Nat.zero_le n) i.2⟩).inter hs)
+  intro a a_mem
 
   sorry
 

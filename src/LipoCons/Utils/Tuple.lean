@@ -79,7 +79,7 @@ lemma argmin {n : ℕ} (u : iter α n) : ∃ i, f (u i) = min (f ∘ u) := by
   let A := {x | ∃ i, u i = x}
   suffices h : Finset.univ.inf' univ_ne (f ∘ u) ∈ (f '' A) by
     obtain ⟨x, ⟨i, hi⟩, h⟩ := h
-    rw [←h, ←hi]
+    rw [← h, ←hi]
     use i
   have min_mem : ∀ x ∈ (f '' A), ∀ y ∈ (f '' A), x ⊓ y ∈ (f '' A) := by
     intro x hx y hy
@@ -101,7 +101,7 @@ lemma argmax {n : ℕ} (u : iter α n) : ∃ i, f (u i) = max (f ∘ u) := by
   let A := {x | ∃ i, u i = x}
   suffices h : Finset.univ.sup' univ_ne (f ∘ u) ∈ (f '' A) by
     obtain ⟨x, ⟨i, hi⟩, h⟩ := h
-    rw [←h, ←hi]
+    rw [← h, ←hi]
     use i
   have max_mem : ∀ x ∈ (f '' A), ∀ y ∈ (f '' A), x ⊔ y ∈ (f '' A) := by
     intro x hx y hy

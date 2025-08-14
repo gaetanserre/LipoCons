@@ -44,7 +44,7 @@ lemma sum_indicator_iUnion {α β : Type*} [AddCommMonoid β] [TopologicalSpace 
     simp only [tsum_zero]
   · push_neg at hx
     rw [indicator_of_mem hx]
-    rw [←mem_iUnion_disjoint h] at hx
+    rw [← mem_iUnion_disjoint h] at hx
     obtain ⟨i, fi, hi⟩ := hx
     suffices ∑' y, (f y).indicator g x = (f i).indicator g x by
       rw [this, indicator_of_mem fi]

@@ -17,7 +17,7 @@ lemma lintegral_section_eq_indicator_prod (μ : Measure (iter α n))
   suffices ∀ a, ν a (Prod.mk a ⁻¹' s) = ∫⁻ b, s.indicator 1 (a, b) ∂ν a by
     simp_rw [this]
   intro a
-  rw [←lintegral_indicator_one <| hs.preimage measurable_prodMk_left]
+  rw [← lintegral_indicator_one <| hs.preimage measurable_prodMk_left]
   suffices ∀ b, ((Prod.mk a ⁻¹' s).indicator 1 b : ℝ≥0∞) = s.indicator 1 (a, b) by
     simp_rw [this]
   intro b
