@@ -143,18 +143,47 @@ lemma eq_restrict {f g : α → β} (hf : Continuous f) (hg : Continuous g)
 
   set E := univ.pi (fun (i : Finset.Iic 0) => C ⟨i, mem_iic_le (Nat.zero_le n) i.2⟩)
   have t : E.EqOn (fun a => (Kernel.partialTraj (X := fun _ => α) (A.iter_comap hf) 0 n a).restrict (univ.pi C)) (fun a => (Kernel.partialTraj (X := fun _ => α) (A.iter_comap hg) 0 n a).restrict (univ.pi C)) := by
-    intro a a_mem
-    induction n with
-    | zero => simp
-    | succ m hm =>
-      ext D D_m
-      simp only [Kernel.partialTraj_succ_eq_comp (Nat.zero_le m)]
-      simp [Kernel.partialTraj_succ_self]
-      simp [Measure.restrict_apply D_m]
-      have : MeasurableSet (univ.pi C) := MeasurableSet.univ_pi fun i => (B_m i).inter hs
-      rw [Kernel.comp_apply' _ _ _ (D_m.inter this)]
+    have : 0 ≤ n := by omega
+    let C_n : Π _, Set α := fun i =>
+      if h : i ≤ n then
+        C ⟨i, Finset.mem_Iic.mpr h⟩
+      else
+        C ⟨0, Finset.mem_Iic.mpr this⟩
+    have tt : ∀ i, MeasurableSet (C_n i) := by
+      intro i
+      by_cases h : i ≤ n
+      · simp [C_n, h]
+        exact (B_m ⟨i, Finset.mem_Iic.mpr h⟩).inter hs
+      · simp [C_n, h]
+        exact (B_m ⟨0, Finset.mem_Iic.mpr this⟩).inter hs
 
-      sorry
+    have : (univ.pi C) = univ.pi (fun i => C_n i.1) := by
+      simp_all [C_n, C]
+      ext
+      simp_all only [mem_pi, mem_univ, mem_inter_iff, forall_const, Subtype.forall, Finset.mem_Iic,
+       ↓reduceDIte, mem_inter_iff]
+    rw [this]
+    clear this
+    have : E = univ.pi (fun i => C_n i.1) := by
+      simp_all [C_n, C, E]
+      ext
+      simp_all only [mem_pi, mem_univ, mem_inter_iff, forall_const, Subtype.forall, Finset.mem_Iic,
+        nonpos_iff_eq_zero, ↓reduceDIte]
+    rw [this]
+    clear this
+
+    apply Kernel.partialTraj_restrict' (κ₁ := A.iter_comap hf) (κ₂ := A.iter_comap hg) this tt
+
+    intro m a a_mem
+    simp only [iter_comap, Kernel.coe_comap, Function.comp_apply]
+    suffices ∀ i, a i ∈ s by
+      rw [prod_eval_eq_restrict m h this]
+
+    intro i
+    have := (a_mem i trivial)
+    by_cases h : i ≤ n
+    all_goals simp [h, C_n] at this; exact this.2
+
   simp only [Measure.restrict_apply this, fin_measure]
   have pi_inter : univ.pi B ∩ (univ.pi (fun _ => s)) = univ.pi C := pi_inter_distrib.symm
   rw [pi_inter]
@@ -173,72 +202,8 @@ lemma eq_restrict {f g : α → β} (hf : Continuous f) (hg : Continuous g)
     nth_rw 2 [← Measure.restrict_eq_self _ this]
     rw [t]
 
-
   rw [setLIntegral_congr_fun ?_ tt]
   exact MeasurableSet.univ_pi (fun i => (B_m ⟨i, mem_iic_le (Nat.zero_le n) i.2⟩).inter hs)
-/-
-  induction n with
-  | zero =>
-    simp [fin_measure, Kernel.traj_map_frestrictLe]
-  | succ m hm =>
-    refine Measure.pi_space_eq ?_
-    intro B B_m
-    have : MeasurableSet (univ.pi B) := MeasurableSet.univ_pi B_m
-    rw [Measure.restrict_apply this]
-    rw [Measure.restrict_apply this]
-    simp [fin_measure]
-    let C := fun i => (B i) ∩ s
-    have pi_inter : univ.pi B ∩ (univ.pi (fun _ => s)) = univ.pi C := pi_inter_distrib.symm
-    rw [pi_inter]
-    clear pi_inter
 
-    --have : MeasurableSet (univ.pi C) := MeasurableSet.univ_pi fun i => (B_m i).inter hs
-    rw [Kernel.traj_map_frestrictLe]
-    rw [Kernel.traj_map_frestrictLe]
-
-    rw [Kernel.partialTraj_avg_rect_eq _ (Nat.zero_le (m + 1)) _ (fun i ↦ (B_m i).inter hs)]
-    rw [Kernel.partialTraj_avg_rect_eq _ (Nat.zero_le (m + 1)) _ (fun i ↦ (B_m i).inter hs)]
-
-    set E := univ.pi (fun (i : Finset.Iic 0) => C ⟨i, mem_iic_le (Nat.zero_le (m + 1)) i.2⟩)
-
-    suffices E.EqOn (fun a => Kernel.partialTraj (X := fun _ => α) (A.iter_comap hf) 0 (m + 1) a (univ.pi C)) (fun a => Kernel.partialTraj (X := fun _ => α) (A.iter_comap hg) 0 (m + 1) a (univ.pi C)) by
-      rw [setLIntegral_congr_fun ?_ this]
-      exact MeasurableSet.univ_pi (fun i => (B_m ⟨i, mem_iic_le (Nat.zero_le (m + 1)) i.2⟩).inter hs)
-    intro a a_mem
-
-    simp [Kernel.partialTraj_succ_eq_comp (Nat.zero_le m)] -/
-
-
-    /- rw [Kernel.map_apply _ (by exact measurable_IicProdIoc)]
-    rw [Measure.map_apply _ (MeasurableSet.univ_pi fun i => (B_m i).inter hs)]
-    rw [Kernel.comp_apply']
-    simp [Kernel.prod_apply, Kernel.id_apply] -/
-
-    --sorry
 
 end Algorithm
-
-/- open Set ProbabilityTheory Kernel
-example {α : Type*} [MeasurableSpace α] (κ₁ κ₂ : (n : ℕ) → Kernel (Π i : Finset.Iic n, α) α)
-    [∀ n, IsMarkovKernel (κ₁ n)] [∀ n, IsMarkovKernel (κ₂ n)] (s : Set α) (hs : MeasurableSet s)
-    (h : ∀ n, ∀ a ∈ (univ.pi (fun (_ : Finset.Iic n) => s)), κ₁ n a = κ₂ n a) :
-    ∀ a ∈ (univ.pi (fun (_ : Finset.Iic 0) => s)), traj (X := fun _ => α) κ₁ 0 a {u : ℕ → α | ∀ i, u i ∈ s} = traj (X := fun _ => α) κ₂ 0 a {u : ℕ → α | ∀ i, u i ∈ s} := by
-  intro a a_mem
-  set s_inf := {u : ℕ → α | ∀ i, u i ∈ s}
-  rw [traj_apply]
-  rw [traj_apply]
-  simp [trajFun]
-  rw [MeasureTheory.AddContent.measure_eq _ _ generateFrom_measurableCylinders.symm]
-  rw [MeasureTheory.AddContent.measure_eq _ _ generateFrom_measurableCylinders.symm]
-  · simp [trajContent, projectiveFamilyContent_eq]
-
-    sorry
-  · have : s_inf = univ.pi (fun _ => s) := by sorry
-    rw [this]
-    apply?
-    refine ⟨Finset.Iic 0, (univ.pi (fun (_ : Finset.Iic 0) => s)), ?_, ?_⟩
-    · exact MeasurableSet.univ_pi fun i ↦ hs
-    · simp [cylinder]
-      rw [preimage]
-      sorry
-  · sorry -/

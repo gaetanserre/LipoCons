@@ -46,12 +46,12 @@ abbrev prod_eval (n : ℕ) (f : α → β) (u : iter α n) := (u, f ∘ u)
 /-- Given a set `s` and two functions `f g : α → β`, such that `f` and `g` are equal on `s`,
 the pair `(u, f ∘ u)` is equal to the pair `(u, g ∘ u)` for any `u : iter α n`
 such that `u i ∈ s` for all `i`.-/
-lemma prod_eval_eq_restrict (n : ℕ) {f g : α → β} {s : Set α} (hfg : s.restrict f = s.restrict g)
+lemma prod_eval_eq_restrict (n : ℕ) {f g : α → β} {s : Set α} (hfg : s.EqOn f g)
     {u : iter α n} (hu : ∀ i, u i ∈ s) : prod_eval n f u = prod_eval n g u := by
   ext i
   · rfl
   · specialize hu i
-    simp_all only [restrict_eq_restrict_iff]
+    simp_all only [Function.comp_apply]
     have fwd : f (u i) = g (u i) := EqOn.eq_of_mem hfg hu
     exact fwd
 
