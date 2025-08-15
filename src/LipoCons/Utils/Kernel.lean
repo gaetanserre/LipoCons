@@ -3,9 +3,8 @@
 -/
 
 import LipoCons.Utils.Tuple
-import Mathlib
-
-set_option maxHeartbeats 0
+import Mathlib.Analysis.Normed.Group.Basic
+import Mathlib.Probability.Kernel.IonescuTulcea.PartialTraj
 
 open MeasureTheory
 
@@ -26,8 +25,9 @@ noncomputable def avg : Measure β := by
 lemma avg_apply {s : Set β} (hs : MeasurableSet s) : (avg κ μ) s = ∫⁻ a, κ a s ∂μ := by
   rw [avg, Measure.ofMeasurable_apply _ hs]
 
-instance [IsMarkovKernel κ] [IsProbabilityMeasure μ] : IsProbabilityMeasure (avg κ μ) := by
-  sorry
+instance [IsMarkovKernel κ] [IsProbabilityMeasure μ] : IsProbabilityMeasure (κ.avg μ) := by
+  rw [isProbabilityMeasure_iff]
+  simp only [MeasurableSet.univ, avg_apply, measure_univ, MeasureTheory.lintegral_const, mul_one]
 
 end avg
 
@@ -43,16 +43,16 @@ lemma partialTraj_avg_rect_eq {C : (i : Finset.Iic b) → Set (X i)} (hC : ∀ i
     (partialTraj κ a b).avg μ (univ.pi C) =
     ∫⁻ u in univ.pi (fun (i : Finset.Iic a) => C ⟨i.1, mem_iic_le hab i.2⟩),
       (partialTraj κ a b) u (univ.pi C) ∂μ := by
-  have : MeasurableSet (univ.pi C) := MeasurableSet.univ_pi hC
-  rw [Kernel.avg_apply _ _ this]
+  have measure_pi_C : MeasurableSet (univ.pi C) := MeasurableSet.univ_pi hC
+  rw [Kernel.avg_apply _ _ measure_pi_C]
   rw [← lintegral_indicator (MeasurableSet.univ_pi fun i ↦ hC ⟨i.1, mem_iic_le hab i.2⟩) _]
   congr with u
   by_cases hu : u ∈ univ.pi (fun (i : Finset.Iic a) => C ⟨i.1, mem_iic_le hab i.2⟩)
   · simp [hu]
   · simp only [hu, not_false_eq_true, indicator_of_notMem]
-    rw [← lintegral_indicator_one this]
+    rw [← lintegral_indicator_one measure_pi_C]
     rw [partialTraj_eq_prod, lintegral_map, lintegral_id_prod, lintegral_map]
-    · simp [IicProdIoc_def]
+    · simp only [IicProdIoc_def, Finset.restrict₂]
       suffices ∀ (x : Π i : Finset.Iic b, X i),
           (fun (i : Finset.Iic b) ↦
           if h : i.1 ≤ a then u ⟨i.1, Finset.mem_Iic.mpr h⟩
@@ -63,16 +63,16 @@ lemma partialTraj_avg_rect_eq {C : (i : Finset.Iic b) → Set (X i)} (hC : ∀ i
       obtain ⟨i, hi, -, hui⟩ := hu
       specialize x_mem i (Nat.le_trans hi hab) trivial
       simp_all only [↓reduceDIte]
-    · exact Finset.measurable_restrict₂ Finset.Ioc_subset_Iic_self
-    · refine Measurable.indicator measurable_const ?_
-      have t : Measurable (fun x => IicProdIoc a b (u, x)) := by fun_prop
-      exact t this
-    · refine Measurable.indicator measurable_const ?_
-      have tt : Measurable (fun (x : (Π i : Finset.Iic a, X i) × (Π i : Finset.Ioc a b, X i)) =>
-        IicProdIoc a b x) := by fun_prop
-      exact tt this
     · fun_prop
-    · exact Measurable.indicator measurable_const this
+    · refine Measurable.indicator measurable_const ?_
+      have m_Iic_prod : Measurable (fun x => IicProdIoc a b (u, x)) := by fun_prop
+      exact m_Iic_prod measure_pi_C
+    · refine Measurable.indicator measurable_const ?_
+      have m_Iic_prod : Measurable (fun (x : (Π i : Finset.Iic a, X i) ×
+          (Π i : Finset.Ioc a b, X i)) => IicProdIoc a b x) := by fun_prop
+      exact m_Iic_prod measure_pi_C
+    · fun_prop
+    · exact Measurable.indicator measurable_const measure_pi_C
 
 end rect
 
@@ -83,8 +83,7 @@ open Finset
 variable {X : ℕ → Type*} [∀ n, MeasurableSpace (X n)] {a b : ℕ}
 {κ : (n : ℕ) → Kernel (Π i : Iic n, X i) (X (n + 1))}
 
-/- https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/Ionescu-Tulcea.20partialTraj.20restrictions -/
-
+/-- https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/Ionescu-Tulcea.20partialTraj.20restrictions -/
 lemma partialTraj_restrict {s : Π n, Set (X n)} [∀ n, IsSFiniteKernel (κ n)]
     (hs : ∀ n, MeasurableSet (s n)) (hab : a ≤ b) {x : Π i : Iic a, X i}
     (hx : x ∈ Set.univ.pi (fun i : Iic a ↦ s i)) :

@@ -303,7 +303,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
           rwa [(A.fin_measure hf_tildec).restrict_apply_self S] at this
         suffices (A.fin_measure hfc).restrict S = (A.fin_measure hf_tildec).restrict S by
           rw [this]
-        refine A.eq_restrict hfc hf_tildec ?_ (restrict_eq_restrict_iff.mpr ?_) N_succ
+        refine A.eq_restrict hfc hf_tildec ?_ ?_ N_succ
         · exact MeasurableSet.compl_iff.mpr measurableSet_ball
         · exact fun _ hx => (hf.f_tilde_apply_out c hx).symm
 
