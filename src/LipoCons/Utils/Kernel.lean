@@ -81,7 +81,7 @@ section restrict
 open Finset
 
 variable {X : ℕ → Type*} [∀ n, MeasurableSpace (X n)] {a b : ℕ}
-{κ : (n : ℕ) → Kernel (Π i : Iic n, X i) (X (n + 1))}
+  {κ : (n : ℕ) → Kernel (Π i : Iic n, X i) (X (n + 1))}
 
 /-- https://leanprover.zulipchat.com/#narrow/channel/287929-mathlib4/topic/Ionescu-Tulcea.20partialTraj.20restrictions -/
 lemma partialTraj_restrict {s : Π n, Set (X n)} [∀ n, IsSFiniteKernel (κ n)]
