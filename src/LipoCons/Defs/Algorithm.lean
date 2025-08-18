@@ -75,7 +75,7 @@ instance : IsProbabilityMeasure (A.ν_mequiv) := by
       exact ⟨fun i => x, rfl⟩
   · intro s hs
     exact ((MeasurableEquiv.funUnique _ _).measurableSet_image).mpr hs
-  exact MeasurableSet.univ
+  · exact MeasurableSet.univ
 
 variable {f : α → β} (hf : Continuous f)
 
