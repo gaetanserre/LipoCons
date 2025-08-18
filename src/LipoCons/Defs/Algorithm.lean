@@ -118,7 +118,7 @@ open Preorder
 along the measurable function `frestrictLe n : (ℕ → α) → iter α n` that restricts
 the infinite sequence to its first `n` elements. This is the measure that will be used
 throughout the formalization. -/
-noncomputable abbrev fin_measure {n : ℕ} : Measure (iter α n) :=
+noncomputable def fin_measure {n : ℕ} : Measure (iter α n) :=
   ((Kernel.traj (X := fun _ => α) (A.iter_comap hf) 0).map (frestrictLe n)).avg A.ν_mequiv
 
 instance {n : ℕ} : IsProbabilityMeasure (A.fin_measure hf (n := n)) := by
@@ -178,7 +178,7 @@ lemma eq_restrict {f g : α → β} (hf : Continuous f) (hg : Continuous g)
 
   set E := univ.pi (fun (i : Finset.Iic 0) => C ⟨i, mem_iic_le (Nat.zero_le n) i.2⟩)
 
-  have tt : E.EqOn
+  have eq_on_partialTraj : E.EqOn
       (fun a => Kernel.partialTraj (X := fun _ => α) (A.iter_comap hf) 0 n a (univ.pi C))
       (fun a => Kernel.partialTraj (X := fun _ => α) (A.iter_comap hg) 0 n a (univ.pi C)) := by
     suffices E.EqOn
@@ -236,7 +236,7 @@ lemma eq_restrict {f g : α → β} (hf : Continuous f) (hg : Continuous g)
   rw [Kernel.partialTraj_avg_rect_eq _ (Nat.zero_le n) _ (fun i ↦ (B_m i).inter hs)]
   rw [Kernel.partialTraj_avg_rect_eq _ (Nat.zero_le n) _ (fun i ↦ (B_m i).inter hs)]
 
-  rw [setLIntegral_congr_fun ?_ tt]
+  rw [setLIntegral_congr_fun ?_ eq_on_partialTraj]
   exact MeasurableSet.univ_pi (fun i => (B_m ⟨i, mem_iic_le (Nat.zero_le n) i.2⟩).inter hs)
 
 
