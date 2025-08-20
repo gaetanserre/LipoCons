@@ -24,8 +24,7 @@ lemma pi_space_eq
       use (fun _ => univ)
       refine ⟨?_, Set.pi_univ univ⟩
       exact mem_univ_pi.mpr (fun _ => MeasurableSet.univ)
-    · intro _
-      exact measure_lt_top _ _
+    · exact fun _ => measure_lt_top _ _
     · exact iUnion_const univ
   · rintro _ ⟨s, hs, rfl⟩
     rw [mem_univ_pi] at hs

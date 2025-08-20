@@ -7,8 +7,6 @@ import LipoCons.Defs.Lipschitz
 import LipoCons.Utils.Compact
 import Mathlib.Analysis.Normed.Order.Lattice
 
-set_option maxHeartbeats 0
-
 variable {α : Type*} [PseudoMetricSpace α]
 
 /-- Given a sequence `u` and a element `x`, returns `min_(0 ≤ i < n) dist (u i) x. -/
@@ -20,11 +18,11 @@ noncomputable def min_dist_x :=
 /-- For any `(u : iter α n)`, `min_dist_x u` is continuous -/
 lemma min_dist_x_continuous {n : ℕ} (u : iter α n) : Continuous (min_dist_x u) := by
 
-  haveI ne_fin : Nonempty (Fin (n + 1)) := instNonemptyOfInhabited
+  haveI ne_fin : Nonempty (Finset.Iic n) := inferInstance
 
-  have ne_univ : (Finset.univ : Finset (Fin (n + 1))).Nonempty :=
+  have ne_univ : (Finset.univ : Finset (Finset.Iic n)).Nonempty :=
       Finset.univ_nonempty_iff.mpr ne_fin
-  set g := fun (i : Fin (n + 1)) (x : α) => dist (u i) x
+  set g := fun (i : Finset.Iic n) (x : α) => dist (u i) x
 
   have continuous_inf_g : Continuous (Finset.univ.inf' ne_univ g) := by
     suffices h : ∀ i ∈ Finset.univ, Continuous (g i) from Continuous.finset_inf' ne_univ h
@@ -53,7 +51,7 @@ open Filter Topology in
 if `∀ ε > 0, lim_(n → ∞) A.measure f n {u | max_min_dist u > ε} = 0`. -/
 -- ANCHOR: sample_whole_space
 noncomputable def sample_whole_space (A : Algorithm α β) {f : α → β} (hf : Continuous f) :=
-  ∀ ε > 0, Tendsto (fun n => A.measure hf n {u | max_min_dist u > ε}) atTop (𝓝 0)
+  ∀ ε > 0, Tendsto (fun n => A.fin_measure hf {u : iter α n | max_min_dist u > ε}) atTop (𝓝 0)
 -- ANCHOR_END: sample_whole_space
 
 variable [Nonempty β] [LinearOrder β] [ClosedIciTopology β] [ClosedIicTopology β]
@@ -78,7 +76,7 @@ the measure of the set of sequences of size `n + 1` such that the maximum of
 `f` over these sequences is at least `ε` away from from `fmax`. -/
 -- ANCHOR: measure_dist_max
 noncomputable def measure_dist_max (A : Algorithm α β) {f : α → β} (hf : Lipschitz f) :=
-  fun ε n => A.measure hf.continuous n (set_dist_max hf ε)
+  fun ε n => A.fin_measure hf.continuous (set_dist_max hf (n := n) ε)
 -- ANCHOR_END: measure_dist_max
 
 open Filter Topology

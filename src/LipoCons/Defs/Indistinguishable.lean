@@ -8,7 +8,7 @@ open Classical Metric
 
 namespace Lipschitz
 
-variable {α : Type*} [NormedAddCommGroup α] [NormedSpace ℝ α] [CompactSpace α]
+variable {α : Type*} [NormedAddCommGroup α] [CompactSpace α]
   [Nonempty α] {f : α → ℝ} (hf : Lipschitz f) (c : α)
 
 /-- Given a `Lipschitz` function `f` over a `CompactSpace α`, construct a `Lipschitz`
@@ -16,23 +16,20 @@ function (see `Lipschitz.f_tilde_lipschitz`) that is indistinguishable from `f` 
 of a ball of radius `ε` such that the maximum of this new function is greater than the
 maximum of `f` and is located in the ball. -/
 -- ANCHOR: f_tilde
-noncomputable def f_tilde (ε : ℝ) := fun x =>
+noncomputable def f_tilde (ε : ℝ) (x : α) :=
   if x ∈ ball c (ε/2) then
     f x + 2 * ((1 - (dist x c) / (ε/2)) * (fmax hf - fmin hf + 1))
   else f x
 -- ANCHOR_END: f_tilde
 
-omit [NormedSpace ℝ α] in
 lemma f_tilde_apply_out {ε : ℝ} {x : α} (hx : x ∉ ball c (ε/2)) :
     hf.f_tilde c ε x = f x := by
   simp only [f_tilde, if_neg hx]
 
-omit [NormedSpace ℝ α] in
 lemma f_tilde_apply_in {ε : ℝ} {x : α} (hx : x ∈ ball c (ε/2)) :
     hf.f_tilde c ε x = f x + 2 * ((1 - (dist x c) / (ε/2)) * (fmax hf - fmin hf + 1)) := by
   simp only [f_tilde, if_pos hx]
 
-omit [NormedSpace ℝ α] in
 lemma f_tilde_c {ε : ℝ} (ε_pos : 0 < ε) :
     hf.f_tilde c ε c = fmax hf + ((f c - fmin hf) + (fmax hf - fmin hf) + 2) := by
   have c_in_ball : c ∈ ball c (ε/2) := mem_ball_self (half_pos ε_pos)
@@ -40,19 +37,19 @@ lemma f_tilde_c {ε : ℝ} (ε_pos : 0 < ε) :
   rw [dist_self, zero_div]
   ring
 
-omit [NormedSpace ℝ α] in
 lemma pos_rhs_f_tilde_c : 0 < (f c - fmin hf) + (fmax hf - fmin hf) + 2 := by
   refine add_pos_of_nonneg_of_pos ?_ zero_lt_two
   exact Left.add_nonneg
     (sub_nonneg_of_le (compact_argmin_apply hf.continuous c))
     (compact_argmax_sub_argmin_pos hf.continuous)
 
-omit [NormedSpace ℝ α] in
 lemma max_f_lt_f_tilde_c {ε : ℝ} (ε_pos : 0 < ε) : fmax hf < hf.f_tilde c ε c := by
   rw [hf.f_tilde_c c ε_pos]
   exact lt_add_of_pos_right (fmax hf) (hf.pos_rhs_f_tilde_c c)
 
 open Set unitInterval
+
+variable [NormedSpace ℝ α]
 
 -- ANCHOR: f_tilde_lipschitz
 lemma f_tilde_lipschitz {ε : ℝ} (ε_pos : 0 < ε) : Lipschitz (hf.f_tilde c ε) := by
