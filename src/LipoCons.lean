@@ -37,9 +37,8 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
     and we conclude by using the squeeze theorem. -/
     suffices ∃ δ > 0, ∀ n, set_dist_max hf ε ⊆ {u : iter α n | max_min_dist u > δ} by
       obtain ⟨δ, hδ, h'⟩ := this
-      have μ_mono : ∀ n, measure_dist_max A hf ε n ≤ (A.measure hfc n) {u | max_min_dist u > δ} :=
-        fun n => (A.measure hfc n).mono (h' n)
-      refine tendsto_of_tendsto_of_tendsto_of_le_of_le tendsto_const_nhds (h hf δ hδ) ?_ μ_mono
+      refine tendsto_of_tendsto_of_tendsto_of_le_of_le tendsto_const_nhds (h hf δ hδ) ?_
+        (fun n => (A.measure hfc n).mono (h' n))
       intro x
       simp only [zero_le]
 
@@ -48,9 +47,9 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
     such that, for any `y`, `dist x' y ≤ δ → dist (f x') (f y) ≤ ε`. -/
     let x' := compact_argmax hfc
     obtain ⟨δ, hδ, hdist⟩ := continuous_iff_le.mp hfc x' ε ε_pos
-    let B := closedBall x' δ
     refine ⟨δ, hδ, ?_⟩
     intro n
+    let B := closedBall x' δ
 
     /- We show that a sequence produced by `A` such that its maximum image by `f` is
     at least `ε`-away from `f x'` has all its elements outside of the closed ball centered in `x'`
