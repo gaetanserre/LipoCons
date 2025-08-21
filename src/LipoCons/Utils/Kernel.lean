@@ -14,6 +14,7 @@ section avg
 
 variable {α β : Type*} [MeasurableSpace α] [MeasurableSpace β] (κ : Kernel α β) (μ : Measure α)
 
+/-- The average of a kernel `κ` by a measure `μ`. Defined as `s↦ ∫⁻ a, κ a s ∂μ` -/
 noncomputable def avg : Measure β := by
   refine Measure.ofMeasurable (fun s hs => ∫⁻ a, κ a s ∂μ) ?_ ?_
   · simp only [measure_empty, MeasureTheory.lintegral_const, zero_mul]

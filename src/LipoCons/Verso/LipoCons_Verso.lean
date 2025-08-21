@@ -22,6 +22,6 @@ variable {α : Type*} [MeasurableSpace α] [NormedAddCommGroup α] [NormedSpace 
 theorem sample_iff_consistent (A : Algorithm α ℝ) :
     (∀ ⦃f : α → ℝ⦄, (hf : Lipschitz f) → sample_whole_space A hf.continuous)
     ↔
-    (∀ ⦃f : α → ℝ⦄, (hf : Lipschitz f) → is_consistent_over_Lipschitz A hf) := by
+    (∀ ⦃f : α → ℝ⦄, (hf : Lipschitz f) → is_consistent A hf) := by
 -- ANCHOR_END: sample_iff_consistent
   sorry

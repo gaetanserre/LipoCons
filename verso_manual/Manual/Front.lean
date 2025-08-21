@@ -25,9 +25,9 @@ In 2017, the paper _*{citehere Malherbe2017}[]*_ introduced two global optimizat
 
 More formally, *Proposition 3* states that, for any stochastic iterative global optimization algorithm $`A`, the two following statements are equivalent:
 1. For any Lipschitz function $`f` defined on $`\mathcal{X}`,
-  $$`\sup_{x \in \mathcal{X}} \min_{i = 1 \dots n} d(X_i, x) \xrightarrow{p} 0.`
+  $$`\sup_{x \in \mathcal{X}} \min_{i = 0 \dots n} d(X_i, x) \xrightarrow{p} 0.`
 1. For any Lipschitz function $`f` defined on $`\mathcal{X}`,
-  $$`\max_{i = 1 \dots n} f(X_i) \xrightarrow{p} \max_{x \in \mathcal{X}} f(x).`
+  $$`\max_{i = 0 \dots n} f(X_i) \xrightarrow{p} \max_{x \in \mathcal{X}} f(x).`
 
 Here $`\mathcal{X} \subset \mathbb{R}^d` is compact, $`(X_i)_{1 \le i \le n}` are the samples produced by the algorithm $`A` after $`n` iterations, and $`\xrightarrow{p}` denotes the convergence in probability.
 

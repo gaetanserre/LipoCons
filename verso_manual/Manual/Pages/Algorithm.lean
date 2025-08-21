@@ -30,7 +30,7 @@ structure Algorithm (α β : Type*) [MeasurableSpace α] [MeasurableSpace β] wh
   kernel_iter (n : ℕ) : Kernel (prod_iter_image α β n) α
   markov_kernel (n : ℕ) : IsMarkovKernel (kernel_iter n)
 ```
-The type {anchorTerm Algorithm}`prod_iter_image` is the product type `(Fin (n + 1) → α) × (Fin (n + 1) → β)` which represents the sequence of samples and their evaluations at each iteration. The measure {anchorTerm Algorithm}`ν` is the initial probability measure from which the first sample is drawn, and {anchorTerm Algorithm}`kernel_iter` is the Markov kernel that defines how to sample the next element based on the previous ones.
+The type {anchorTerm Algorithm}`prod_iter_image` is the product type `(Iic n → α) × (Iic n → β)` which represents the sequence of samples and their evaluations at each iteration. The measure {anchorTerm Algorithm}`ν` is the initial probability measure from which the first sample is drawn, and {anchorTerm Algorithm}`kernel_iter` is the Markov kernel that defines how to sample the next element based on the previous ones.
 
 *To assess the validity of this definition, we encompass three well-known algorithms in the literature into this framework.*
 
@@ -57,74 +57,62 @@ The CMA-ES (Covariance Matrix Adaptation Evolution Strategy) is a popular stocha
 - {anchorTerm Algorithm}`kernel_iter n` `:=` $`(X, f(X)) \mapsto \mathcal{N}(\mu(X, f(X)), \Sigma(X, f(X)))` is the Markov kernel that maps any pair of samples/evaluations to the multivariate normal distribution with mean $`\mu(X, f(X))` and covariance matrix $`\Sigma(X, f(X))` adapted based on the previous samples and their evaluations.
 
 # Measure on sequences
-To use the definition of consistency of a stochastic iterative global optimization algorithm, we need to use the initial probability measure and the Markov kernels of an algorithm to define a probability measure on sequences of samples produced. This measure is defined as a finite composition of the initial measure and the Markov kernels, i.e.:
-$$`
-\mathbb{P}(X_1, \dots, X_n \in E) := \left[ \nu \otimes \kappa_1 \otimes \dots \otimes \kappa_{n-1} \right] (E),
-`
-where $`\kappa_i` is {anchorTerm Algorithm}`kernel_iter` `i` (see {citep Kallenberg2021}[] for more details on decomposition of product measures using Markov kernels).
+To define the consistency of a stochastic iterative global optimization algorithm, we need to use the initial probability measure and the Markov kernels of an algorithm to construct a probability measure on infinite sequences of samples produced by the algorithm. We chose to use the Ionescu-Tulcea theorem {citep Tulcea1949}[] to define this measure. The implementation of this theorem in Mathlib is done via the {anchorTerm measure}`Kernel.traj` function, which, given a family of Markov kernels on finite sequences, returns a Markov kernel on infinite sequences.
 
-To be able to compose a {anchorTerm Algorithm}`Measure α` with a {anchorTerm Algorithm}`Kernel (prod_iter_image α β n) α`, we need to pullback the kernel along a function that, given a sequence of samples `u` and a continuous function `f`, returns `(u, f ∘ u)`. This new kernel is defined using {anchorTerm iter_comap}`iter_comap`.
+To be able to use {anchorTerm measure}`Kernel.traj` with {anchorTerm Algorithm}`kernel_iter`, we need to pullback each kernel in the family along a function that, given a sequence of samples `u` and a continuous function `f`, returns `(u, f ∘ u)`. This new kernel is defined using {anchorTerm iter_comap}`iter_comap`.
 
 ```anchor iter_comap
-def iter_comap {f : α → β} (hf : Continuous f) {n : ℕ} :
-  Kernel (iter α n) α :=
+def iter_comap (n : ℕ) : Kernel (iter α n) α :=
   (A.kernel_iter n).comap
     (prod_eval n f)
     (measurable_prod_eval n hf.measurable)
 ```
 
-It allows to define a measure on sequences of size $`n + 1` given a measure on sequences of size $`n` and a continuous function $`f`. This corresponds to one step of the stochastic iterative global optimization algorithm. This new measure is defined using the composition between the measure (noted $`\mu`) on the previous sequences of size $`n` and the kernel that maps a sequence to the next sample (noted $`\kappa`):
-$$`
-(\mu \otimes \kappa) (A) = \int_{u} \int_{x} \mathbf{1}_A (u_1, \dots, u_n, x) \, \mathrm{d} \kappa(u, x) \, \mathrm{d} \mu(u).
-`
+It allows to define a measure on sequences of size $`n + 1` by averaging the Ionescu-Tulcea kernel, given by {anchorTerm measure}`Kernel.traj (A.iter_comap hf) 0` over the initial measure `Algorithm.`{anchorTerm Algorithm}`ν` pulled back along the measurable equivalence between `Iic 0 → α` and `α`.
 
-```anchor next_measure_def
-noncomputable def next_measure {f : α → β} (hf : Continuous f) {n : ℕ} (μ : Measure (iter α n)) :
-    Measure (iter α (n + 1)) := (μ ⊗ₘ A.iter_comap hf).comap (iter_mequiv α n)
+```anchor ν_mequiv
+noncomputable def ν_mequiv : Measure (iter α 0) := A.ν.comap (MeasurableEquiv.funUnique _ _)
 ```
-Note that the resulting measure-kernel product measure is defined on {anchorTerm next_measure_def}`iter α (n + 1)` `×` {anchorTerm next_measure_def}`α`. In order to obtain a measure defined on {anchorTerm next_measure_def}`iter α (n + 1)`, we pullback the resulting measure along the measurable equivalence {anchorTerm next_measure_def}`iter_mequiv` `: iter α (n + 1) ≃ᵐ iter α n × α` (using {anchorTerm next_measure_def}`comap`).
 
-Finally, we can define the measure on sequences of samples of size `n` (noted $`\mu_n`) as a recursive composition of the initial measure and the Markov kernels:
-$$`
-\mu_n \triangleq \begin{cases}
-  \nu & n = 0 \\
-  \mu_{n - 1} \otimes \kappa_{n - 1} & n > 0
-\end{cases},
-`
-where $`\kappa_{n - 1}` is the pullback of the Markov kernel {anchorTerm Algorithm}`kernel_iter` `n - 1` along the function that maps a sequence of samples to itself and their evaluations (see {anchorTerm iter_comap}`iter_comap`).
 ```anchor measure
-noncomputable def measure {f : α → β} (hf : Continuous f) (n : ℕ) : Measure (iter α n) :=
-  if h : n = 0 then
-    Measure.pi (fun _ => A.ν)
-  else by
-    rw [←Nat.succ_pred_eq_of_ne_zero h]
-    exact A.next_measure hf <| measure hf (n - 1)
+noncomputable def measure (A : Algorithm α β) : Measure (ℕ → α) :=
+  (Kernel.traj (A.iter_comap hf) 0).avg A.ν_mequiv
 ```
 
 Because {anchorTerm Algorithm}`ν` is a probability measure, and all kernels {anchorTerm Algorithm}`kernel_iter` are Markov kernels, {anchorTerm measure}`measure` is a also probability measure on sequences of samples.
 ```anchor measure_isProbability
-instance {n : ℕ} {f : α → β} {hf : Continuous f} : IsProbabilityMeasure (A.measure hf n) := by
+instance : IsProbabilityMeasure (A.measure hf) := by
+  simp only [measure]
+  infer_instance
+```
+
+Finally, we can define the measure on finite sequences of samples of size $`n + 1` produced by the algorithm by measuring set of infinite sequences of samples such that the first $`n + 1` elements are in a set of sequences of size $`n + 1`.
+
+```anchor fin_measure
+noncomputable def fin_measure {n : ℕ} : Measure (iter α n) :=
+  ((Kernel.traj (X := fun _ => α) (A.iter_comap hf) 0).map (frestrictLe n)).avg A.ν_mequiv
 ```
 
 # Useful lemmas
 This definition of a stochastic iterative global optimization algorithm allows to prove two lemmas on the measure on sequences of samples. These lemmas happen to be useful in our formalization.
 
 ## Monotone
-The first lemma states that, given two natural integers such that $`n \le m`, a measurable set $`S` of sequences of size $`n`, and a set $`E` of sequences of size $`m`, if the subsequences of size $`n` in $`E` are contained in $`S`, then the measure of $`E` is less than or equal to the measure of $`S`.
+The first lemma states that, given two natural integers such that $`n \le m`, a measurable set $`S` of sequences of size $`n + 1`, and a set $`E` of sequences of size $`m`, if the subsequences of size $`n` in $`E` are contained in $`S`, then the measure of $`E` is less than or equal to the measure of $`S`.
 
-The informal intuition behind this lemma is that a sequence of size $`m` can be seen as a "continuations" of a sequence of size $`n`. Thus, the hypothesis that the sequences of size $`m` in $`E` are contained in the set of sequences of size $`m` that are continuations of $`S` means that `$E` is a subset of all possible continuations of sequences in $`S`. Therefore, the measure of $`E` is less than or equal to the measure of $`S`.
+The informal intuition behind this lemma is that a sequence of size $`m` can be seen as a "continuations" of a sequence of size $`n + 1`. Thus, the hypothesis that the sequences of size $`m + 1` in $`E` are contained in the set of sequences of size $`m + 1` that are continuations of $`S` means that `$E` is a subset of all possible continuations of sequences in $`S`. Therefore, the measure of $`E` is less than or equal to the measure of $`S`.
 ```anchor mono
-lemma mono {n m : ℕ} {s : Set (iter α n)} (hs : MeasurableSet s) {e : Set (iter α m)} (hmn : n ≤ m)
+lemma fin_measure_mono {n m : ℕ} {s : Set (iter α n)} (hs : MeasurableSet s)
+    {e : Set (iter α m)} (he : MeasurableSet e) (hmn : n ≤ m)
     (hse : e ⊆ {u | subTuple hmn u ∈ s}) {f : α → β} (hf : Continuous f) :
-    A.measure hf m e ≤ A.measure hf n s := by
+    A.fin_measure hf e ≤ A.fin_measure hf s := by
 ```
 ## Restricted measures
 The second lemma states that, given two continuous functions $`f` and $`g` and a measurable set $`S` of elements of the search space $`\alpha` such that $`f` and $`g` are equal on $`S`, the measure on sequences produced by the algorithm using $`f` restricted to the set of sequences where all elements are in $`S` is equal to the same restricted measure using $`g`.
 
 This is natural as the measures on sequences are entirely determined by the evaluations of the function on the samples.
 ```anchor eq_restrict
-lemma eq_restrict {f g : α → β} (hf : Continuous f) (hg : Continuous g) {s : Set α}
-    (hs : MeasurableSet s) (h : s.restrict f = s.restrict g) (n : ℕ) :
-    (A.measure hf n).restrict (univ.pi (fun _ => s)) =
-    (A.measure hg n).restrict (univ.pi (fun _ => s)) := by
+lemma eq_restrict {f g : α → β} (hf : Continuous f) (hg : Continuous g)
+    {s : Set α} (hs : MeasurableSet s) (h : s.EqOn f g) (n : ℕ) :
+    (A.fin_measure hf).restrict (univ.pi (fun (_ : Finset.Iic n) => s)) =
+    (A.fin_measure hg).restrict (univ.pi (fun (_ : Finset.Iic n) => s)) := by
 ```

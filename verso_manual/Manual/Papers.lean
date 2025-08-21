@@ -29,3 +29,9 @@ def Hansen1996 : InProceedings where
   authors := #[inlines!"Nikolaus Hansen", inlines!"Andreas Ostermeier"]
   year := 1996
   booktitle := inlines!"Proceedings of IEEE international conference on evolutionary computation"
+
+def Tulcea1949 : InProceedings where
+  title := inlines!"Mesures dans les espaces produits"
+  authors := #[inlines!"CT Ionescu Tulcea"]
+  year := 1949
+  booktitle := inlines!"Atti Accad. Naz. Lincei Rend"

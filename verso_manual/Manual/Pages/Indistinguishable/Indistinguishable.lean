@@ -33,7 +33,7 @@ Here is a visualization of this expression using the reverse [Ackley function](h
 ![](static/ackley_tilde.png)
 
 ```anchor f_tilde
-noncomputable def f_tilde (ε : ℝ) := fun x =>
+noncomputable def f_tilde (ε : ℝ) (x : α) :=
   if x ∈ ball c (ε/2) then
     f x + 2 * ((1 - (dist x c) / (ε/2)) * (fmax hf - fmin hf + 1))
   else f x
