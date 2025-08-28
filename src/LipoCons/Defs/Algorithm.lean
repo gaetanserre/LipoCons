@@ -127,12 +127,20 @@ along the measurable function `frestrictLe n : (ℕ → α) → iter α n` that 
 the infinite sequence to its first `n` elements. This is the measure that will be used
 throughout the formalization. -/
 -- ANCHOR: fin_measure
-noncomputable def fin_measure {n : ℕ} : Measure (iter α n) :=
-  ((Kernel.traj (X := fun _ => α) (A.iter_comap hf) 0).map (frestrictLe n)).avg A.ν_mequiv
+noncomputable def fin_measure {n : ℕ} : Measure (iter α n) := (A.measure hf).map (frestrictLe n)
 -- ANCHOR_END: fin_measure
 
+lemma fin_measure_eq_partial_traj {n : ℕ} : A.fin_measure hf =
+    ((Kernel.traj (X := fun _ => α) (A.iter_comap hf) 0).map (frestrictLe n)).avg A.ν_mequiv := by
+  simp only [fin_measure, measure]
+  ext s hs
+  rw [Measure.map_apply (measurable_frestrictLe n) hs, Kernel.avg_apply _ _ hs,
+    Kernel.avg_apply _ _ (measurable_frestrictLe n hs)]
+  congr with _
+  rw [Kernel.map_apply' _ (measurable_frestrictLe n) _ hs]
+
 instance {n : ℕ} : IsProbabilityMeasure (A.fin_measure hf (n := n)) := by
-  simp only [fin_measure, Kernel.traj_map_frestrictLe]
+  simp only [fin_measure_eq_partial_traj, Kernel.traj_map_frestrictLe]
   infer_instance
 
 /-- Monotonicity of the algorithm's induced measures under trajectory extension.
@@ -154,7 +162,7 @@ lemma fin_measure_mono {n m : ℕ} {s : Set (iter α n)} (hs : MeasurableSet s)
     (hse : e ⊆ {u | subTuple hmn u ∈ s}) {f : α → β} (hf : Continuous f) :
     A.fin_measure hf e ≤ A.fin_measure hf s := by
 -- ANCHOR_END: mono
-  simp only [fin_measure]
+  simp only [fin_measure_eq_partial_traj]
   rw [Kernel.avg_apply _ _ he]
   rw [Kernel.avg_apply _ _ hs]
   set κ := (Kernel.traj (X := fun _ => α) (A.iter_comap hf) 0)
@@ -241,12 +249,12 @@ lemma eq_restrict {f g : α → β} (hf : Continuous f) (hg : Continuous g)
       by_cases h : i ≤ n
       all_goals simp only [h, ↓reduceDIte, C_n] at this; exact this.2
 
-  simp only [Measure.restrict_apply (MeasurableSet.univ_pi B_m), fin_measure]
+  simp only [Measure.restrict_apply (MeasurableSet.univ_pi B_m)]
   have pi_inter : univ.pi B ∩ (univ.pi (fun _ => s)) = univ.pi C := pi_inter_distrib.symm
   rw [pi_inter]
   clear pi_inter
 
-  simp only [Kernel.traj_map_frestrictLe]
+  simp only [fin_measure_eq_partial_traj, Kernel.traj_map_frestrictLe]
   rw [Kernel.partialTraj_avg_rect_eq _ (Nat.zero_le n) _ (fun i ↦ (B_m i).inter hs)]
   rw [Kernel.partialTraj_avg_rect_eq _ (Nat.zero_le n) _ (fun i ↦ (B_m i).inter hs)]
 

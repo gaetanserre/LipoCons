@@ -89,8 +89,7 @@ instance : IsProbabilityMeasure (A.measure hf) := by
 Finally, we can define the measure on finite sequences of samples of size $`n + 1` produced by the algorithm by measuring set of infinite sequences of samples such that the first $`n + 1` elements are in a set of sequences of size $`n + 1`.
 
 ```anchor fin_measure
-noncomputable def fin_measure {n : ℕ} : Measure (iter α n) :=
-  ((Kernel.traj (X := fun _ => α) (A.iter_comap hf) 0).map (frestrictLe n)).avg A.ν_mequiv
+noncomputable def fin_measure {n : ℕ} : Measure (iter α n) := (A.measure hf).map (frestrictLe n)
 ```
 
 # Useful lemmas
