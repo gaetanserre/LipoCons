@@ -10,7 +10,7 @@ cd src
 lake exe cache get
 lake build
 ```
-Now you can explore the proof using your favorite editor with Lean support, such as [VSCode](https://code.visualstudio.com/) with the [Lean 4 extension](https://marketplace.visualstudio.com/items?itemName=leanprover.lean4). You editor should be open in the `src` directory.
+Now you can explore the proof using your favorite editor with Lean support, such as [VSCode](https://code.visualstudio.com/) with the [Lean 4 extension](https://marketplace.visualstudio.com/items?itemName=leanprover.lean4). Your editor should be open in the `src` directory.
 
 ## Documentation
 The documentation is available [here](https://gaetanserre.fr/doc/LipoCons/). To build it, clone the repository and run the following command in the root directory:
