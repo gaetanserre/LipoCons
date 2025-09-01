@@ -130,17 +130,19 @@ throughout the formalization. -/
 noncomputable def fin_measure {n : ℕ} : Measure (iter α n) := (A.measure hf).map (frestrictLe n)
 -- ANCHOR_END: fin_measure
 
+/-- The finite measure `A.fin_measure hf` can be expressed as the average of the
+partial trajectory kernel from `0` to `n`, averaged over the initial measure `A.ν_mequiv`. -/
 lemma fin_measure_eq_partial_traj {n : ℕ} : A.fin_measure hf =
-    ((Kernel.traj (X := fun _ => α) (A.iter_comap hf) 0).map (frestrictLe n)).avg A.ν_mequiv := by
+    (Kernel.partialTraj (X := fun _ ↦ α) (A.iter_comap hf) 0 n).avg A.ν_mequiv := by
   simp only [fin_measure, measure]
   ext s hs
   rw [Measure.map_apply (measurable_frestrictLe n) hs, Kernel.avg_apply _ _ hs,
     Kernel.avg_apply _ _ (measurable_frestrictLe n hs)]
   congr with _
-  rw [Kernel.map_apply' _ (measurable_frestrictLe n) _ hs]
+  rw [← Kernel.traj_map_frestrictLe, Kernel.map_apply' _ (measurable_frestrictLe n) _ hs]
 
 instance {n : ℕ} : IsProbabilityMeasure (A.fin_measure hf (n := n)) := by
-  simp only [fin_measure_eq_partial_traj, Kernel.traj_map_frestrictLe]
+  simp only [fin_measure_eq_partial_traj]
   infer_instance
 
 /-- Monotonicity of the algorithm's induced measures under trajectory extension.
@@ -162,7 +164,7 @@ lemma fin_measure_mono {n m : ℕ} {s : Set (iter α n)} (hs : MeasurableSet s)
     (hse : e ⊆ {u | subTuple hmn u ∈ s}) {f : α → β} (hf : Continuous f) :
     A.fin_measure hf e ≤ A.fin_measure hf s := by
 -- ANCHOR_END: mono
-  simp only [fin_measure_eq_partial_traj]
+  simp only [fin_measure_eq_partial_traj, ← Kernel.traj_map_frestrictLe]
   rw [Kernel.avg_apply _ _ he]
   rw [Kernel.avg_apply _ _ hs]
   set κ := (Kernel.traj (X := fun _ => α) (A.iter_comap hf) 0)
@@ -254,7 +256,7 @@ lemma eq_restrict {f g : α → β} (hf : Continuous f) (hg : Continuous g)
   rw [pi_inter]
   clear pi_inter
 
-  simp only [fin_measure_eq_partial_traj, Kernel.traj_map_frestrictLe]
+  simp only [fin_measure_eq_partial_traj]
   rw [Kernel.partialTraj_avg_rect_eq _ (Nat.zero_le n) _ (fun i ↦ (B_m i).inter hs)]
   rw [Kernel.partialTraj_avg_rect_eq _ (Nat.zero_le n) _ (fun i ↦ (B_m i).inter hs)]
 
