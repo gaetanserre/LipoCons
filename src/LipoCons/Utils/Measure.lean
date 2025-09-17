@@ -18,7 +18,7 @@ lemma pi_space_eq
     (h : ∀ s : ∀ i, Set (α i), (∀ i, MeasurableSet (s i)) → μ (univ.pi s) = ν (univ.pi s)) :
     μ = ν := by
   refine Measure.FiniteSpanningSetsIn.ext
-    generateFrom_pi.symm (IsPiSystem.pi (fun _ => MeasurableSpace.isPiSystem_measurableSet)) ?_ ?_
+    generateFrom_pi.symm isPiSystem_pi ?_ ?_
   · refine { set := fun _ => univ, set_mem := ?_, finite := ?_, spanning := ?_ }
     · intro i
       use (fun _ => univ)
