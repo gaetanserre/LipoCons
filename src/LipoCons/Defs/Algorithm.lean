@@ -159,7 +159,7 @@ the measure on longer trajectories contracts to the measure on shorter ones via 
 
 Formally: if `e ⊆ {u | subTuple hmn u ∈ s}`, then `A.fin_measure hf m e ≤ A.fin_measure hf n s`. -/
 -- ANCHOR: mono
-lemma fin_measure_mono {n m : ℕ} {s : Set (iter α n)} (hs : MeasurableSet s)
+theorem fin_measure_mono {n m : ℕ} {s : Set (iter α n)} (hs : MeasurableSet s)
     {e : Set (iter α m)} (he : MeasurableSet e) (hmn : n ≤ m)
     (hse : e ⊆ {u | subTuple hmn u ∈ s}) {f : α → β} (hf : Continuous f) :
     A.fin_measure hf e ≤ A.fin_measure hf s := by
@@ -190,7 +190,7 @@ induced measures at iteration `n` are identical when restricted to trajectories 
 within `s`. This establishes that the algorithm depends only on the objective function values
 on the relevant domain. -/
 -- ANCHOR: eq_restrict
-lemma eq_restrict {f g : α → β} (hf : Continuous f) (hg : Continuous g)
+theorem eq_restrict {f g : α → β} (hf : Continuous f) (hg : Continuous g)
     {s : Set α} (hs : MeasurableSet s) (h : s.EqOn f g) (n : ℕ) :
     (A.fin_measure hf).restrict (univ.pi (fun (_ : Finset.Iic n) => s)) =
     (A.fin_measure hg).restrict (univ.pi (fun (_ : Finset.Iic n) => s)) := by

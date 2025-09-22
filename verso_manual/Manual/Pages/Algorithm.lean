@@ -92,25 +92,25 @@ Finally, we can define the measure on finite sequences of samples of size $`n + 
 noncomputable def fin_measure {n : ℕ} : Measure (iter α n) := (A.measure hf).map (frestrictLe n)
 ```
 
-# Useful lemmas
-This definition of a stochastic iterative global optimization algorithm allows to prove two lemmas on the measure on sequences of samples. These lemmas happen to be useful in our formalization.
+# Useful properties
+This definition of a stochastic iterative global optimization algorithm allows to prove two properties on the measure on sequences of samples. These theorems happen to be useful in our formalization.
 
 ## Monotone
-The first lemma states that, given two natural integers such that $`n \le m`, a measurable set $`S` of sequences of size $`n + 1`, and a set $`E` of sequences of size $`m`, if the subsequences of size $`n` in $`E` are contained in $`S`, then the measure of $`E` is less than or equal to the measure of $`S`.
+The first theorem states that, given two natural integers such that $`n \le m`, a measurable set $`S` of sequences of size $`n + 1`, and a set $`E` of sequences of size $`m`, if the subsequences of size $`n` in $`E` are contained in $`S`, then the measure of $`E` is less than or equal to the measure of $`S`.
 
-The informal intuition behind this lemma is that a sequence of size $`m` can be seen as a "continuations" of a sequence of size $`n + 1`. Thus, the hypothesis that the sequences of size $`m + 1` in $`E` are contained in the set of sequences of size $`m + 1` that are continuations of $`S` means that `$E` is a subset of all possible continuations of sequences in $`S`. Therefore, the measure of $`E` is less than or equal to the measure of $`S`.
+The informal intuition behind this theorem is that a sequence of size $`m` can be seen as a "continuations" of a sequence of size $`n + 1`. Thus, the hypothesis that the sequences of size $`m + 1` in $`E` are contained in the set of sequences of size $`m + 1` that are continuations of $`S` means that `$E` is a subset of all possible continuations of sequences in $`S`. Therefore, the measure of $`E` is less than or equal to the measure of $`S`.
 ```anchor mono
-lemma fin_measure_mono {n m : ℕ} {s : Set (iter α n)} (hs : MeasurableSet s)
+theorem fin_measure_mono {n m : ℕ} {s : Set (iter α n)} (hs : MeasurableSet s)
     {e : Set (iter α m)} (he : MeasurableSet e) (hmn : n ≤ m)
     (hse : e ⊆ {u | subTuple hmn u ∈ s}) {f : α → β} (hf : Continuous f) :
     A.fin_measure hf e ≤ A.fin_measure hf s := by
 ```
 ## Restricted measures
-The second lemma states that, given two continuous functions $`f` and $`g` and a measurable set $`S` of elements of the search space $`\alpha` such that $`f` and $`g` are equal on $`S`, the measure on sequences produced by the algorithm using $`f` restricted to the set of sequences where all elements are in $`S` is equal to the same restricted measure using $`g`.
+The second theorem states that, given two continuous functions $`f` and $`g` and a measurable set $`S` of elements of the search space $`\alpha` such that $`f` and $`g` are equal on $`S`, the measure on sequences produced by the algorithm using $`f` restricted to the set of sequences where all elements are in $`S` is equal to the same restricted measure using $`g`.
 
 This is natural as the measures on sequences are entirely determined by the evaluations of the function on the samples.
 ```anchor eq_restrict
-lemma eq_restrict {f g : α → β} (hf : Continuous f) (hg : Continuous g)
+theorem eq_restrict {f g : α → β} (hf : Continuous f) (hg : Continuous g)
     {s : Set α} (hs : MeasurableSet s) (h : s.EqOn f g) (n : ℕ) :
     (A.fin_measure hf).restrict (univ.pi (fun (_ : Finset.Iic n) => s)) =
     (A.fin_measure hg).restrict (univ.pi (fun (_ : Finset.Iic n) => s)) := by
