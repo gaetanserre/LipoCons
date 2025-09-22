@@ -100,7 +100,7 @@ The first lemma states that, given two natural integers such that $`n \le m`, a 
 
 The informal intuition behind this lemma is that a sequence of size $`m` can be seen as a "continuations" of a sequence of size $`n + 1`. Thus, the hypothesis that the sequences of size $`m + 1` in $`E` are contained in the set of sequences of size $`m + 1` that are continuations of $`S` means that `$E` is a subset of all possible continuations of sequences in $`S`. Therefore, the measure of $`E` is less than or equal to the measure of $`S`.
 ```anchor mono
-lemma fin_measure_mono {n m : ℕ} {s : Set (iter α n)} (hs : MeasurableSet s)
+theorem fin_measure_mono {n m : ℕ} {s : Set (iter α n)} (hs : MeasurableSet s)
     {e : Set (iter α m)} (he : MeasurableSet e) (hmn : n ≤ m)
     (hse : e ⊆ {u | subTuple hmn u ∈ s}) {f : α → β} (hf : Continuous f) :
     A.fin_measure hf e ≤ A.fin_measure hf s := by
@@ -110,7 +110,7 @@ The second lemma states that, given two continuous functions $`f` and $`g` and a
 
 This is natural as the measures on sequences are entirely determined by the evaluations of the function on the samples.
 ```anchor eq_restrict
-lemma eq_restrict {f g : α → β} (hf : Continuous f) (hg : Continuous g)
+theorem eq_restrict {f g : α → β} (hf : Continuous f) (hg : Continuous g)
     {s : Set α} (hs : MeasurableSet s) (h : s.EqOn f g) (n : ℕ) :
     (A.fin_measure hf).restrict (univ.pi (fun (_ : Finset.Iic n) => s)) =
     (A.fin_measure hg).restrict (univ.pi (fun (_ : Finset.Iic n) => s)) := by
