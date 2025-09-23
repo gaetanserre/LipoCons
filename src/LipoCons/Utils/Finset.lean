@@ -4,7 +4,6 @@
 
 import Mathlib.Data.Finset.Max
 
-
 namespace Finset
 
 variable {α β : Type*} [LinearOrder β] [DecidableEq β] [Nonempty β]
@@ -22,8 +21,7 @@ lemma extract_mono {s : Finset α} (hs : s.Nonempty) {p₁ : α → β → Prop}
     suffices mx ∈ (s.image f) by
       rwa [Finset.mem_image] at this
     max'_mem (image f s) (image_nonempty.mpr hs)
-  specialize h₂ x x_mem mx
-  obtain ⟨b, b_le, hb₂⟩ := h₂
+  obtain ⟨b, b_le, hb₂⟩ := h₂ x x_mem mx
   use b
   refine ⟨?_, hb₂⟩
   intro y y_mem
