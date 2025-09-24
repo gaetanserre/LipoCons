@@ -138,7 +138,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
             exact lt_of_le_of_lt
               (A.fin_measure_mono (measurable_S n) (measurable_S m) hnm this hfc) hn
           exact fun _ hu i => hu ⟨i.1, mem_iic_le hnm i.2⟩
-        · intro _ _ n'
+        · intro n'
           exact not_sample_space n'
 
       obtain ⟨n_max, hn_max⟩ := h_contra
