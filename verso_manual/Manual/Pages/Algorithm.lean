@@ -36,25 +36,29 @@ The type {anchorTerm Algorithm}`prod_iter_image` is the product type `(Iic n →
 
 ## Pure Random Search
 The Pure Random Search algorithm is a simple stochastic iterative global optimization algorithm that samples uniformly from the search space at each iteration. It can be defined as follows:
-- {anchorTerm Algorithm}`ν` := $`\mathcal{U}(\alpha)` is the uniform measure on the search space $`\alpha`.
+- {anchorTerm Algorithm}`ν` `:=` $`\mathcal{U}(\alpha)` is the uniform measure on the search space $`\alpha`.
 
 - {anchorTerm Algorithm}`kernel_iter n` `:=` $`\_ \mapsto \mathcal{U}(\alpha)` is the Markov kernel that maps any pair of samples/evaluations to the uniform measure on $`\alpha`.
 
 ## AdaLIPO
 The AdaLIPO algorithm has been introduced in {citep Malherbe2017}[] and is a more sophisticated stochastic iterative global optimization algorithm made for Lipschitz functions. It uses a estimation of the Lipschitz constant to adaptively sample the search space. The algorithm can be defined as follows:
-- {anchorTerm Algorithm}`ν` := $`\mathcal{U}(\alpha)` is the uniform measure on the search space $`\alpha`.
+- {anchorTerm Algorithm}`ν` `:=` $`\mathcal{U}(\alpha)` is the uniform measure on the search space $`\alpha`.
 
 - {anchorTerm Algorithm}`kernel_iter n` `:=` $`(X, f(X)) \mapsto \mathcal{U}(E(X, f(X)))` is the Markov kernel that maps any pair of samples/evaluations to the uniform measure on the set $`E(X, f(X))` defined as
   $$`
-  E(X, f(X)) := \{x : \alpha \; | \; \max_{1 \le i \le n} f(X_i) \le \min_{1 \le i \le n} f(X_i) + \kappa(X, f(X)) \cdot d(x, X_i)\}
+  E(X, f(X)) \coloneqq \{x : \alpha \; | \; \max_{1 \le i \le n} f(X_i) \le \min_{1 \le i \le n} f(X_i) + \kappa(X, f(X)) \cdot d(x, X_i)\}
   `
   where $`(X, f(X)) \triangleq \left[(X_1, \dots, X_n), (f(X_1), \dots, f(X_n))\right]` and $`\kappa(X, f(X))` is an estimation of the Lipschitz constant of the function $`f` based on the previous samples and their evaluations.
 
 ### CMA-ES
-The CMA-ES (Covariance Matrix Adaptation Evolution Strategy) is a popular stochastic iterative global introduced in {citep Hansen1996}[]. It samples from a multivariate normal distribution whose mean and covariance matrix is adapted based on the previous samples. The algorithm can be defined as follows:
-- {anchorTerm Algorithm}`ν` := $`\mathcal{N}(\mu, \Sigma)` is the multivariate normal measure on the search space $`\alpha` with mean $`\mu` and covariance matrix $`\Sigma`.
+The CMA-ES (Covariance Matrix Adaptation Evolution Strategy) is a well-known algorithm for continuous global optimization, introduced in {citep Hansen1996}[]. At each iteration, it samples $`k` points according to a multivariate normal distribution where the mean and the covariance matrix depend on the previous iterations. Given a continuous function $`f : \Omega \to \mathbb{R}`, we construct $`\tilde{f} : \Omega^k \to \mathbb{R}^k` by
+$$`
+  \tilde{f}(x_1, \dots, x_k) = (f(x_1), \dots, f(x_k)).
+`
+This new definition lets us view CMA-ES as a procedure that generates samples in $`\Omega^k`, where $`\tilde{f}` is employed to construct the transition kernels. The CMA-ES algorithm can be defined as follows:
+- {anchorTerm Algorithm}`ν` `:=` $`\mathcal{N}^{\otimes k}(\mu, \Sigma)` is the $`k`-product of multivariate normal measures on the search space $`\alpha` with mean $`\mu` and covariance matrix $`\Sigma`.
 
-- {anchorTerm Algorithm}`kernel_iter n` `:=` $`(X, f(X)) \mapsto \mathcal{N}(\mu(X, f(X)), \Sigma(X, f(X)))` is the Markov kernel that maps any pair of samples/evaluations to the multivariate normal distribution with mean $`\mu(X, f(X))` and covariance matrix $`\Sigma(X, f(X))` adapted based on the previous samples and their evaluations.
+- {anchorTerm Algorithm}`kernel_iter n` `:=` $`(X, \tilde{f}(X)) \mapsto \mathcal{N}(\mu(X, \tilde{f}(X)), \Sigma(X, \tilde{f}(X)))` is the Markov kernel that maps any pair of samples/evaluations to the multivariate normal distribution with mean $`\mu(X, \tilde{f}(X))` and covariance matrix $`\Sigma(X, \tilde{f}(X))` adapted based on the previous samples and their evaluations.
 
 # Measure on sequences
 To define the consistency of a stochastic iterative global optimization algorithm, we need to use the initial probability measure and the Markov kernels of an algorithm to construct a probability measure on infinite sequences of samples produced by the algorithm. We chose to use the Ionescu-Tulcea theorem {citep Tulcea1949}[] to define this measure. The implementation of this theorem in Mathlib is done via the {anchorTerm measure}`Kernel.traj` function, which, given a family of Markov kernels on finite sequences, returns a Markov kernel on infinite sequences.
