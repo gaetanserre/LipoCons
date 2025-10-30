@@ -1,4 +1,5 @@
 set -x
+set -e
 
 lake build
 rm -rf html _out
