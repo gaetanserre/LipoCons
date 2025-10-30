@@ -6,27 +6,24 @@ This repository contains the Lean formalization of the Proposition 3 of the the 
 Install [Lean 4](https://lean-lang.org/install/). Then, clone the repository and run the following command in the root directory:
 
 ```bash
-cd src
 lake exe cache get
 lake build
 ```
-Now you can explore the proof using your favorite editor with Lean support, such as [VSCode](https://code.visualstudio.com/) with the [Lean 4 extension](https://marketplace.visualstudio.com/items?itemName=leanprover.lean4). Your editor should be open in the `src` directory.
+Now you can explore the proof using your favorite editor with Lean support, such as [VSCode](https://code.visualstudio.com/) with the [Lean 4 extension](https://marketplace.visualstudio.com/items?itemName=leanprover.lean4).
 
 ## Documentation
 The documentation is available [here](https://gaetanserre.fr/doc/LipoCons/). To build it, clone the repository and run the following command in the root directory:
 
 ```bash
-cd src
 lake exe cache get
 lake build
-cd ..
-lake build
+cd doc
 ./build_manual.sh
 ```
-The documentation will be generated in the `doc` directory. You will need a local web server to view the documentation. You can use Python's built-in HTTP server:
+The documentation will be generated in the `html` directory. You will need a local web server to view the documentation. You can use Python's built-in HTTP server:
 
 ```bash
-cd doc
+cd doc/html
 python3 -m http.server
 ```
 and open your web browser at `http://localhost:8000`.

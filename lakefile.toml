@@ -1,21 +1,19 @@
-name = "manual"
+name = "LipoCons"
 version = "0.1.0"
 keywords = ["math"]
+defaultTargets = ["LipoCons"]
 
 [leanOptions]
-autoImplicit = true
+pp.unicode.fun = true # pretty-prints `fun a ↦ b`
+autoImplicit = false
 
 [[require]]
-name = "verso"
-git = "https://github.com/leanprover/verso"
+name = "mathlib"
+scope = "leanprover-community"
+
+[[require]]
+name = "subverso"
+git = "https://github.com/leanprover/subverso"
 
 [[lean_lib]]
-name = "Manual"
-srcDir = "verso_manual"
-root = "Manual"
-
-
-[[lean_exe]]
-name = "manual"
-srcDir = "verso_manual"
-root = "Manual"
+name = "LipoCons"
