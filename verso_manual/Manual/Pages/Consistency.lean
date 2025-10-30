@@ -5,7 +5,7 @@
 import Manual.Papers
 import VersoManual
 
-open Verso.Genre Manual Verso.Genre.Manual.InlineLean
+open Verso.Genre Manual Verso.Genre.Manual.InlineLean Verso.Code.External
 
 set_option pp.rawOnError true
 
@@ -15,7 +15,7 @@ set_option verso.exampleModule "LipoCons.Defs.Consistency"
 
 #doc (Manual) "Consistency and sampling" =>
 %%%
-htmlSplit := .default
+htmlSplit := .never
 %%%
 
 In {citep Malherbe2017}[], the authors provided definitions for the consistency of a stochastic iterative global optimization algorithm and for the fact that an algorithm samples the whole search space.

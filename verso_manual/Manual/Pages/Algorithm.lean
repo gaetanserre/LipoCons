@@ -5,7 +5,7 @@
 import Manual.Papers
 import VersoManual
 
-open Verso.Genre Manual Verso.Genre.Manual.InlineLean
+open Verso.Genre Manual Verso.Genre.Manual.InlineLean Verso.Code.External
 
 set_option pp.rawOnError true
 
@@ -15,7 +15,7 @@ set_option verso.exampleModule "LipoCons.Defs.Algorithm"
 
 #doc (Manual) "Stochastic iterative algorithm" =>
 %%%
-htmlSplit := .default
+htmlSplit := .never
 %%%
 
 To formalize the Proposition 3 of {citep Malherbe2017}[], we need to abstract the notion of a stochastic iterative global optimization algorithm. Some proofs are not included in this manual for readability purposes, but they can be found in the source code of the project.

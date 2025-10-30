@@ -20,6 +20,7 @@ cd src
 lake exe cache get
 lake build
 cd ..
+lake build
 ./build_manual.sh
 ```
 The documentation will be generated in the `doc` directory. You will need a local web server to view the documentation. You can use Python's built-in HTTP server:

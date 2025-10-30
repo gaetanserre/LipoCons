@@ -5,7 +5,7 @@
 import Manual.Papers
 import VersoManual
 
-open Verso.Genre Manual Verso.Genre.Manual.InlineLean
+open Verso.Genre Manual Verso.Genre.Manual.InlineLean Verso.Code.External
 
 set_option pp.rawOnError true
 

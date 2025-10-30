@@ -108,7 +108,7 @@ lemma partialTraj_restrict {s : Π n, Set (X n)} [∀ n, IsSFiniteKernel (κ n)]
         simp_rw [partialTraj_succ_self]
         rw [Kernel.map_apply', Kernel.id_prod_apply', Kernel.map_apply', Kernel.restrict_apply',
           Kernel.map_apply', Kernel.id_prod_apply', Kernel.map_apply']
-        · congr
+        · congr 2
           ext z
           change _ ↔
             IicProdIoc b (b + 1) (y, MeasurableEquiv.piSingleton b z) ∈ Set.univ.pi (fun _ ↦ s _)
