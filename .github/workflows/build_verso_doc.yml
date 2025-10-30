@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    name: Install Lean
+    name: Build Verso Documentation
     runs-on: ubuntu-latest
 
     steps:
@@ -20,5 +20,11 @@ jobs:
         uses: leanprover/lean-action@v1
       - name: Build Verso Documentation
         run: |
+          ls -la
           cd doc
           ./build_manual.sh
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with: 
+          github_token: ${{ secrets.GITHUB_TOKEN }} 
+          publish_dir: doc/html
