@@ -14,13 +14,10 @@ def extraHead : Array Verso.Output.Html := #[
     {{<script src="static/scripts.js"></script>}},
 ]
 
-def config : Config :=
-  Config.addKaTeX (
-    Config.addSearch {
-      extraHead := extraHead,
-      sourceLink := some "https://github.com/gaetanserre/LipoCons",
-      issueLink := some "https://github.com/gaetanserre/LipoCons/issues",
-    }
-  )
+def config : Config := {
+    extraHead := extraHead,
+    sourceLink := some "https://github.com/gaetanserre/LipoCons",
+    issueLink := some "https://github.com/gaetanserre/LipoCons/issues",
+}
 
 def main := manualMain (%doc Manual.Front) (config := config)
