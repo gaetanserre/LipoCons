@@ -2,7 +2,7 @@
  - Created in 2025 by Gaëtan Serré
 -/
 
-import LipoCons.Defs.Algorithm
+import LeanGO.Algorithm
 import LipoCons.Defs.Lipschitz
 import LipoCons.Utils.Compact
 import Mathlib.Analysis.Normed.Order.Lattice

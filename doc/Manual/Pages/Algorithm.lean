@@ -11,7 +11,7 @@ set_option pp.rawOnError true
 
 set_option verso.exampleProject "../"
 
-set_option verso.exampleModule "LipoCons.Defs.Algorithm"
+set_option verso.exampleModule "LipoCons.Doc.Algorithm"
 
 #doc (Manual) "Stochastic iterative algorithm" =>
 %%%

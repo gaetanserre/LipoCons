@@ -15,5 +15,9 @@ scope = "leanprover-community"
 name = "subverso"
 git = "https://github.com/leanprover/subverso"
 
+[[require]]
+name = "leango"
+git = "https://github.com/gaetanserre/LeanGO"
+
 [[lean_lib]]
 name = "LipoCons"

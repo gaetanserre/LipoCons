@@ -11,7 +11,7 @@ set_option pp.rawOnError true
 
 set_option verso.exampleProject "../"
 
-set_option verso.exampleModule "LipoCons.Verso.LipoCons_Verso"
+set_option verso.exampleModule "LipoCons.Doc.LipoCons_Verso"
 
 #doc (Manual) "Consistency equivalence" =>
 

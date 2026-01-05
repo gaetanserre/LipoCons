@@ -66,7 +66,7 @@ lemma mul_const {f : α → ℝ} (hf : Lipschitz f) {b : ℝ} : Lipschitz (fun a
   have comm : ENNReal.ofNNReal K * .ofNNReal nnb * edist x y =
     .ofNNReal nnb * (.ofNNReal K * edist x y) := by ring
   rw [comm]
-  exact mul_le_mul_left' f_lipschitz nnb
+  exact mul_le_mul_right f_lipschitz nnb
 
 @[fun_prop]
 lemma const_mul {f : α → ℝ} (hf : Lipschitz f) {b : ℝ} : Lipschitz (fun a => b * f a) := by
@@ -83,7 +83,7 @@ lemma const_mul {f : α → ℝ} (hf : Lipschitz f) {b : ℝ} : Lipschitz (fun a
   have comm : ENNReal.ofNNReal K * .ofNNReal nnb * edist x y =
     .ofNNReal nnb * (.ofNNReal K * edist x y) := by ring
   rw [comm]
-  exact mul_le_mul_left' f_lipschitz nnb
+  exact mul_le_mul_right f_lipschitz nnb
 
 @[fun_prop]
 lemma div_const {f : α → ℝ} (hf : Lipschitz f) {b : ℝ} :
@@ -144,14 +144,14 @@ lemma LipschitzWith.if {f g : α → ℝ} {c : α} {ε : ℝ} {Kf Kg : ℝ≥0}
         calc _ ≤ |f b - f a| + |g b| := abs_add_le _ _
         _ ≤ Kf * dist b a + |g b| := by
           rw [lipschitzWith_iff_dist_le_mul] at hf
-          exact add_le_add_right (hf b a) _
+          exact add_le_add_left (hf b a) _
         _ = Kf * dist a b + |g b| := by rw [dist_comm]
         _ = Kf * dist a b + |g b - g e| := by
           rw [hp h.choose h.choose_spec.1]
           simp only [sub_zero]
         _ ≤ Kf * dist a b + Kg * dist b e := by
           rw [lipschitzWith_iff_dist_le_mul] at hg
-          exact add_le_add_left (hg b e) (Kf * dist a b)
+          exact (add_le_add_iff_left (Kf * dist a b)).mpr (hg b e)
         _ ≤ Kf * dist a b + Kg * dist a b := by
           have : Kg * dist b e ≤ Kg * dist a b := by
             rw [dist_comm]

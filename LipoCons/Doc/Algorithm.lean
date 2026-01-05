@@ -2,8 +2,8 @@
  - Created in 2025 by Gaëtan Serré
 -/
 
-import LipoCons.Utils.Kernel
-import LipoCons.Utils.Measure
+import LeanGO.Utils.Kernel
+import LeanGO.Utils.Measure
 import Mathlib.Probability.Kernel.IonescuTulcea.Traj
 
 open MeasureTheory ProbabilityTheory
@@ -197,11 +197,8 @@ theorem eq_restrict {f g : α → β} (hf : Continuous f) (hg : Continuous g)
 -- ANCHOR_END: eq_restrict
   refine Measure.pi_space_eq ?_
   intro B B_m
-
   let C := fun i => (B i) ∩ s
-
   set E := univ.pi (fun (i : Finset.Iic 0) => C ⟨i, mem_iic_le (Nat.zero_le n) i.2⟩)
-
   have eq_on_partialTraj : E.EqOn
       (fun a => Kernel.partialTraj (X := fun _ => α) (A.iter_comap hf) 0 n a (univ.pi C))
       (fun a => Kernel.partialTraj (X := fun _ => α) (A.iter_comap hg) 0 n a (univ.pi C)) := by
@@ -250,16 +247,13 @@ theorem eq_restrict {f g : α → β} (hf : Continuous f) (hg : Continuous g)
       have := (a_mem i trivial)
       by_cases h : i ≤ n
       all_goals simp only [h, ↓reduceDIte, C_n] at this; exact this.2
-
   simp only [Measure.restrict_apply (MeasurableSet.univ_pi B_m)]
   have pi_inter : univ.pi B ∩ (univ.pi (fun _ => s)) = univ.pi C := pi_inter_distrib.symm
   rw [pi_inter]
   clear pi_inter
-
   simp only [fin_measure_eq_partial_traj]
   rw [Kernel.partialTraj_avg_rect_eq _ (Nat.zero_le n) _ (fun i ↦ (B_m i).inter hs)]
   rw [Kernel.partialTraj_avg_rect_eq _ (Nat.zero_le n) _ (fun i ↦ (B_m i).inter hs)]
-
   rw [setLIntegral_congr_fun ?_ eq_on_partialTraj]
   exact MeasurableSet.univ_pi (fun i => (B_m ⟨i, mem_iic_le (Nat.zero_le n) i.2⟩).inter hs)
 
