@@ -43,7 +43,7 @@ def set_dist_max {f : α → β} (hf : Lipschitz f) {n : ℕ} (ε : ℝ) :=
 We can now define the measure of this set of sequences.
 ```anchor measure_dist_max
 noncomputable def measure_dist_max (A : Algorithm α β) {f : α → β} (hf : Lipschitz f) :=
-  fun ε n => A.fin_measure hf.continuous (set_dist_max hf (n := n) ε)
+  fun ε n => A.fin_measure hf.measurable (set_dist_max hf (n := n) ε)
 ```
 
 Finally, an algorithm $`A` is consistent over a Lipschitz function $`f` if {anchorTerm measure_dist_max}`measure_dist_max` tends to $`0` when $`n` tends to infinity.
@@ -81,7 +81,8 @@ noncomputable def max_min_dist {n : ℕ} (u : iter α n) :=
 Finally, given a continuous function $`f`, an algorithm $`A` samples the whole search space if the measure of the set of sequences of samples of size $`n + 1` such that, {anchorTerm max_min_dist}`max_min_dist` is greater than $`\varepsilon`, tends to $`0` when $`n` tends to infinity.
 ```anchor sample_whole_space
 noncomputable def sample_whole_space (A : Algorithm α β) {f : α → β} (hf : Continuous f) :=
-  ∀ ε > 0, Tendsto (fun n => A.fin_measure hf {u : iter α n | max_min_dist u > ε}) atTop (𝓝 0)
+  ∀ ε > 0, Tendsto (fun n =>
+    A.fin_measure hf.measurable {u : iter α n | max_min_dist u > ε}) atTop (𝓝 0)
 ```
 
 Now, we have all the definitions needed to formalize the Proposition 3 of {citep Malherbe2017}[].
