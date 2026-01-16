@@ -4,8 +4,9 @@
 
 import Mathlib.Analysis.Normed.Module.Convex
 import Mathlib.Analysis.Normed.Order.Lattice
+import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
 
-open NNReal
+open NNReal MeasureTheory
 
 variable {α β : Type*}
 
@@ -50,6 +51,10 @@ variable [PseudoEMetricSpace β]
 
 lemma continuous (hf : Lipschitz f) : Continuous f :=
   hf.isLipschitz.choose_spec.continuous
+
+lemma measurable (hf : Lipschitz f) [MeasurableSpace α] [MeasurableSpace β]
+    [OpensMeasurableSpace α] [BorelSpace β] : Measurable f :=
+  hf.continuous.measurable
 
 @[fun_prop]
 lemma mul_const {f : α → ℝ} (hf : Lipschitz f) {b : ℝ} : Lipschitz (fun a => f a * b) := by

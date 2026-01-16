@@ -51,7 +51,8 @@ open Filter Topology in
 if `∀ ε > 0, lim_(n → ∞) A.measure f n {u | max_min_dist u > ε} = 0`. -/
 -- ANCHOR: sample_whole_space
 noncomputable def sample_whole_space (A : Algorithm α β) {f : α → β} (hf : Continuous f) :=
-  ∀ ε > 0, Tendsto (fun n => A.fin_measure hf {u : iter α n | max_min_dist u > ε}) atTop (𝓝 0)
+  ∀ ε > 0, Tendsto (fun n =>
+    A.fin_measure hf.measurable {u : iter α n | max_min_dist u > ε}) atTop (𝓝 0)
 -- ANCHOR_END: sample_whole_space
 
 variable [Nonempty β] [LinearOrder β] [ClosedIciTopology β] [ClosedIicTopology β]
@@ -76,7 +77,7 @@ the measure of the set of sequences of size `n + 1` such that the maximum of
 `f` over these sequences is at least `ε` away from from `fmax`. -/
 -- ANCHOR: measure_dist_max
 noncomputable def measure_dist_max (A : Algorithm α β) {f : α → β} (hf : Lipschitz f) :=
-  fun ε n => A.fin_measure hf.continuous (set_dist_max hf (n := n) ε)
+  fun ε n => A.fin_measure hf.measurable (set_dist_max hf (n := n) ε)
 -- ANCHOR_END: measure_dist_max
 
 open Filter Topology

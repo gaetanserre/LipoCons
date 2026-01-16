@@ -21,7 +21,7 @@ htmlSplit := .never
 To formalize the Proposition 3 of {citep Malherbe2017}[], we need to abstract the notion of a stochastic iterative global optimization algorithm. Some proofs are not included in this manual for readability purposes, but they can be found in the source code of the project.
 
 # Definition
-A stochastic iterative global optimization algorithm can be seen as a stochastic process that iteratively samples from a search space, producing a sequence of samples. The first sample is drawn from a probability measure inherent to the algorithm, and subsequent samples are generated based on Markov kernels that depend on the previous samples and their associated evaluations by a continuous function. We define the following structure to represent such an algorithm.
+A stochastic iterative global optimization algorithm can be seen as a stochastic process that iteratively samples from a search space, producing a sequence of samples. The first sample is drawn from a probability measure inherent to the algorithm, and subsequent samples are generated based on Markov kernels that depend on the previous samples and their associated evaluations by a measurable function. We define the following structure to represent such an algorithm.
 
 ```anchor Algorithm
 structure Algorithm (α β : Type*) [MeasurableSpace α] [MeasurableSpace β] where
@@ -69,7 +69,7 @@ To be able to use {anchorTerm measure}`Kernel.traj` with {anchorTerm Algorithm}`
 def iter_comap (n : ℕ) : Kernel (iter α n) α :=
   (A.kernel_iter n).comap
     (prod_eval n f)
-    (measurable_prod_eval n hf.measurable)
+    (measurable_prod_eval n hf)
 ```
 
 It allows to define a measure on sequences of size $`n + 1` by averaging the Ionescu-Tulcea kernel, given by {anchorTerm measure}`Kernel.traj (A.iter_comap hf) 0` over the initial measure `Algorithm.`{anchorTerm Algorithm}`ν` pulled back along the measurable equivalence between `Iic 0 → α` and `α`.
@@ -106,15 +106,15 @@ The informal intuition behind this theorem is that a sequence of size $`m` can b
 ```anchor mono
 theorem fin_measure_mono {n m : ℕ} {s : Set (iter α n)} (hs : MeasurableSet s)
     {e : Set (iter α m)} (he : MeasurableSet e) (hmn : n ≤ m)
-    (hse : e ⊆ {u | subTuple hmn u ∈ s}) {f : α → β} (hf : Continuous f) :
+    (hse : e ⊆ {u | subTuple hmn u ∈ s}) {f : α → β} (hf : Measurable f) :
     A.fin_measure hf e ≤ A.fin_measure hf s := by
 ```
 ## Restricted measures
-The second theorem states that, given two continuous functions $`f` and $`g` and a measurable set $`S` of elements of the search space $`\alpha` such that $`f` and $`g` are equal on $`S`, the measure on sequences produced by the algorithm using $`f` restricted to the set of sequences where all elements are in $`S` is equal to the same restricted measure using $`g`.
+The second theorem states that, given two measurable functions $`f` and $`g` and a measurable set $`S` of elements of the search space $`\alpha` such that $`f` and $`g` are equal on $`S`, the measure on sequences produced by the algorithm using $`f` restricted to the set of sequences where all elements are in $`S` is equal to the same restricted measure using $`g`.
 
 This is natural as the measures on sequences are entirely determined by the evaluations of the function on the samples.
 ```anchor eq_restrict
-theorem eq_restrict {f g : α → β} (hf : Continuous f) (hg : Continuous g)
+theorem eq_restrict {f g : α → β} (hf : Measurable f) (hg : Measurable g)
     {s : Set α} (hs : MeasurableSet s) (h : s.EqOn f g) (n : ℕ) :
     (A.fin_measure hf).restrict (univ.pi (fun (_ : Finset.Iic n) => s)) =
     (A.fin_measure hg).restrict (univ.pi (fun (_ : Finset.Iic n) => s)) := by
