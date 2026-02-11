@@ -1,7 +1,290 @@
 {"Verso.Genre.Manual.section":
  {"title": "Sections or chapters of the manual",
   "description": null,
-  "contents": {}},
+  "contents":
+  {"Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Useful-properties--Restricted-measures":
+   [{"id":
+     "Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Useful-properties--Restricted-measures",
+     "data":
+     {"title": "Restricted measures",
+      "shortTitle": null,
+      "sectionNum": "1.3.2.",
+      "context":
+      [{"title": "Consistency of global optimization algorithms",
+        "shortTitle": "Consistency of global optimization algorithms",
+        "number": null},
+       {"title": "Stochastic iterative algorithm",
+        "shortTitle": null,
+        "number": "1"},
+       {"title": "Useful properties", "shortTitle": null, "number": "3"},
+       {"title": "Restricted measures", "shortTitle": null, "number": "2"}]},
+     "address": "/Stochastic-iterative-algorithm/"}],
+   "Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Useful-properties--Monotone":
+   [{"id":
+     "Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Useful-properties--Monotone",
+     "data":
+     {"title": "Monotone",
+      "shortTitle": null,
+      "sectionNum": "1.3.1.",
+      "context":
+      [{"title": "Consistency of global optimization algorithms",
+        "shortTitle": "Consistency of global optimization algorithms",
+        "number": null},
+       {"title": "Stochastic iterative algorithm",
+        "shortTitle": null,
+        "number": "1"},
+       {"title": "Useful properties", "shortTitle": null, "number": "3"},
+       {"title": "Monotone", "shortTitle": null, "number": "1"}]},
+     "address": "/Stochastic-iterative-algorithm/"}],
+   "Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Useful-properties":
+   [{"id":
+     "Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Useful-properties",
+     "data":
+     {"title": "Useful properties",
+      "shortTitle": null,
+      "sectionNum": "1.3.",
+      "context":
+      [{"title": "Consistency of global optimization algorithms",
+        "shortTitle": "Consistency of global optimization algorithms",
+        "number": null},
+       {"title": "Stochastic iterative algorithm",
+        "shortTitle": null,
+        "number": "1"},
+       {"title": "Useful properties", "shortTitle": null, "number": "3"}]},
+     "address": "/Stochastic-iterative-algorithm/"}],
+   "Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Measure-on-sequences":
+   [{"id":
+     "Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Measure-on-sequences",
+     "data":
+     {"title": "Measure on sequences",
+      "shortTitle": null,
+      "sectionNum": "1.2.",
+      "context":
+      [{"title": "Consistency of global optimization algorithms",
+        "shortTitle": "Consistency of global optimization algorithms",
+        "number": null},
+       {"title": "Stochastic iterative algorithm",
+        "shortTitle": null,
+        "number": "1"},
+       {"title": "Measure on sequences", "shortTitle": null, "number": "2"}]},
+     "address": "/Stochastic-iterative-algorithm/"}],
+   "Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Definition--Pure-Random-Search":
+   [{"id":
+     "Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Definition--Pure-Random-Search",
+     "data":
+     {"title": "Pure Random Search",
+      "shortTitle": null,
+      "sectionNum": "1.1.1.",
+      "context":
+      [{"title": "Consistency of global optimization algorithms",
+        "shortTitle": "Consistency of global optimization algorithms",
+        "number": null},
+       {"title": "Stochastic iterative algorithm",
+        "shortTitle": null,
+        "number": "1"},
+       {"title": "Definition", "shortTitle": null, "number": "1"},
+       {"title": "Pure Random Search", "shortTitle": null, "number": "1"}]},
+     "address": "/Stochastic-iterative-algorithm/"}],
+   "Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Definition--AdaLIPO--CMA-ES":
+   [{"id":
+     "Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Definition--AdaLIPO--CMA-ES",
+     "data":
+     {"title": "CMA-ES",
+      "shortTitle": null,
+      "sectionNum": "1.1.2.1.",
+      "context":
+      [{"title": "Consistency of global optimization algorithms",
+        "shortTitle": "Consistency of global optimization algorithms",
+        "number": null},
+       {"title": "Stochastic iterative algorithm",
+        "shortTitle": null,
+        "number": "1"},
+       {"title": "Definition", "shortTitle": null, "number": "1"},
+       {"title": "AdaLIPO", "shortTitle": null, "number": "2"},
+       {"title": "CMA-ES", "shortTitle": null, "number": "1"}]},
+     "address": "/Stochastic-iterative-algorithm/"}],
+   "Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Definition--AdaLIPO":
+   [{"id":
+     "Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Definition--AdaLIPO",
+     "data":
+     {"title": "AdaLIPO",
+      "shortTitle": null,
+      "sectionNum": "1.1.2.",
+      "context":
+      [{"title": "Consistency of global optimization algorithms",
+        "shortTitle": "Consistency of global optimization algorithms",
+        "number": null},
+       {"title": "Stochastic iterative algorithm",
+        "shortTitle": null,
+        "number": "1"},
+       {"title": "Definition", "shortTitle": null, "number": "1"},
+       {"title": "AdaLIPO", "shortTitle": null, "number": "2"}]},
+     "address": "/Stochastic-iterative-algorithm/"}],
+   "Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Definition":
+   [{"id":
+     "Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Definition",
+     "data":
+     {"title": "Definition",
+      "shortTitle": null,
+      "sectionNum": "1.1.",
+      "context":
+      [{"title": "Consistency of global optimization algorithms",
+        "shortTitle": "Consistency of global optimization algorithms",
+        "number": null},
+       {"title": "Stochastic iterative algorithm",
+        "shortTitle": null,
+        "number": "1"},
+       {"title": "Definition", "shortTitle": null, "number": "1"}]},
+     "address": "/Stochastic-iterative-algorithm/"}],
+   "Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm":
+   [{"id":
+     "Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm",
+     "data":
+     {"title": "Stochastic iterative algorithm",
+      "shortTitle": null,
+      "sectionNum": "1.",
+      "context":
+      [{"title": "Consistency of global optimization algorithms",
+        "shortTitle": "Consistency of global optimization algorithms",
+        "number": null},
+       {"title": "Stochastic iterative algorithm",
+        "shortTitle": null,
+        "number": "1"}]},
+     "address": "/Stochastic-iterative-algorithm/"}],
+   "Consistency-of-global-optimization-algorithms--Indistinguishable-function--Maximum-of--_LT_missing_GT_":
+   [{"id":
+     "Consistency-of-global-optimization-algorithms--Indistinguishable-function--Maximum-of--_LT_missing_GT_",
+     "data":
+     {"title": "Maximum of  <missing>",
+      "shortTitle": null,
+      "sectionNum": "4.3.",
+      "context":
+      [{"title": "Consistency of global optimization algorithms",
+        "shortTitle": "Consistency of global optimization algorithms",
+        "number": null},
+       {"title": "Indistinguishable function",
+        "shortTitle": null,
+        "number": "4"},
+       {"title": "Maximum of  <missing>", "shortTitle": null, "number": "3"}]},
+     "address": "/Indistinguishable-function/"}],
+   "Consistency-of-global-optimization-algorithms--Indistinguishable-function--Lipschitz-property":
+   [{"id":
+     "Consistency-of-global-optimization-algorithms--Indistinguishable-function--Lipschitz-property",
+     "data":
+     {"title": "Lipschitz property",
+      "shortTitle": null,
+      "sectionNum": "4.2.",
+      "context":
+      [{"title": "Consistency of global optimization algorithms",
+        "shortTitle": "Consistency of global optimization algorithms",
+        "number": null},
+       {"title": "Indistinguishable function",
+        "shortTitle": null,
+        "number": "4"},
+       {"title": "Lipschitz property", "shortTitle": null, "number": "2"}]},
+     "address": "/Indistinguishable-function/"}],
+   "Consistency-of-global-optimization-algorithms--Indistinguishable-function--Expression":
+   [{"id":
+     "Consistency-of-global-optimization-algorithms--Indistinguishable-function--Expression",
+     "data":
+     {"title": "Expression",
+      "shortTitle": null,
+      "sectionNum": "4.1.",
+      "context":
+      [{"title": "Consistency of global optimization algorithms",
+        "shortTitle": "Consistency of global optimization algorithms",
+        "number": null},
+       {"title": "Indistinguishable function",
+        "shortTitle": null,
+        "number": "4"},
+       {"title": "Expression", "shortTitle": null, "number": "1"}]},
+     "address": "/Indistinguishable-function/"}],
+   "Consistency-of-global-optimization-algorithms--Indistinguishable-function":
+   [{"id":
+     "Consistency-of-global-optimization-algorithms--Indistinguishable-function",
+     "data":
+     {"title": "Indistinguishable function",
+      "shortTitle": null,
+      "sectionNum": "4.",
+      "context":
+      [{"title": "Consistency of global optimization algorithms",
+        "shortTitle": "Consistency of global optimization algorithms",
+        "number": null},
+       {"title": "Indistinguishable function",
+        "shortTitle": null,
+        "number": "4"}]},
+     "address": "/Indistinguishable-function/"}],
+   "Consistency-of-global-optimization-algorithms--Consistency-equivalence":
+   [{"id":
+     "Consistency-of-global-optimization-algorithms--Consistency-equivalence",
+     "data":
+     {"title": "Consistency equivalence",
+      "shortTitle": null,
+      "sectionNum": "3.",
+      "context":
+      [{"title": "Consistency of global optimization algorithms",
+        "shortTitle": "Consistency of global optimization algorithms",
+        "number": null},
+       {"title": "Consistency equivalence",
+        "shortTitle": null,
+        "number": "3"}]},
+     "address": "/Consistency-equivalence/"}],
+   "Consistency-of-global-optimization-algorithms--Consistency-and-sampling--Sampling-whole-space":
+   [{"id":
+     "Consistency-of-global-optimization-algorithms--Consistency-and-sampling--Sampling-whole-space",
+     "data":
+     {"title": "Sampling whole space",
+      "shortTitle": null,
+      "sectionNum": "2.2.",
+      "context":
+      [{"title": "Consistency of global optimization algorithms",
+        "shortTitle": "Consistency of global optimization algorithms",
+        "number": null},
+       {"title": "Consistency and sampling", "shortTitle": null, "number": "2"},
+       {"title": "Sampling whole space", "shortTitle": null, "number": "2"}]},
+     "address": "/Consistency-and-sampling/"}],
+   "Consistency-of-global-optimization-algorithms--Consistency-and-sampling--Consistency-of-algorithms":
+   [{"id":
+     "Consistency-of-global-optimization-algorithms--Consistency-and-sampling--Consistency-of-algorithms",
+     "data":
+     {"title": "Consistency of algorithms",
+      "shortTitle": null,
+      "sectionNum": "2.1.",
+      "context":
+      [{"title": "Consistency of global optimization algorithms",
+        "shortTitle": "Consistency of global optimization algorithms",
+        "number": null},
+       {"title": "Consistency and sampling", "shortTitle": null, "number": "2"},
+       {"title": "Consistency of algorithms",
+        "shortTitle": null,
+        "number": "1"}]},
+     "address": "/Consistency-and-sampling/"}],
+   "Consistency-of-global-optimization-algorithms--Consistency-and-sampling":
+   [{"id":
+     "Consistency-of-global-optimization-algorithms--Consistency-and-sampling",
+     "data":
+     {"title": "Consistency and sampling",
+      "shortTitle": null,
+      "sectionNum": "2.",
+      "context":
+      [{"title": "Consistency of global optimization algorithms",
+        "shortTitle": "Consistency of global optimization algorithms",
+        "number": null},
+       {"title": "Consistency and sampling",
+        "shortTitle": null,
+        "number": "2"}]},
+     "address": "/Consistency-and-sampling/"}],
+   "Consistency-of-global-optimization-algorithms":
+   [{"id": "Consistency-of-global-optimization-algorithms",
+     "data":
+     {"title": "Consistency of global optimization algorithms",
+      "shortTitle": "Consistency of global optimization algorithms",
+      "sectionNum": "",
+      "context":
+      [{"title": "Consistency of global optimization algorithms",
+        "shortTitle": "Consistency of global optimization algorithms",
+        "number": null}]},
+     "address": "/"}]}},
  "Verso.Genre.Manual.example":
  {"title": "Verso.Genre.Manual.example",
   "description": null,
