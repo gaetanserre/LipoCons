@@ -14,10 +14,12 @@ def extraHead : Array Verso.Output.Html := #[
     {{<script src="static/scripts.js"></script>}},
 ]
 
+def git := "https://github.com/gaetanserre/LipoCons"
+
 def config : Config := {
     extraHead := extraHead,
-    sourceLink := some "https://github.com/gaetanserre/LipoCons",
-    issueLink := some "https://github.com/gaetanserre/LipoCons/issues",
+    sourceLink := some git,
+    issueLink := some (git ++ "/issues"),
 }
 
 def main := manualMain (%doc Manual.Front) (config := config)
