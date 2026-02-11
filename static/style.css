@@ -33,6 +33,14 @@ p a:hover {
   color: var(--accent) !important;
 }
 
+.unknown,
+.keyword,
+.const {
+  font-family: "LigaMenlo" !important;
+  font-feature-settings: "calt" 1;
+  font-variant-ligatures: normal !important;
+}
+
 .hl.lean .token.binding-hl,
 .hl.lean .literal.string:hover,
 .hl.lean .token.typed:hover {
@@ -49,9 +57,4 @@ p a:hover {
 
 .tippy-box[data-theme~='lean'] {
   background-color: var(--background-lighter) !important;
-}
-
-code {
-  font-family: "LigaMenlo";
-  font-variant-ligatures: normal;
 }
