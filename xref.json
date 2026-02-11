@@ -2,125 +2,7 @@
  {"title": "Sections or chapters of the manual",
   "description": null,
   "contents":
-  {"Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Useful-properties--Restricted-measures":
-   [{"id":
-     "Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Useful-properties--Restricted-measures",
-     "data":
-     {"title": "Restricted measures",
-      "shortTitle": null,
-      "sectionNum": "1.3.2.",
-      "context":
-      [{"title": "Consistency of global optimization algorithms",
-        "shortTitle": "Consistency of global optimization algorithms",
-        "number": null},
-       {"title": "Stochastic iterative algorithm",
-        "shortTitle": null,
-        "number": "1"},
-       {"title": "Useful properties", "shortTitle": null, "number": "3"},
-       {"title": "Restricted measures", "shortTitle": null, "number": "2"}]},
-     "address": "/Stochastic-iterative-algorithm/"}],
-   "Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Useful-properties--Monotone":
-   [{"id":
-     "Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Useful-properties--Monotone",
-     "data":
-     {"title": "Monotone",
-      "shortTitle": null,
-      "sectionNum": "1.3.1.",
-      "context":
-      [{"title": "Consistency of global optimization algorithms",
-        "shortTitle": "Consistency of global optimization algorithms",
-        "number": null},
-       {"title": "Stochastic iterative algorithm",
-        "shortTitle": null,
-        "number": "1"},
-       {"title": "Useful properties", "shortTitle": null, "number": "3"},
-       {"title": "Monotone", "shortTitle": null, "number": "1"}]},
-     "address": "/Stochastic-iterative-algorithm/"}],
-   "Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Useful-properties":
-   [{"id":
-     "Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Useful-properties",
-     "data":
-     {"title": "Useful properties",
-      "shortTitle": null,
-      "sectionNum": "1.3.",
-      "context":
-      [{"title": "Consistency of global optimization algorithms",
-        "shortTitle": "Consistency of global optimization algorithms",
-        "number": null},
-       {"title": "Stochastic iterative algorithm",
-        "shortTitle": null,
-        "number": "1"},
-       {"title": "Useful properties", "shortTitle": null, "number": "3"}]},
-     "address": "/Stochastic-iterative-algorithm/"}],
-   "Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Measure-on-sequences":
-   [{"id":
-     "Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Measure-on-sequences",
-     "data":
-     {"title": "Measure on sequences",
-      "shortTitle": null,
-      "sectionNum": "1.2.",
-      "context":
-      [{"title": "Consistency of global optimization algorithms",
-        "shortTitle": "Consistency of global optimization algorithms",
-        "number": null},
-       {"title": "Stochastic iterative algorithm",
-        "shortTitle": null,
-        "number": "1"},
-       {"title": "Measure on sequences", "shortTitle": null, "number": "2"}]},
-     "address": "/Stochastic-iterative-algorithm/"}],
-   "Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Definition--Pure-Random-Search":
-   [{"id":
-     "Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Definition--Pure-Random-Search",
-     "data":
-     {"title": "Pure Random Search",
-      "shortTitle": null,
-      "sectionNum": "1.1.1.",
-      "context":
-      [{"title": "Consistency of global optimization algorithms",
-        "shortTitle": "Consistency of global optimization algorithms",
-        "number": null},
-       {"title": "Stochastic iterative algorithm",
-        "shortTitle": null,
-        "number": "1"},
-       {"title": "Definition", "shortTitle": null, "number": "1"},
-       {"title": "Pure Random Search", "shortTitle": null, "number": "1"}]},
-     "address": "/Stochastic-iterative-algorithm/"}],
-   "Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Definition--AdaLIPO--CMA-ES":
-   [{"id":
-     "Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Definition--AdaLIPO--CMA-ES",
-     "data":
-     {"title": "CMA-ES",
-      "shortTitle": null,
-      "sectionNum": "1.1.2.1.",
-      "context":
-      [{"title": "Consistency of global optimization algorithms",
-        "shortTitle": "Consistency of global optimization algorithms",
-        "number": null},
-       {"title": "Stochastic iterative algorithm",
-        "shortTitle": null,
-        "number": "1"},
-       {"title": "Definition", "shortTitle": null, "number": "1"},
-       {"title": "AdaLIPO", "shortTitle": null, "number": "2"},
-       {"title": "CMA-ES", "shortTitle": null, "number": "1"}]},
-     "address": "/Stochastic-iterative-algorithm/"}],
-   "Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Definition--AdaLIPO":
-   [{"id":
-     "Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Definition--AdaLIPO",
-     "data":
-     {"title": "AdaLIPO",
-      "shortTitle": null,
-      "sectionNum": "1.1.2.",
-      "context":
-      [{"title": "Consistency of global optimization algorithms",
-        "shortTitle": "Consistency of global optimization algorithms",
-        "number": null},
-       {"title": "Stochastic iterative algorithm",
-        "shortTitle": null,
-        "number": "1"},
-       {"title": "Definition", "shortTitle": null, "number": "1"},
-       {"title": "AdaLIPO", "shortTitle": null, "number": "2"}]},
-     "address": "/Stochastic-iterative-algorithm/"}],
-   "Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Definition":
+  {"Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Definition":
    [{"id":
      "Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Definition",
      "data":
@@ -319,7 +201,7 @@
         "Consistency equivalence"]}},
      "address": "/Consistency-equivalence/"}],
    "min_dist_x":
-   [{"id": "min_dist_x-next",
+   [{"id": "min_dist_x",
      "data":
      {"/Consistency-and-sampling/#min_dist_x-next":
       {"display": "min_dist_x",
@@ -334,7 +216,7 @@
         "Consistency and sampling",
         "Sampling whole space"]}},
      "address": "/Consistency-and-sampling/"},
-    {"id": "min_dist_x",
+    {"id": "min_dist_x-next",
      "data":
      {"/Consistency-and-sampling/#min_dist_x-next":
       {"display": "min_dist_x",
@@ -461,103 +343,10 @@
         "Indistinguishable function",
         "Expression"]}},
      "address": "/Indistinguishable-function/"}],
-   "Algorithm.ν_mequiv":
-   [{"id": "Algorithm_______mequiv",
-     "data":
-     {"/Stochastic-iterative-algorithm/#Algorithm_______mequiv":
-      {"display": "ν_mequiv",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Measure on sequences"]}},
-     "address": "/Stochastic-iterative-algorithm/"}],
    "Algorithm.ν":
-   [{"id": "Algorithm______-next-next-next-next-next",
+   [{"id": "Algorithm______-next",
      "data":
-     {"/Stochastic-iterative-algorithm/#Algorithm______-next-next-next-next-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Measure on sequences"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next-next-next-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Measure on sequences"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next-next-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition",
-        "AdaLIPO",
-        "CMA-ES"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition",
-        "AdaLIPO"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition",
-        "Pure Random Search"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition"]}},
-     "address": "/Stochastic-iterative-algorithm/"},
-    {"id": "Algorithm______-next",
-     "data":
-     {"/Stochastic-iterative-algorithm/#Algorithm______-next-next-next-next-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Measure on sequences"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next-next-next-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Measure on sequences"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next-next-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition",
-        "AdaLIPO",
-        "CMA-ES"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition",
-        "AdaLIPO"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition",
-        "Pure Random Search"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next":
+     {"/Stochastic-iterative-algorithm/#Algorithm______-next":
       {"display": "ν",
        "context":
        ["Consistency of global optimization algorithms",
@@ -572,237 +361,7 @@
      "address": "/Stochastic-iterative-algorithm/"},
     {"id": "Algorithm______",
      "data":
-     {"/Stochastic-iterative-algorithm/#Algorithm______-next-next-next-next-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Measure on sequences"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next-next-next-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Measure on sequences"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next-next-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition",
-        "AdaLIPO",
-        "CMA-ES"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition",
-        "AdaLIPO"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition",
-        "Pure Random Search"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition"]}},
-     "address": "/Stochastic-iterative-algorithm/"},
-    {"id": "Algorithm______-next-next",
-     "data":
-     {"/Stochastic-iterative-algorithm/#Algorithm______-next-next-next-next-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Measure on sequences"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next-next-next-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Measure on sequences"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next-next-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition",
-        "AdaLIPO",
-        "CMA-ES"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition",
-        "AdaLIPO"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition",
-        "Pure Random Search"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition"]}},
-     "address": "/Stochastic-iterative-algorithm/"},
-    {"id": "Algorithm______-next-next-next-next-next-next",
-     "data":
-     {"/Stochastic-iterative-algorithm/#Algorithm______-next-next-next-next-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Measure on sequences"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next-next-next-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Measure on sequences"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next-next-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition",
-        "AdaLIPO",
-        "CMA-ES"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition",
-        "AdaLIPO"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition",
-        "Pure Random Search"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition"]}},
-     "address": "/Stochastic-iterative-algorithm/"},
-    {"id": "Algorithm______-next-next-next",
-     "data":
-     {"/Stochastic-iterative-algorithm/#Algorithm______-next-next-next-next-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Measure on sequences"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next-next-next-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Measure on sequences"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next-next-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition",
-        "AdaLIPO",
-        "CMA-ES"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition",
-        "AdaLIPO"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition",
-        "Pure Random Search"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition"]}},
-     "address": "/Stochastic-iterative-algorithm/"},
-    {"id": "Algorithm______-next-next-next-next",
-     "data":
-     {"/Stochastic-iterative-algorithm/#Algorithm______-next-next-next-next-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Measure on sequences"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next-next-next-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Measure on sequences"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next-next-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition",
-        "AdaLIPO",
-        "CMA-ES"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition",
-        "AdaLIPO"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition",
-        "Pure Random Search"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______-next":
+     {"/Stochastic-iterative-algorithm/#Algorithm______-next":
       {"display": "ν",
        "context":
        ["Consistency of global optimization algorithms",
@@ -825,37 +384,6 @@
         "Stochastic iterative algorithm",
         "Definition"]}},
      "address": "/Stochastic-iterative-algorithm/"}],
-   "Algorithm.measure":
-   [{"id": "Algorithm___measure",
-     "data":
-     {"/Stochastic-iterative-algorithm/#Algorithm___measure-next":
-      {"display": "measure",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Measure on sequences"]},
-      "/Stochastic-iterative-algorithm/#Algorithm___measure":
-      {"display": "measure",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Measure on sequences"]}},
-     "address": "/Stochastic-iterative-algorithm/"},
-    {"id": "Algorithm___measure-next",
-     "data":
-     {"/Stochastic-iterative-algorithm/#Algorithm___measure-next":
-      {"display": "measure",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Measure on sequences"]},
-      "/Stochastic-iterative-algorithm/#Algorithm___measure":
-      {"display": "measure",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Measure on sequences"]}},
-     "address": "/Stochastic-iterative-algorithm/"}],
    "Algorithm.markov_kernel":
    [{"id": "Algorithm___markov_kernel",
      "data":
@@ -867,75 +395,9 @@
         "Definition"]}},
      "address": "/Stochastic-iterative-algorithm/"}],
    "Algorithm.kernel_iter":
-   [{"id": "Algorithm___kernel_iter-next-next-next",
+   [{"id": "Algorithm___kernel_iter-next",
      "data":
-     {"/Stochastic-iterative-algorithm/#Algorithm___kernel_iter-next-next-next":
-      {"display": "kernel_iter",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Measure on sequences"]},
-      "/Stochastic-iterative-algorithm/#Algorithm___kernel_iter-next-next":
-      {"display": "kernel_iter",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Measure on sequences"]},
-      "/Stochastic-iterative-algorithm/#Algorithm___kernel_iter-next":
-      {"display": "kernel_iter",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition"]},
-      "/Stochastic-iterative-algorithm/#Algorithm___kernel_iter":
-      {"display": "kernel_iter",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition"]}},
-     "address": "/Stochastic-iterative-algorithm/"},
-    {"id": "Algorithm___kernel_iter-next",
-     "data":
-     {"/Stochastic-iterative-algorithm/#Algorithm___kernel_iter-next-next-next":
-      {"display": "kernel_iter",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Measure on sequences"]},
-      "/Stochastic-iterative-algorithm/#Algorithm___kernel_iter-next-next":
-      {"display": "kernel_iter",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Measure on sequences"]},
-      "/Stochastic-iterative-algorithm/#Algorithm___kernel_iter-next":
-      {"display": "kernel_iter",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition"]},
-      "/Stochastic-iterative-algorithm/#Algorithm___kernel_iter":
-      {"display": "kernel_iter",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition"]}},
-     "address": "/Stochastic-iterative-algorithm/"},
-    {"id": "Algorithm___kernel_iter-next-next",
-     "data":
-     {"/Stochastic-iterative-algorithm/#Algorithm___kernel_iter-next-next-next":
-      {"display": "kernel_iter",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Measure on sequences"]},
-      "/Stochastic-iterative-algorithm/#Algorithm___kernel_iter-next-next":
-      {"display": "kernel_iter",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Measure on sequences"]},
-      "/Stochastic-iterative-algorithm/#Algorithm___kernel_iter-next":
+     {"/Stochastic-iterative-algorithm/#Algorithm___kernel_iter-next":
       {"display": "kernel_iter",
        "context":
        ["Consistency of global optimization algorithms",
@@ -950,19 +412,7 @@
      "address": "/Stochastic-iterative-algorithm/"},
     {"id": "Algorithm___kernel_iter",
      "data":
-     {"/Stochastic-iterative-algorithm/#Algorithm___kernel_iter-next-next-next":
-      {"display": "kernel_iter",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Measure on sequences"]},
-      "/Stochastic-iterative-algorithm/#Algorithm___kernel_iter-next-next":
-      {"display": "kernel_iter",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Measure on sequences"]},
-      "/Stochastic-iterative-algorithm/#Algorithm___kernel_iter-next":
+     {"/Stochastic-iterative-algorithm/#Algorithm___kernel_iter-next":
       {"display": "kernel_iter",
        "context":
        ["Consistency of global optimization algorithms",
@@ -974,69 +424,6 @@
        ["Consistency of global optimization algorithms",
         "Stochastic iterative algorithm",
         "Definition"]}},
-     "address": "/Stochastic-iterative-algorithm/"}],
-   "Algorithm.iter_comap":
-   [{"id": "Algorithm___iter_comap",
-     "data":
-     {"/Stochastic-iterative-algorithm/#Algorithm___iter_comap-next":
-      {"display": "iter_comap",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Measure on sequences"]},
-      "/Stochastic-iterative-algorithm/#Algorithm___iter_comap":
-      {"display": "iter_comap",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Measure on sequences"]}},
-     "address": "/Stochastic-iterative-algorithm/"},
-    {"id": "Algorithm___iter_comap-next",
-     "data":
-     {"/Stochastic-iterative-algorithm/#Algorithm___iter_comap-next":
-      {"display": "iter_comap",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Measure on sequences"]},
-      "/Stochastic-iterative-algorithm/#Algorithm___iter_comap":
-      {"display": "iter_comap",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Measure on sequences"]}},
-     "address": "/Stochastic-iterative-algorithm/"}],
-   "Algorithm.fin_measure_mono":
-   [{"id": "Algorithm___fin_measure_mono",
-     "data":
-     {"/Stochastic-iterative-algorithm/#Algorithm___fin_measure_mono":
-      {"display": "fin_measure_mono",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Useful properties",
-        "Monotone"]}},
-     "address": "/Stochastic-iterative-algorithm/"}],
-   "Algorithm.fin_measure":
-   [{"id": "Algorithm___fin_measure",
-     "data":
-     {"/Stochastic-iterative-algorithm/#Algorithm___fin_measure":
-      {"display": "fin_measure",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Measure on sequences"]}},
-     "address": "/Stochastic-iterative-algorithm/"}],
-   "Algorithm.eq_restrict":
-   [{"id": "Algorithm___eq_restrict",
-     "data":
-     {"/Stochastic-iterative-algorithm/#Algorithm___eq_restrict":
-      {"display": "eq_restrict",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Useful properties",
-        "Restricted measures"]}},
      "address": "/Stochastic-iterative-algorithm/"}],
    "Algorithm":
    [{"id": "Algorithm",
