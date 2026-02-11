@@ -16,7 +16,7 @@ def extraHead : Array Verso.Output.Html := #[
 
 def git := "https://github.com/gaetanserre/LipoCons"
 
-def config : Config := {
+def config : RenderConfig := {
     extraHead := extraHead,
     sourceLink := some git,
     issueLink := some (git ++ "/issues"),
