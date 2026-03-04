@@ -168,7 +168,7 @@ lemma LipschitzWith.if {f g : α → ℝ} {c : α} {ε : ℝ} {Kf Kg : ℝ≥0}
       suffices ∃ e ∈ segment ℝ b a, e ∈ sphere c ε by
         obtain ⟨e, e_mem⟩ := this
         refine ⟨e, e_mem.2, ?_⟩
-        rw [NormedAddGroup.dist_eq e b, NormedAddGroup.dist_eq a b]
+        simp only [dist_eq_norm]
         exact norm_sub_le_of_mem_segment e_mem.1
 
       let combo := fun t : I => (1 - t.1) • b + t.1 • a
