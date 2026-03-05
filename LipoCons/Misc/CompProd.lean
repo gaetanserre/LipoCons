@@ -1,3 +1,9 @@
+/-
+Copyright (c) 2026 Gaëtan Serré. All rights reserved.
+Released under MIT license as described in the file LICENSE.
+Authors: Gaëtan Serré
+-/
+
 import LipoCons.Utils.Kernel
 import Mathlib.Algebra.Order.Ring.Star
 import Mathlib.Data.Int.Star
