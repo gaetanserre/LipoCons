@@ -52,8 +52,7 @@ lemma sum_indicator_iUnion {α β : Type*} [AddCommMonoid β] [TopologicalSpace 
       rw [this, indicator_of_mem fi]
     refine tsum_eq_single i ?_
     intro y hy
-    by_contra h_contra
-    push_neg at h_contra
+    by_contra! h_contra
     have : x ∈ f y := mem_of_indicator_ne_zero h_contra
     exact hy (hi y this)
 

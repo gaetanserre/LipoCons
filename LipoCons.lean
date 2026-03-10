@@ -102,8 +102,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
     there exists a ball of radius `ε₁/2` such that, for any `n`, the measure of
     the set of sequences of size `n` such that all elements of the sequences belong
     to this ball is positive. -/
-    by_contra not_sample_space
-    push_neg at not_sample_space
+    by_contra! not_sample_space
     obtain ⟨ε₂, ε₂_pos, not_sample_space⟩ := not_sample_space
 
     -- Ball almost never hit by `A` of radius `ε₁/2`.
@@ -116,8 +115,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
     strictly positive for all `n > 0`. -/
     obtain ⟨c, c_mem_t, hc⟩ : ∃ c ∈ t, ∀ n,
         ε₂/(2 * N₁) ≤ A.fin_measure hfm {u : iter α n | ∀ i, u i ∉ ball c (ε₁/2)} := by
-      by_contra h_contra
-      push_neg at h_contra
+      by_contra! h_contra
 
       /- We take the `N` of `not_sample_space` specialized to the maximum image of
         the choice function `f : t → ℕ₀` of `h_contra`. -/
