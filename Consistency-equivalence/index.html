@@ -620,7 +620,6 @@ Some CSS frameworks customize details/summary in ways not compatible with Verso'
   /* Without these, mobile Safari will start making font sizes inconsistent when its text size adjustment feature is triggered.*/
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-
 }
 
 .tippy-box[data-theme~='lean'] {
@@ -780,41 +779,50 @@ window.onload = () => {
       return false;
     }
 
+    // Track whether any tippy is visible (O(1) check instead of DOM scan)
+    let visibleTippyCount = 0;
     function blockedByTippy(elem) {
-      // Don't show a new hover until the old ones are all closed.
-      // Scoped to the nearest "top-level block" to avoid being O(n) in the size of the document.
-      var block = elem;
-      const topLevel = new Set(["section", "body", "html", "nav", "header"]);
-      while (block.parentNode && !topLevel.has(block.parentNode.nodeName.toLowerCase())) {
-        block = block.parentNode;
-      }
-      for (const child of block.querySelectorAll(".token, .has-info")) {
-        if (child._tippy && child._tippy.state.isVisible) { return true };
-      }
-      return false;
+      return visibleTippyCount > 0;
     }
 
-    for (const c of document.querySelectorAll(".hl.lean .token")) {
-        if (c.dataset.binding != "") {
-            c.addEventListener("mouseover", (event) => {
-                if (blockedByTactic(c)) {return;}
-                const context = c.closest(".hl.lean").dataset.leanContext;
-                for (const example of document.querySelectorAll(".hl.lean")) {
-                    if (example.dataset.leanContext == context) {
-                        for (const tok of example.querySelectorAll(".token")) {
-                            if (c.dataset.binding == tok.dataset.binding) {
-                                tok.classList.add("binding-hl");
-                            }
-                        }
-                    }
-                }
-            });
-        }
-        c.addEventListener("mouseout", (event) => {
-            for (const tok of document.querySelectorAll(".hl.lean .token")) {
-                tok.classList.remove("binding-hl");
+    // Binding highlights via event delegation with cached lookups
+    const bindingCache = new Map(); // context+binding -> [token elements]
+    let highlightedTokens = [];
+    function getBindingTokens(context, binding) {
+      const key = context + "\0" + binding;
+      let tokens = bindingCache.get(key);
+      if (!tokens) {
+        tokens = [];
+        for (const example of document.querySelectorAll(".hl.lean")) {
+          if (example.dataset.leanContext == context) {
+            for (const tok of example.querySelectorAll(".token[data-binding=\"" + CSS.escape(binding) + "\"]")) {
+              tokens.push(tok);
             }
-        });
+          }
+        }
+        bindingCache.set(key, tokens);
+      }
+      return tokens;
+    }
+    for (const container of document.querySelectorAll(".hl.lean")) {
+      container.addEventListener("mouseover", (event) => {
+        const c = event.target.closest(".token");
+        if (!c || !c.dataset.binding || c.dataset.binding === "" || !container.contains(c)) return;
+        if (blockedByTactic(c)) return;
+        const tokens = getBindingTokens(container.dataset.leanContext, c.dataset.binding);
+        for (const tok of tokens) {
+          tok.classList.add("binding-hl");
+        }
+        highlightedTokens = tokens;
+      });
+      container.addEventListener("mouseout", (event) => {
+        const c = event.target.closest(".token");
+        if (!c || !container.contains(c)) return;
+        for (const tok of highlightedTokens) {
+          tok.classList.remove("binding-hl");
+        }
+        highlightedTokens = [];
+      });
     }
     /* Render docstrings */
     if ('undefined' !== typeof marked) {
@@ -858,13 +866,12 @@ window.onload = () => {
         followCursor: 'initial',
         onShow(inst) {
           if (inst.reference.className == 'tactic') {
-
             const toggle = inst.reference.querySelector("input.tactic-toggle");
             if (toggle && toggle.checked) {
               return false;
             }
             hideParentTooltips(inst.reference);
-            //if (blockedByTippy(inst.reference)) { return false; }
+            if (blockedByTippy(inst.reference)) { return false; }
 
           } else if (inst.reference.querySelector(".hover-info") || "versoHover" in inst.reference.dataset) {
             if (blockedByTactic(inst.reference)) { return false };
@@ -873,6 +880,8 @@ window.onload = () => {
             return false;
           }
         },
+        onShown(inst) { visibleTippyCount++; },
+        onHidden(inst) { visibleTippyCount = Math.max(0, visibleTippyCount - 1); },
         content (tgt) {
           const content = document.createElement("span");
           if (tgt.className == 'tactic') {
@@ -952,7 +961,40 @@ window.onload = () => {
       document.querySelectorAll('.hl.lean .tactic').forEach(element => {
         element.setAttribute('data-tippy-theme', 'tactic');
       });
-      let insts = tippy('.hl.lean .const.token, .hl.lean .keyword.token, .hl.lean .literal.token, .hl.lean .option.token, .hl.lean .var.token, .hl.lean .typed.token, .hl.lean .has-info, .hl.lean .tactic, .hl.lean .level-var, .hl.lean .level-const, .hl.lean .level-op, .hl.lean .sort', defaultTippyProps);
+      // Skip tokens inside closed tactics — they interfere with tactic tippys
+      const closedTactics = new Set();
+      document.querySelectorAll('.hl.lean .tactic').forEach(tactic => {
+        const toggle = tactic.querySelector('input.tactic-toggle');
+        if (toggle && !toggle.checked) closedTactics.add(tactic);
+      });
+      function isInsideClosedTactic(el) {
+        const tactic = el.closest('.tactic');
+        return tactic && tactic !== el && closedTactics.has(tactic);
+      }
+
+      const tokenSelector = '.hl.lean .const.token, .hl.lean .keyword.token, .hl.lean .literal.token, .hl.lean .option.token, .hl.lean .var.token, .hl.lean .typed.token, .hl.lean .has-info, .hl.lean .tactic, .hl.lean .level-var, .hl.lean .level-const, .hl.lean .level-op, .hl.lean .sort';
+      tippy(Array.from(document.querySelectorAll(tokenSelector)).filter(el => !isInsideClosedTactic(el)), defaultTippyProps);
+
+      // Create/destroy token tippys when tactic checkbox toggles
+      const tacticTippySelector = '.const.token, .keyword.token, .literal.token, .option.token, .var.token, .typed.token, .has-info, .level-var, .level-const, .level-op, .sort';
+      document.querySelectorAll('.hl.lean .tactic').forEach(tactic => {
+        const toggle = tactic.querySelector('input.tactic-toggle');
+        if (toggle) toggle.addEventListener('change', () => {
+          if (toggle.checked) {
+            closedTactics.delete(tactic);
+            tactic.querySelectorAll('.token').forEach(tok => {
+              if (!tok._tippy && tok.matches(tacticTippySelector)) {
+                tippy(tok, defaultTippyProps);
+              }
+            });
+          } else {
+            closedTactics.add(tactic);
+            tactic.querySelectorAll('.token').forEach(tok => {
+              if (tok._tippy) tok._tippy.destroy();
+            });
+          }
+        });
+      });
   });
 }
 </script>
@@ -1006,7 +1048,7 @@ window.onload = () => {
             <code class="hl lean block" data-lean-context="examples"><span class="keyword token" data-binding="kw-occ-Lean.Parser.Command.theorem-759">theorem</span><span class="inter-text"> </span><span class="has-info warning"><span class="hover-container"><span class="hover-info messages"><code class="verso-message warning"><span class="text"></span><span class="text">declaration uses `</span><span class="highlighted"><span class="inter-text"></span><span class="unknown token" data-binding="">sorry</span><span class="inter-text"></span></span><span class="text">`</span></code></span></span><span class="const token" data-binding="const-sample_iff_consistent" data-verso-hover="45" id="sample_iff_consistent">sample_iff_consistent</span></span><span class="inter-text"> </span><span class="unknown token" data-binding="">(</span><span class="var token" data-binding="var-_uniq.594" data-verso-hover="46">A</span><span class="inter-text"> </span><span class="unknown token" data-binding="">:</span><span class="inter-text"> </span><a href="Stochastic-iterative-algorithm/#Algorithm" title="Definition of example"><span class="const token" data-binding="const-Algorithm" data-verso-hover="0">Algorithm</span></a><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="1">α</span><span class="inter-text"> </span><span class="unknown token" data-binding="">ℝ</span><span class="unknown token" data-binding="">)</span><span class="inter-text"> </span><span class="unknown token" data-binding="">:</span><span class="inter-text">
     </span><span class="unknown token" data-binding="">(</span><span class="unknown token" data-binding="">∀</span><span class="inter-text"> </span><span class="unknown token" data-binding="">⦃</span><span class="var token" data-binding="var-_uniq.599" data-verso-hover="47">f</span><span class="inter-text"> </span><span class="unknown token" data-binding="">:</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="1">α</span><span class="inter-text"> </span><span class="unknown token" data-binding="">→</span><span class="inter-text"> </span><span class="unknown token" data-binding="">ℝ</span><span class="unknown token" data-binding="">⦄</span><span class="unknown token" data-binding="">,</span><span class="inter-text"> </span><span class="unknown token" data-binding="">(</span><span class="var token" data-binding="var-_uniq.747" data-verso-hover="21">hf</span><span class="inter-text"> </span><span class="unknown token" data-binding="">:</span><span class="inter-text"> </span><span class="const token" data-binding="const-Lipschitz" data-verso-hover="22">Lipschitz</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.599" data-verso-hover="47">f</span><span class="unknown token" data-binding="">)</span><span class="inter-text"> </span><span class="unknown token" data-binding="">→</span><span class="inter-text"> </span><a href="Consistency-and-sampling/#sample_whole_space" title="Definition of example"><span class="const token" data-binding="const-sample_whole_space" data-verso-hover="41">sample_whole_space</span></a><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.594" data-verso-hover="46">A</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.747" data-verso-hover="21">hf</span><span class="unknown token" data-binding="">.</span><span class="const token" data-binding="const-Lipschitz.continuous" data-verso-hover="48">continuous</span><span class="unknown token" data-binding="">)</span><span class="inter-text">
     </span><span class="unknown token" data-binding="">↔</span><span class="inter-text">
-    </span><span class="unknown token" data-binding="">(</span><span class="unknown token" data-binding="">∀</span><span class="inter-text"> </span><span class="unknown token" data-binding="">⦃</span><span class="var token" data-binding="var-_uniq.1384" data-verso-hover="47">f</span><span class="inter-text"> </span><span class="unknown token" data-binding="">:</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="1">α</span><span class="inter-text"> </span><span class="unknown token" data-binding="">→</span><span class="inter-text"> </span><span class="unknown token" data-binding="">ℝ</span><span class="unknown token" data-binding="">⦄</span><span class="unknown token" data-binding="">,</span><span class="inter-text"> </span><span class="unknown token" data-binding="">(</span><span class="var token" data-binding="var-_uniq.1450" data-verso-hover="21">hf</span><span class="inter-text"> </span><span class="unknown token" data-binding="">:</span><span class="inter-text"> </span><span class="const token" data-binding="const-Lipschitz" data-verso-hover="22">Lipschitz</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.1384" data-verso-hover="47">f</span><span class="unknown token" data-binding="">)</span><span class="inter-text"> </span><span class="unknown token" data-binding="">→</span><span class="inter-text"> </span><a href="Consistency-and-sampling/#is_consistent" title="Definition of example"><span class="const token" data-binding="const-is_consistent" data-verso-hover="31">is_consistent</span></a><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.594" data-verso-hover="46">A</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.1450" data-verso-hover="21">hf</span><span class="unknown token" data-binding="">)</span><span class="inter-text"> </span><span class="unknown token" data-binding="">:=</span><span class="inter-text"> </span><span class="tactic"><label for="tactic-state-18362452440616723705-989-991-0"><span class="keyword token" data-binding="kw-occ-Lean.Parser.Term.byTactic-989" data-verso-hover="49">by</span></label><input type="checkbox" class="tactic-toggle" id="tactic-state-18362452440616723705-989-991-0"><span class="tactic-state"><span class="goal"><span class="hypotheses"><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.2" data-verso-hover="1">α</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="sort token" data-binding="sort-7243200735919010059" data-verso-hover="50">Type u_1</span><span class="inter-text"></span></span></span><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.295" data-verso-hover="51">inst✝⁵</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="const token" data-binding="const-MeasurableSpace" data-verso-hover="4">MeasurableSpace</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="1">α</span></span></span><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.298" data-verso-hover="52">inst✝⁴</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="const token" data-binding="const-NormedAddCommGroup" data-verso-hover="53">NormedAddCommGroup</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="1">α</span></span></span><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.372" data-verso-hover="54">inst✝³</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="const token" data-binding="const-NormedSpace" data-verso-hover="55">NormedSpace</span><span class="inter-text"> </span><span class="const token" data-binding="const-Real" data-verso-hover="56">ℝ</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="1">α</span></span></span><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.472" data-verso-hover="57">inst✝²</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="const token" data-binding="const-CompactSpace" data-verso-hover="58">CompactSpace</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="1">α</span></span></span><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.475" data-verso-hover="59">inst✝¹</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="const token" data-binding="const-Nonempty" data-verso-hover="60">Nonempty</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="1">α</span></span></span><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.580" data-verso-hover="61">inst✝</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="const token" data-binding="const-OpensMeasurableSpace" data-verso-hover="62">OpensMeasurableSpace</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="1">α</span></span></span><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.594" data-verso-hover="46">A</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><a href="Stochastic-iterative-algorithm/#Algorithm" title="Definition of example"><span class="const token" data-binding="const-Algorithm" data-verso-hover="0">Algorithm</span></a><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="1">α</span><span class="inter-text"> </span><span class="const token" data-binding="const-Real" data-verso-hover="56">ℝ</span></span></span></span><span class="conclusion"><span class="prefix">⊢ </span><span class="type"><span class="unknown token" data-binding="">(∀</span><span class="inter-text"> </span><span class="unknown token" data-binding="">⦃</span><span class="var token" data-binding="var-_uniq.2137" data-verso-hover="47">f</span><span class="inter-text"> </span><span class="unknown token" data-binding="">:</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="1">α</span><span class="inter-text"> </span><span class="unknown token" data-binding="">→</span><span class="inter-text"> </span><span class="const token" data-binding="const-Real" data-verso-hover="56">ℝ</span><span class="unknown token" data-binding="">⦄</span><span class="inter-text"> </span><span class="unknown token" data-binding="">(</span><span class="var token" data-binding="var-_uniq.2138" data-verso-hover="21">hf</span><span class="inter-text"> </span><span class="unknown token" data-binding="">:</span><span class="inter-text"> </span><span class="const token" data-binding="const-Lipschitz" data-verso-hover="22">Lipschitz</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2137" data-verso-hover="47">f</span><span class="unknown token" data-binding="">),</span><span class="inter-text"> </span><a href="Consistency-and-sampling/#sample_whole_space" title="Definition of example"><span class="const token" data-binding="const-sample_whole_space" data-verso-hover="41">sample_whole_space</span></a><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.594" data-verso-hover="46">A</span><span class="inter-text"> </span><span class="unknown token" data-binding="">⋯</span><span class="unknown token" data-binding="">)</span><span class="inter-text"> </span><span class="const token" data-binding="const-Iff" data-verso-hover="63">↔</span><span class="inter-text"> </span><span class="unknown token" data-binding="">∀</span><span class="inter-text"> </span><span class="unknown token" data-binding="">⦃</span><span class="var token" data-binding="var-_uniq.2141" data-verso-hover="47">f</span><span class="inter-text"> </span><span class="unknown token" data-binding="">:</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="1">α</span><span class="inter-text"> </span><span class="unknown token" data-binding="">→</span><span class="inter-text"> </span><span class="const token" data-binding="const-Real" data-verso-hover="56">ℝ</span><span class="unknown token" data-binding="">⦄</span><span class="inter-text"> </span><span class="unknown token" data-binding="">(</span><span class="var token" data-binding="var-_uniq.2142" data-verso-hover="21">hf</span><span class="inter-text"> </span><span class="unknown token" data-binding="">:</span><span class="inter-text"> </span><span class="const token" data-binding="const-Lipschitz" data-verso-hover="22">Lipschitz</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2141" data-verso-hover="47">f</span><span class="unknown token" data-binding="">),</span><span class="inter-text"> </span><a href="Consistency-and-sampling/#is_consistent" title="Definition of example"><span class="const token" data-binding="const-is_consistent" data-verso-hover="31">is_consistent</span></a><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.594" data-verso-hover="46">A</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2142" data-verso-hover="21">hf</span></span></span></span></span></span></code><p>
+    </span><span class="unknown token" data-binding="">(</span><span class="unknown token" data-binding="">∀</span><span class="inter-text"> </span><span class="unknown token" data-binding="">⦃</span><span class="var token" data-binding="var-_uniq.1390" data-verso-hover="47">f</span><span class="inter-text"> </span><span class="unknown token" data-binding="">:</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="1">α</span><span class="inter-text"> </span><span class="unknown token" data-binding="">→</span><span class="inter-text"> </span><span class="unknown token" data-binding="">ℝ</span><span class="unknown token" data-binding="">⦄</span><span class="unknown token" data-binding="">,</span><span class="inter-text"> </span><span class="unknown token" data-binding="">(</span><span class="var token" data-binding="var-_uniq.1456" data-verso-hover="21">hf</span><span class="inter-text"> </span><span class="unknown token" data-binding="">:</span><span class="inter-text"> </span><span class="const token" data-binding="const-Lipschitz" data-verso-hover="22">Lipschitz</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.1390" data-verso-hover="47">f</span><span class="unknown token" data-binding="">)</span><span class="inter-text"> </span><span class="unknown token" data-binding="">→</span><span class="inter-text"> </span><a href="Consistency-and-sampling/#is_consistent" title="Definition of example"><span class="const token" data-binding="const-is_consistent" data-verso-hover="31">is_consistent</span></a><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.594" data-verso-hover="46">A</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.1456" data-verso-hover="21">hf</span><span class="unknown token" data-binding="">)</span><span class="inter-text"> </span><span class="unknown token" data-binding="">:=</span><span class="inter-text"> </span><span class="tactic"><label for="tactic-state-11616227235534001220-989-991-0"><span class="keyword token" data-binding="kw-occ-Lean.Parser.Term.byTactic-989" data-verso-hover="49">by</span></label><input type="checkbox" class="tactic-toggle" id="tactic-state-11616227235534001220-989-991-0"><span class="tactic-state"><span class="goal"><span class="hypotheses"><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.2" data-verso-hover="1">α</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="sort token" data-binding="sort-7243200735919010059" data-verso-hover="50">Type u_1</span><span class="inter-text"></span></span></span><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.295" data-verso-hover="51">inst✝⁵</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="const token" data-binding="const-MeasurableSpace" data-verso-hover="4">MeasurableSpace</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="1">α</span></span></span><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.298" data-verso-hover="52">inst✝⁴</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="const token" data-binding="const-NormedAddCommGroup" data-verso-hover="53">NormedAddCommGroup</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="1">α</span></span></span><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.372" data-verso-hover="54">inst✝³</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="const token" data-binding="const-NormedSpace" data-verso-hover="55">NormedSpace</span><span class="inter-text"> </span><span class="const token" data-binding="const-Real" data-verso-hover="56">ℝ</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="1">α</span></span></span><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.472" data-verso-hover="57">inst✝²</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="const token" data-binding="const-CompactSpace" data-verso-hover="58">CompactSpace</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="1">α</span></span></span><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.475" data-verso-hover="59">inst✝¹</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="const token" data-binding="const-Nonempty" data-verso-hover="60">Nonempty</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="1">α</span></span></span><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.580" data-verso-hover="61">inst✝</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><span class="const token" data-binding="const-OpensMeasurableSpace" data-verso-hover="62">OpensMeasurableSpace</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="1">α</span></span></span><span class="hypothesis"><span class="name"><span class="var token" data-binding="var-_uniq.594" data-verso-hover="46">A</span></span><span class="colon">:</span><span class="type"><span class="inter-text"></span><a href="Stochastic-iterative-algorithm/#Algorithm" title="Definition of example"><span class="const token" data-binding="const-Algorithm" data-verso-hover="0">Algorithm</span></a><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="1">α</span><span class="inter-text"> </span><span class="const token" data-binding="const-Real" data-verso-hover="56">ℝ</span></span></span></span><span class="conclusion"><span class="prefix">⊢ </span><span class="type"><span class="unknown token" data-binding="">(∀</span><span class="inter-text"> </span><span class="unknown token" data-binding="">⦃</span><span class="var token" data-binding="var-_uniq.1987" data-verso-hover="47">f</span><span class="inter-text"> </span><span class="unknown token" data-binding="">:</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="1">α</span><span class="inter-text"> </span><span class="unknown token" data-binding="">→</span><span class="inter-text"> </span><span class="const token" data-binding="const-Real" data-verso-hover="56">ℝ</span><span class="unknown token" data-binding="">⦄</span><span class="inter-text"> </span><span class="unknown token" data-binding="">(</span><span class="var token" data-binding="var-_uniq.1988" data-verso-hover="21">hf</span><span class="inter-text"> </span><span class="unknown token" data-binding="">:</span><span class="inter-text"> </span><span class="const token" data-binding="const-Lipschitz" data-verso-hover="22">Lipschitz</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.1987" data-verso-hover="47">f</span><span class="unknown token" data-binding="">),</span><span class="inter-text"> </span><a href="Consistency-and-sampling/#sample_whole_space" title="Definition of example"><span class="const token" data-binding="const-sample_whole_space" data-verso-hover="41">sample_whole_space</span></a><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.594" data-verso-hover="46">A</span><span class="inter-text"> </span><span class="unknown token" data-binding="">⋯</span><span class="unknown token" data-binding="">)</span><span class="inter-text"> </span><span class="const token" data-binding="const-Iff" data-verso-hover="63">↔</span><span class="inter-text"> </span><span class="unknown token" data-binding="">∀</span><span class="inter-text"> </span><span class="unknown token" data-binding="">⦃</span><span class="var token" data-binding="var-_uniq.1991" data-verso-hover="47">f</span><span class="inter-text"> </span><span class="unknown token" data-binding="">:</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.2" data-verso-hover="1">α</span><span class="inter-text"> </span><span class="unknown token" data-binding="">→</span><span class="inter-text"> </span><span class="const token" data-binding="const-Real" data-verso-hover="56">ℝ</span><span class="unknown token" data-binding="">⦄</span><span class="inter-text"> </span><span class="unknown token" data-binding="">(</span><span class="var token" data-binding="var-_uniq.1992" data-verso-hover="21">hf</span><span class="inter-text"> </span><span class="unknown token" data-binding="">:</span><span class="inter-text"> </span><span class="const token" data-binding="const-Lipschitz" data-verso-hover="22">Lipschitz</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.1991" data-verso-hover="47">f</span><span class="unknown token" data-binding="">),</span><span class="inter-text"> </span><a href="Consistency-and-sampling/#is_consistent" title="Definition of example"><span class="const token" data-binding="const-is_consistent" data-verso-hover="31">is_consistent</span></a><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.594" data-verso-hover="46">A</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.1992" data-verso-hover="21">hf</span></span></span></span></span></span></code><p>
               The proof of the proposition is available in the ArXiv preprint of the original paper  (Malherbe and Vayatis, 2017)<span class="marginalia"><span class="note"><span class="citation">Cédric Malherbe and Nicolas Vayatis, 2017. <a href="https://arxiv.org/abs/1703.02628">“Global optimization of Lipschitz functions”</a>. arXiv:1703.02628</span></span></span>. We follow the same structure while adapting the proof to the Lean formalization. We also fixed a small mistake in the original proof, which was pointed out to the authors in a private discussion.</p>
             <p>
               The modus ponens direction is easy to prove, as the continuity of <code class="math inline">f</code> implies that sequences of samples such that, the maximum of their evaluations under <code class="math inline">f</code> is at least <code class="math inline">\varepsilon</code>, do not belong to a ball centered on the maximum of <code class="math inline">f</code> with positive radius. The <code class="hl lean inline" data-lean-context="examples"><a href="Consistency-and-sampling/#sample_whole_space" title="Definition of example"><span class="const token" data-binding="const-sample_whole_space" data-verso-hover="41">sample_whole_space</span></a></code> hypothesis implies that the set of such sequences has measure tending to <code class="math inline">0</code> as <code class="math inline">n</code> tends to infinity, which proves <code class="hl lean inline" data-lean-context="examples"><a href="Consistency-and-sampling/#is_consistent" title="Definition of example"><span class="const token" data-binding="const-is_consistent" data-verso-hover="31">is_consistent</span></a></code>.</p>
