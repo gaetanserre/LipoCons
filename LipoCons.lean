@@ -63,14 +63,15 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
       by_contra hcontra
       specialize hdist (u i) hcontra
       rw [dist_max_compact hfc (u i)] at hdist
-      let j := argmax f u
-      rw [← argmax_spec] at he
+      let j := argmax <| f ∘ u
+      rw [← argmax_spec, Function.comp] at he
       unfold fmax at he
       rw [dist_max_compact hfc (u j)] at he
       suffices f (compact_argmax hfc) - f (u j) ≤ ε by linarith
       refine le_trans (tsub_le_tsub_left ?_ _) hdist
       simp only [j]
-      rw [argmax_spec f]
+      change f (u i) ≤ (f ∘ u) (argmax (f ∘ u))
+      rw [argmax_spec <| f ∘ u]
       exact le_max (f ∘ u) i
 
     /- We now have that any sequence of `set_dist_max hf ε` has all its elements
@@ -82,8 +83,8 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
 
     intro u hu
     replace hu : ∀ i, dist (u i) x' > δ := fun i => lt_of_not_ge (hu i)
-    specialize hu <| argmin (fun xi => dist xi x') u
-    rw [argmin_spec (fun xi => dist xi x')] at hu
+    specialize hu <| argmin (fun i => dist (u i) x')
+    rw [argmin_spec (fun i => dist (u i) x')] at hu
     have argmax_le : min_dist_x u x' ≤ max_min_dist u :=
       compact_argmax_apply (min_dist_x_continuous u) x'
     exact lt_of_le_of_lt' argmax_le hu
@@ -176,7 +177,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
         suffices dist (u i) x' < ε₁ by
           have : ε₁ < dist (u i) x' :=
             suffices m ≤ dist (u i) x' from lt_of_le_of_lt' this hu
-            Tuple.le_min ((fun xi ↦ dist xi x') ∘ u) i
+            Tuple.min_le ((fun i ↦ dist (u i) x')) i
           linarith
         calc _ ≤ dist (u i) c + dist c x' := dist_triangle (u i) c x'
           _ < ε₁/2 + dist c x' := (add_lt_add_iff_right _).mpr h
@@ -315,4 +316,4 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
     intro u hu
     show dist (Tuple.max (f_tilde ∘ u)) (fmax hf_tilde) > δ
     rw [← argmax_spec]
-    exact hδ (u <| argmax f_tilde u) (hu _ trivial)
+    exact hδ (u <| argmax (f_tilde ∘ u)) (hu _ trivial)

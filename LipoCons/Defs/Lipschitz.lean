@@ -129,13 +129,12 @@ lemma LipschitzWith.if {f g : α → ℝ} {c : α} {ε : ℝ} {Kf Kg : ℝ≥0}
   · by_cases hxy' : p x ∧ p y
     · rw [if_pos hxy'.1, if_pos hxy'.2]
       exact lipschitzWith_iff_dist_le_mul.mp (hf.add hg) x y
-    · push_neg at hxy; push_neg at hxy'
-
+    · push Not at hxy hxy'
       let φ := fun a => if a ∈ ball c ε then f a + g a else f a
       suffices ∀ a b, ¬ p a ∧ p b → dist (φ a) (φ b) ≤ (Kf + Kg) * dist a b by
         by_cases hx : ¬ p x
         · exact this x y ⟨hx, hxy hx⟩
-        · push_neg at hx
+        · push Not at hx
           specialize this y x ⟨hxy' hx, hx⟩
           rwa [dist_comm, dist_comm x y]
       intro a b hab

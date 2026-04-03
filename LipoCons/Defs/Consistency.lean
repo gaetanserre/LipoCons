@@ -19,24 +19,19 @@ noncomputable def min_dist_x :=
 
 /-- For any `(u : iter α n)`, `min_dist_x u` is continuous -/
 lemma min_dist_x_continuous {n : ℕ} (u : iter α n) : Continuous (min_dist_x u) := by
-
   haveI ne_fin : Nonempty (Finset.Iic n) := inferInstance
-
   have ne_univ : (Finset.univ : Finset (Finset.Iic n)).Nonempty :=
       Finset.univ_nonempty_iff.mpr ne_fin
   set g := fun (i : Finset.Iic n) (x : α) => dist (u i) x
-
   have continuous_inf_g : Continuous (Finset.univ.inf' ne_univ g) := by
     suffices h : ∀ i ∈ Finset.univ, Continuous (g i) from Continuous.finset_inf' ne_univ h
     intro i _
     fun_prop
-
   suffices h : min_dist_x u = Finset.univ.inf' ne_univ g by rwa [h]
   ext x
-  unfold min_dist_x Tuple.min Fintype.min_image Fintype.min_image'
-  split
-  · simp only [Function.comp_apply, Finset.inf'_apply, g]
-  · contradiction
+  unfold min_dist_x
+  simp [g]
+  congr
 
 variable {β : Type*} [CompactSpace α] [Nonempty α] [MeasurableSpace α] [MeasurableSpace β]
   [PseudoMetricSpace β] [OpensMeasurableSpace α] [BorelSpace β]
