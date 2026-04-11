@@ -203,28 +203,7 @@
    "min_dist_x":
    [{"id": "min_dist_x",
      "data":
-     {"/Consistency-and-sampling/#min_dist_x-next":
-      {"display": "min_dist_x",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Consistency and sampling",
-        "Sampling whole space"]},
-      "/Consistency-and-sampling/#min_dist_x":
-      {"display": "min_dist_x",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Consistency and sampling",
-        "Sampling whole space"]}},
-     "address": "/Consistency-and-sampling/"},
-    {"id": "min_dist_x-next",
-     "data":
-     {"/Consistency-and-sampling/#min_dist_x-next":
-      {"display": "min_dist_x",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Consistency and sampling",
-        "Sampling whole space"]},
-      "/Consistency-and-sampling/#min_dist_x":
+     {"/Consistency-and-sampling/#min_dist_x":
       {"display": "min_dist_x",
        "context":
        ["Consistency of global optimization algorithms",
@@ -234,28 +213,7 @@
    "measure_dist_max":
    [{"id": "measure_dist_max",
      "data":
-     {"/Consistency-and-sampling/#measure_dist_max-next":
-      {"display": "measure_dist_max",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Consistency and sampling",
-        "Consistency of algorithms"]},
-      "/Consistency-and-sampling/#measure_dist_max":
-      {"display": "measure_dist_max",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Consistency and sampling",
-        "Consistency of algorithms"]}},
-     "address": "/Consistency-and-sampling/"},
-    {"id": "measure_dist_max-next",
-     "data":
-     {"/Consistency-and-sampling/#measure_dist_max-next":
-      {"display": "measure_dist_max",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Consistency and sampling",
-        "Consistency of algorithms"]},
-      "/Consistency-and-sampling/#measure_dist_max":
+     {"/Consistency-and-sampling/#measure_dist_max":
       {"display": "measure_dist_max",
        "context":
        ["Consistency of global optimization algorithms",
@@ -265,28 +223,7 @@
    "max_min_dist":
    [{"id": "max_min_dist",
      "data":
-     {"/Consistency-and-sampling/#max_min_dist-next":
-      {"display": "max_min_dist",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Consistency and sampling",
-        "Sampling whole space"]},
-      "/Consistency-and-sampling/#max_min_dist":
-      {"display": "max_min_dist",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Consistency and sampling",
-        "Sampling whole space"]}},
-     "address": "/Consistency-and-sampling/"},
-    {"id": "max_min_dist-next",
-     "data":
-     {"/Consistency-and-sampling/#max_min_dist-next":
-      {"display": "max_min_dist",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Consistency and sampling",
-        "Sampling whole space"]},
-      "/Consistency-and-sampling/#max_min_dist":
+     {"/Consistency-and-sampling/#max_min_dist":
       {"display": "max_min_dist",
        "context":
        ["Consistency of global optimization algorithms",
@@ -334,107 +271,15 @@
         "Lipschitz property"]}},
      "address": "/Indistinguishable-function/"}],
    "Lipschitz.f_tilde":
-   [{"id": "Lipschitz___f_tilde",
+   [{"id": "Lipschitz___f_tilde-next",
      "data":
-     {"/Indistinguishable-function/#Lipschitz___f_tilde":
+     {"/Indistinguishable-function/#Lipschitz___f_tilde-next":
       {"display": "f_tilde",
        "context":
        ["Consistency of global optimization algorithms",
         "Indistinguishable function",
         "Expression"]}},
-     "address": "/Indistinguishable-function/"}],
-   "Algorithm.ν":
-   [{"id": "Algorithm______-next",
-     "data":
-     {"/Stochastic-iterative-algorithm/#Algorithm______-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition"]}},
-     "address": "/Stochastic-iterative-algorithm/"},
-    {"id": "Algorithm______",
-     "data":
-     {"/Stochastic-iterative-algorithm/#Algorithm______-next":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition"]},
-      "/Stochastic-iterative-algorithm/#Algorithm______":
-      {"display": "ν",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition"]}},
-     "address": "/Stochastic-iterative-algorithm/"}],
-   "Algorithm.prob_measure":
-   [{"id": "Algorithm___prob_measure",
-     "data":
-     {"/Stochastic-iterative-algorithm/#Algorithm___prob_measure":
-      {"display": "prob_measure",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition"]}},
-     "address": "/Stochastic-iterative-algorithm/"}],
-   "Algorithm.markov_kernel":
-   [{"id": "Algorithm___markov_kernel",
-     "data":
-     {"/Stochastic-iterative-algorithm/#Algorithm___markov_kernel":
-      {"display": "markov_kernel",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition"]}},
-     "address": "/Stochastic-iterative-algorithm/"}],
-   "Algorithm.kernel_iter":
-   [{"id": "Algorithm___kernel_iter-next",
-     "data":
-     {"/Stochastic-iterative-algorithm/#Algorithm___kernel_iter-next":
-      {"display": "kernel_iter",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition"]},
-      "/Stochastic-iterative-algorithm/#Algorithm___kernel_iter":
-      {"display": "kernel_iter",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition"]}},
-     "address": "/Stochastic-iterative-algorithm/"},
-    {"id": "Algorithm___kernel_iter",
-     "data":
-     {"/Stochastic-iterative-algorithm/#Algorithm___kernel_iter-next":
-      {"display": "kernel_iter",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition"]},
-      "/Stochastic-iterative-algorithm/#Algorithm___kernel_iter":
-      {"display": "kernel_iter",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition"]}},
-     "address": "/Stochastic-iterative-algorithm/"}],
-   "Algorithm":
-   [{"id": "Algorithm",
-     "data":
-     {"/Stochastic-iterative-algorithm/#Algorithm":
-      {"display": "Algorithm",
-       "context":
-       ["Consistency of global optimization algorithms",
-        "Stochastic iterative algorithm",
-        "Definition"]}},
-     "address": "/Stochastic-iterative-algorithm/"}]}},
+     "address": "/Indistinguishable-function/"}]}},
  "Verso.Genre.Manual.doc.tech":
  {"title": "Terminology",
   "description": "Definitions of technical terms",
@@ -456,4 +301,32 @@
  "Verso.Genre.Manual.doc":
  {"title": "Lean constant reference",
   "description": "Documentation for Lean constants",
-  "contents": {}}}
+  "contents":
+  {"Lipschitz.f_tilde":
+   [{"id": "Lipschitz___f_tilde",
+     "data": null,
+     "address": "/Indistinguishable-function/"}],
+   "Algorithm.ν":
+   [{"id": "Algorithm___mk",
+     "data": null,
+     "address": "/Stochastic-iterative-algorithm/"}],
+   "Algorithm.prob_measure":
+   [{"id": "Algorithm___mk",
+     "data": null,
+     "address": "/Stochastic-iterative-algorithm/"}],
+   "Algorithm.mk":
+   [{"id": "Algorithm___mk",
+     "data": null,
+     "address": "/Stochastic-iterative-algorithm/"}],
+   "Algorithm.markov_kernel":
+   [{"id": "Algorithm___mk",
+     "data": null,
+     "address": "/Stochastic-iterative-algorithm/"}],
+   "Algorithm.kernel_iter":
+   [{"id": "Algorithm___mk",
+     "data": null,
+     "address": "/Stochastic-iterative-algorithm/"}],
+   "Algorithm":
+   [{"id": "Algorithm___mk",
+     "data": null,
+     "address": "/Stochastic-iterative-algorithm/"}]}}}
