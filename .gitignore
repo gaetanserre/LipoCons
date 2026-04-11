@@ -1,4 +1,2 @@
 .lake/
-doc/html
-.vscode/
-mathlib4/
+html

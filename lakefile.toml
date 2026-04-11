@@ -8,16 +8,26 @@ pp.unicode.fun = true # pretty-prints `fun a ↦ b`
 autoImplicit = false
 
 [[require]]
-name = "mathlib"
-scope = "leanprover-community"
-
-[[require]]
-name = "subverso"
-git = "https://github.com/leanprover/subverso"
+name = "verso"
+git = "https://github.com/leanprover/verso"
 
 [[require]]
 name = "leango"
 git = "https://github.com/gaetanserre/LeanGO"
 
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+
 [[lean_lib]]
 name = "LipoCons"
+
+[[lean_lib]]
+name = "LipoConsManual"
+srcDir = "LipoCons/verso/"
+root = "LipoConsManual"
+
+[[lean_exe]]
+name = "manual"
+srcDir = "LipoCons/verso/"
+root = "LipoConsManual"

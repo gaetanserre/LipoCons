@@ -4,13 +4,15 @@ Released under MIT license as described in the file LICENSE.
 Authors: Gaëtan Serré
 -/
 
+import LipoCons.Defs.Indistinguishable
 import VersoManual
 
 open Verso.Genre Manual Verso.Genre.Manual.InlineLean Verso.Code.External
 
+set_option linter.dupNamespace false
 set_option pp.rawOnError true
 
-set_option verso.exampleProject "../"
+set_option verso.exampleProject "."
 
 set_option verso.exampleModule "LipoCons.Defs.Indistinguishable"
 
@@ -33,6 +35,8 @@ $$`
 Here is a visualization of this expression using the reverse [Ackley function](https://www.sfu.ca/~ssurjano/ackley.html).
 
 ![](static/ackley_tilde.png)
+
+{docstring Lipschitz.f_tilde}
 
 ```anchor f_tilde
 noncomputable def f_tilde (ε : ℝ) (x : α) :=
@@ -57,7 +61,7 @@ lemma f_tilde_lipschitz {ε : ℝ} (ε_pos : 0 < ε) : Lipschitz (hf.f_tilde c �
 ```
 
 # Maximum of $`\tilde{f}`
-One can show that $`\tilde{f}(c)` is strictly greater than the maximum of $`f` (see {anchorTerm max_f_lt_max_f_tilde}`max_f_lt_f_tilde_c`). Hence, by transitivity, the maximum of $`\tilde{f}` is strictly greater than the maximum of $`f`.
+One can show that $`\tilde{f}(c)` is strictly greater than the maximum of $`f` (see {name Lipschitz.max_f_lt_f_tilde_c}`max_f_lt_f_tilde_c`). Hence, by transitivity, the maximum of $`\tilde{f}` is strictly greater than the maximum of $`f`.
 ```anchor max_f_lt_max_f_tilde
 lemma max_f_lt_max_f_tilde {ε : ℝ} (ε_pos : 0 < ε) :
     fmax hf < fmax (hf.f_tilde_lipschitz c ε_pos) :=

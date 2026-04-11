@@ -4,11 +4,11 @@ Released under MIT license as described in the file LICENSE.
 Authors: Gaëtan Serré
 -/
 
-import Manual.Pages.Algorithm
-import Manual.Pages.Consistency
-import Manual.Pages.Indistinguishable.Indistinguishable
-import Manual.Pages.LipoCons
-import Manual.Papers
+import LipoConsManual.Pages.Algorithm
+import LipoConsManual.Pages.Consistency
+import LipoConsManual.Pages.Indistinguishable.Indistinguishable
+import LipoConsManual.Pages.LipoCons
+import LipoConsManual.Papers
 import VersoManual
 
 open Verso.Genre Manual Verso.Genre.Manual.InlineLean
@@ -37,10 +37,10 @@ One can see that *(2)* is a popular definition of the consistency of a stochasti
 
 This manual is dedicated to the [`L∃∀N`](https://lean-lang.org/) formalization of this proposition.
 
-{include 0 Manual.Pages.Algorithm}
+{include 0 LipoConsManual.Pages.Algorithm}
 
-{include 0 Manual.Pages.Consistency}
+{include 0 LipoConsManual.Pages.Consistency}
 
-{include 0 Manual.Pages.LipoCons}
+{include 0 LipoConsManual.Pages.LipoCons}
 
-{include 0 Manual.Pages.Indistinguishable.Indistinguishable}
+{include 0 LipoConsManual.Pages.Indistinguishable.Indistinguishable}

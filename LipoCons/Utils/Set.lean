@@ -37,14 +37,14 @@ lemma sum_indicator_iUnion {α β : Type*} [AddCommMonoid β] [TopologicalSpace 
   · rw [indicator_of_notMem hx]
     have : ∀ i, x ∉ f i := by
       rw [mem_iUnion] at hx
-      push_neg at hx
+      push Not at hx
       exact hx
     have : ∀ i, (f i).indicator g x = 0 := by
       intro i
       rw [indicator_of_notMem <| this i]
     simp_rw [this]
     simp only [tsum_zero]
-  · push_neg at hx
+  · push Not at hx
     rw [indicator_of_mem hx]
     rw [← mem_iUnion_disjoint h] at hx
     obtain ⟨i, fi, hi⟩ := hx
@@ -95,8 +95,7 @@ lemma indicator_one_mem {α β ι γ : Type*} [Zero ι] [One ι] (f : α → γ 
         exact hs₂'.2
       · rw [indicator_of_notMem e_mem]
         exact hs₂'.1
-  push_neg at hs₂
-  push_neg at hs₂'
+  push Not at hs₂ hs₂'
   by_cases hs₂'' : 1 ∈ s₂
   · suffices {e : γ × α | s₁.indicator 1 (f e.2 e.1) ∈ s₂} = {e | f e.2 e.1 ∈ s₁} by
       rw [this]

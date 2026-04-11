@@ -4,14 +4,15 @@ Released under MIT license as described in the file LICENSE.
 Authors: Gaëtan Serré
 -/
 
-import Manual.Papers
+import LipoCons.Defs.Consistency
+import LipoConsManual.Papers
 import VersoManual
 
 open Verso.Genre Manual Verso.Genre.Manual.InlineLean Verso.Code.External
 
 set_option pp.rawOnError true
 
-set_option verso.exampleProject "../"
+set_option verso.exampleProject "."
 
 set_option verso.exampleModule "LipoCons.Defs.Consistency"
 
@@ -34,9 +35,9 @@ The latter definition can be unfolded as follows:
 $$`
 \forall \varepsilon > 0, \; \mathbb{P}(|\max_{0 \le i \le n} f(X_i) - \max_{x \in \mathcal{X}} f(x)| > \varepsilon) \xrightarrow[n \to \infty]{} 0,
 `
-where $`\mathbb{P}` denotes the probability measure on sequences of samples of size $`n + 1` produced by the algorithm. In our formalization, we showed that $`\mathbb{P}` is equal to `Algorithm.`{anchorTerm measure_dist_max}`fin_measure`.
+where $`\mathbb{P}` denotes the probability measure on sequences of samples of size $`n + 1` produced by the algorithm. In our formalization, we showed that $`\mathbb{P}` is equal to {name Algorithm.fin_measure}`Algorithm.fin_measure`.
 
-To formally define the consistency using `Algorithm.`{anchorTerm measure_dist_max}`fin_measure`, we define the set of sequences of samples of size $`n + 1` such that the maximum of the evaluations is at least $`\varepsilon` away from the maximum of $`f` over the compact search space (noted {anchorTerm set_dist_max}`fmax`).
+To formally define the consistency using {name Algorithm.fin_measure}`Algorithm.fin_measure`, we define the set of sequences of samples of size $`n + 1` such that the maximum of the evaluations is at least $`\varepsilon` away from the maximum of $`f` over the compact search space (noted {name fmax}`fmax`).
 ```anchor set_dist_max
 def set_dist_max {f : α → β} (hf : Lipschitz f) {n : ℕ} (ε : ℝ) :=
   {u : iter α n | dist (Tuple.max (f ∘ u)) (fmax hf) > ε}
@@ -48,7 +49,7 @@ noncomputable def measure_dist_max (A : Algorithm α β) {f : α → β} (hf : L
   fun ε n => A.fin_measure hf.measurable (set_dist_max hf (n := n) ε)
 ```
 
-Finally, an algorithm $`A` is consistent over a Lipschitz function $`f` if {anchorTerm measure_dist_max}`measure_dist_max` tends to $`0` when $`n` tends to infinity.
+Finally, an algorithm $`A` is consistent over a Lipschitz function $`f` if {name measure_dist_max}`measure_dist_max` tends to $`0` when $`n` tends to infinity.
 ```anchor is_consistent
 def is_consistent (A : Algorithm α β) {f : α → β} (hf : Lipschitz f) :=
   ∀ ⦃ε⦄, 0 < ε → Tendsto (measure_dist_max A hf ε) atTop (𝓝 0)
@@ -66,7 +67,7 @@ This definition can be unfolded as follows:
 $$`
 \forall \varepsilon > 0, \; \mathbb{P}(\sup_{x \in \mathcal{X}} \min_{0 \le i \le n} \| x - X_i\| > \varepsilon) \xrightarrow[n \to \infty]{} 0,
 `
-where $`\mathbb{P}` is equal to `Algorithm.`{anchorTerm measure_dist_max}`fin_measure`.
+where $`\mathbb{P}` is equal to {name Algorithm.fin_measure}`Algorithm.fin_measure`.
 
 To formalize this definition, we define the minimum distance between a point in the search space and a sequence of samples.
 ```anchor min_dist_x
@@ -74,13 +75,13 @@ noncomputable def min_dist_x :=
   fun {n : ℕ} (u : iter α n) (x : α) => Tuple.min ((fun xi => dist xi x) ∘ u)
 ```
 
-As {anchorTerm min_dist_x}`min_dist_x` is a continuous function, we can define the maximum of this function over the compact search space. Hence, the $`\sup` in the above definition can be replaced by a $`\max` over the search space.
+As {name min_dist_x}`min_dist_x` is a continuous function, we can define the maximum of this function over the compact search space. Hence, the $`\sup` in the above definition can be replaced by a $`\max` over the search space.
 ```anchor max_min_dist
 noncomputable def max_min_dist {n : ℕ} (u : iter α n) :=
   min_dist_x u (compact_argmax (min_dist_x_continuous u))
 ```
 
-Finally, given a continuous function $`f`, an algorithm $`A` samples the whole search space if the measure of the set of sequences of samples of size $`n + 1` such that, {anchorTerm max_min_dist}`max_min_dist` is greater than $`\varepsilon`, tends to $`0` when $`n` tends to infinity.
+Finally, given a continuous function $`f`, an algorithm $`A` samples the whole search space if the measure of the set of sequences of samples of size $`n + 1` such that, {name max_min_dist}`max_min_dist` is greater than $`\varepsilon`, tends to $`0` when $`n` tends to infinity.
 ```anchor sample_whole_space
 noncomputable def sample_whole_space (A : Algorithm α β) {f : α → β} (hf : Continuous f) :=
   ∀ ε > 0, Tendsto (fun n =>

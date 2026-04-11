@@ -21,9 +21,9 @@ lemma ε_cover_ne {ε : ℝ} (hε : ε > 0) :
   have hU : ∀ (x : α), U x ∈ nhds x := fun x => Metric.ball_mem_nhds x hε
   obtain ⟨t, ht⟩ := finite_cover_nhds hU
   refine ⟨⟨t.card, ?_⟩, t, rfl, ht.symm⟩
-  by_contra h_contra
+  by_contra! h_contra
   have union_is_empty : ⋃ x ∈ t, U x = ∅ := by
-    rw [Finset.card_eq_zero.mp (Nat.eq_zero_of_le_zero <| Nat.le_of_not_lt h_contra)]
+    rw [Finset.card_eq_zero.mp (Nat.eq_zero_of_le_zero h_contra)]
     simp only [Finset.notMem_empty, Set.iUnion_of_empty, Set.iUnion_empty]
   rw [union_is_empty] at ht
   exact Set.empty_ne_univ ht
