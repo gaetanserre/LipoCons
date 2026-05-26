@@ -12,13 +12,16 @@
     <title>Cross-Reference Redirection</title><link rel="stylesheet" href="book.css">
     <link rel="stylesheet" href="verso-vars.css">
     <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js" integrity="sha384-zbcZAIxlvJtNE3Dp5nxLXdXtXyxwOdnILY1TDPVmKFhl4r4nSUG1r8bcFXGVa4Te" crossorigin="anonymous"></script>
-    <script src="-verso-search/elasticlunr.min.js"></script>
-    <script src="-verso-search/fuzzysort.min.js"></script>
-    <script src="-verso-search/searchIndex.js"></script>
+    <script defer="defer" src="-verso-search/elasticlunr.min.js"></script>
+    <script defer="defer" src="-verso-search/fuzzysort.min.js"></script>
+    <script defer="defer" src="-verso-search/searchIndex.js"></script>
+    <script defer="defer" src="-verso-search/search-config.js"></script>
     <script type="module" src="-verso-search/search-init.js"></script>
     <link rel="stylesheet" href="-verso-search/search-box.css">
+    <link rel="stylesheet" href="-verso-search/search-page.css">
     <link rel="stylesheet" href="-verso-search/search-highlight.css">
     <link rel="stylesheet" href="-verso-search/domain-display.css">
+    <script src="-verso-search/search-highlight.js" defer="defer"></script>
     <script src="-verso-data/katex/katex.js"></script>
     <script src="-verso-data/katex/math.js"></script>
     <script src="-verso-data/popper.min.js"></script>
@@ -1523,6 +1526,7 @@ Some CSS frameworks customize details/summary in ways not compatible with Verso'
      {"title": "Definition",
       "shortTitle": null,
       "sectionNum": "1.1.",
+      "searchPriority": 50,
       "context":
       [{"title": "Consistency of global optimization algorithms",
         "shortTitle": "Consistency of global optimization algorithms",
@@ -1539,6 +1543,7 @@ Some CSS frameworks customize details/summary in ways not compatible with Verso'
      {"title": "Stochastic iterative algorithm",
       "shortTitle": null,
       "sectionNum": "1.",
+      "searchPriority": 50,
       "context":
       [{"title": "Consistency of global optimization algorithms",
         "shortTitle": "Consistency of global optimization algorithms",
@@ -1554,6 +1559,7 @@ Some CSS frameworks customize details/summary in ways not compatible with Verso'
      {"title": "Maximum of  <missing>",
       "shortTitle": null,
       "sectionNum": "4.3.",
+      "searchPriority": 50,
       "context":
       [{"title": "Consistency of global optimization algorithms",
         "shortTitle": "Consistency of global optimization algorithms",
@@ -1570,6 +1576,7 @@ Some CSS frameworks customize details/summary in ways not compatible with Verso'
      {"title": "Lipschitz property",
       "shortTitle": null,
       "sectionNum": "4.2.",
+      "searchPriority": 50,
       "context":
       [{"title": "Consistency of global optimization algorithms",
         "shortTitle": "Consistency of global optimization algorithms",
@@ -1586,6 +1593,7 @@ Some CSS frameworks customize details/summary in ways not compatible with Verso'
      {"title": "Expression",
       "shortTitle": null,
       "sectionNum": "4.1.",
+      "searchPriority": 50,
       "context":
       [{"title": "Consistency of global optimization algorithms",
         "shortTitle": "Consistency of global optimization algorithms",
@@ -1602,6 +1610,7 @@ Some CSS frameworks customize details/summary in ways not compatible with Verso'
      {"title": "Indistinguishable function",
       "shortTitle": null,
       "sectionNum": "4.",
+      "searchPriority": 50,
       "context":
       [{"title": "Consistency of global optimization algorithms",
         "shortTitle": "Consistency of global optimization algorithms",
@@ -1617,6 +1626,7 @@ Some CSS frameworks customize details/summary in ways not compatible with Verso'
      {"title": "Consistency equivalence",
       "shortTitle": null,
       "sectionNum": "3.",
+      "searchPriority": 50,
       "context":
       [{"title": "Consistency of global optimization algorithms",
         "shortTitle": "Consistency of global optimization algorithms",
@@ -1632,6 +1642,7 @@ Some CSS frameworks customize details/summary in ways not compatible with Verso'
      {"title": "Sampling whole space",
       "shortTitle": null,
       "sectionNum": "2.2.",
+      "searchPriority": 50,
       "context":
       [{"title": "Consistency of global optimization algorithms",
         "shortTitle": "Consistency of global optimization algorithms",
@@ -1646,6 +1657,7 @@ Some CSS frameworks customize details/summary in ways not compatible with Verso'
      {"title": "Consistency of algorithms",
       "shortTitle": null,
       "sectionNum": "2.1.",
+      "searchPriority": 50,
       "context":
       [{"title": "Consistency of global optimization algorithms",
         "shortTitle": "Consistency of global optimization algorithms",
@@ -1662,6 +1674,7 @@ Some CSS frameworks customize details/summary in ways not compatible with Verso'
      {"title": "Consistency and sampling",
       "shortTitle": null,
       "sectionNum": "2.",
+      "searchPriority": 50,
       "context":
       [{"title": "Consistency of global optimization algorithms",
         "shortTitle": "Consistency of global optimization algorithms",
@@ -1676,6 +1689,7 @@ Some CSS frameworks customize details/summary in ways not compatible with Verso'
      {"title": "Consistency of global optimization algorithms",
       "shortTitle": "Consistency of global optimization algorithms",
       "sectionNum": "",
+      "searchPriority": 50,
       "context":
       [{"title": "Consistency of global optimization algorithms",
         "shortTitle": "Consistency of global optimization algorithms",
@@ -2221,7 +2235,6 @@ window.onload = () => {
     <link rel="icon" type="image/x-icon" href="static/favicon.svg">
     <link rel="stylesheet" href="static/style.css">
     <script src="static/scripts.js"></script>
-    <script src="-verso-search/search-highlight.js" defer="defer"></script>
     </head>
   <body>
     <header>

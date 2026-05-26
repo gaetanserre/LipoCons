@@ -9,6 +9,7 @@
      {"title": "Definition",
       "shortTitle": null,
       "sectionNum": "1.1.",
+      "searchPriority": 50,
       "context":
       [{"title": "Consistency of global optimization algorithms",
         "shortTitle": "Consistency of global optimization algorithms",
@@ -25,6 +26,7 @@
      {"title": "Stochastic iterative algorithm",
       "shortTitle": null,
       "sectionNum": "1.",
+      "searchPriority": 50,
       "context":
       [{"title": "Consistency of global optimization algorithms",
         "shortTitle": "Consistency of global optimization algorithms",
@@ -40,6 +42,7 @@
      {"title": "Maximum of  <missing>",
       "shortTitle": null,
       "sectionNum": "4.3.",
+      "searchPriority": 50,
       "context":
       [{"title": "Consistency of global optimization algorithms",
         "shortTitle": "Consistency of global optimization algorithms",
@@ -56,6 +59,7 @@
      {"title": "Lipschitz property",
       "shortTitle": null,
       "sectionNum": "4.2.",
+      "searchPriority": 50,
       "context":
       [{"title": "Consistency of global optimization algorithms",
         "shortTitle": "Consistency of global optimization algorithms",
@@ -72,6 +76,7 @@
      {"title": "Expression",
       "shortTitle": null,
       "sectionNum": "4.1.",
+      "searchPriority": 50,
       "context":
       [{"title": "Consistency of global optimization algorithms",
         "shortTitle": "Consistency of global optimization algorithms",
@@ -88,6 +93,7 @@
      {"title": "Indistinguishable function",
       "shortTitle": null,
       "sectionNum": "4.",
+      "searchPriority": 50,
       "context":
       [{"title": "Consistency of global optimization algorithms",
         "shortTitle": "Consistency of global optimization algorithms",
@@ -103,6 +109,7 @@
      {"title": "Consistency equivalence",
       "shortTitle": null,
       "sectionNum": "3.",
+      "searchPriority": 50,
       "context":
       [{"title": "Consistency of global optimization algorithms",
         "shortTitle": "Consistency of global optimization algorithms",
@@ -118,6 +125,7 @@
      {"title": "Sampling whole space",
       "shortTitle": null,
       "sectionNum": "2.2.",
+      "searchPriority": 50,
       "context":
       [{"title": "Consistency of global optimization algorithms",
         "shortTitle": "Consistency of global optimization algorithms",
@@ -132,6 +140,7 @@
      {"title": "Consistency of algorithms",
       "shortTitle": null,
       "sectionNum": "2.1.",
+      "searchPriority": 50,
       "context":
       [{"title": "Consistency of global optimization algorithms",
         "shortTitle": "Consistency of global optimization algorithms",
@@ -148,6 +157,7 @@
      {"title": "Consistency and sampling",
       "shortTitle": null,
       "sectionNum": "2.",
+      "searchPriority": 50,
       "context":
       [{"title": "Consistency of global optimization algorithms",
         "shortTitle": "Consistency of global optimization algorithms",
@@ -162,6 +172,7 @@
      {"title": "Consistency of global optimization algorithms",
       "shortTitle": "Consistency of global optimization algorithms",
       "sectionNum": "",
+      "searchPriority": 50,
       "context":
       [{"title": "Consistency of global optimization algorithms",
         "shortTitle": "Consistency of global optimization algorithms",

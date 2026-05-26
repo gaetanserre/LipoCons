@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html><html>
   <head>
     <script>
       (function(){
@@ -10,7 +9,7 @@
 })()</script>
     <base href="./../"><meta charset="utf-8">
     <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
-    <title>Stochastic iterative algorithm</title><link rel="stylesheet" href="book.css">
+    <title>Search</title><link rel="stylesheet" href="book.css">
     <link rel="stylesheet" href="verso-vars.css">
     <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js" integrity="sha384-zbcZAIxlvJtNE3Dp5nxLXdXtXyxwOdnILY1TDPVmKFhl4r4nSUG1r8bcFXGVa4Te" crossorigin="anonymous"></script>
     <script defer="defer" src="-verso-search/elasticlunr.min.js"></script>
@@ -1756,6 +1755,7 @@ window.onload = () => {
     <link rel="icon" type="image/x-icon" href="static/favicon.svg">
     <link rel="stylesheet" href="static/style.css">
     <script src="static/scripts.js"></script>
+    <link rel="preload" href="xref.json" as="fetch">
     </head>
   <body>
     <header>
@@ -1775,17 +1775,7 @@ window.onload = () => {
             <div class="split-toc book">
               <div class="title">
                 <label for="--verso-manual-toc-----bookRoot" class="toggle-split-toc"><input type="checkbox" class="toggle-split-toc" id="--verso-manual-toc-----bookRoot" checked="checked"></label><span class="">Table of Contents</span></div>
-              <table><tr class="current numbered"><td class="num">1.</td><td><a href="Stochastic-iterative-algorithm/#Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm">Stochastic iterative algorithm</a></td></tr><tr class="numbered"><td class="num">2.</td><td><a href="Consistency-and-sampling/#Consistency-of-global-optimization-algorithms--Consistency-and-sampling">Consistency and sampling</a></td></tr><tr class="numbered"><td class="num">3.</td><td><a href="Consistency-equivalence/#Consistency-of-global-optimization-algorithms--Consistency-equivalence">Consistency equivalence</a></td></tr><tr class="numbered"><td class="num">4.</td><td><a href="Indistinguishable-function/#Consistency-of-global-optimization-algorithms--Indistinguishable-function">Indistinguishable function</a></td></tr></table></div>
-            <div class="split-toc">
-              <div class="title">
-                <label for="--verso-manual-toc-Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm" class="toggle-split-toc"><input type="checkbox" class="toggle-split-toc" id="--verso-manual-toc-Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm" checked="checked"></label><span class="number">1.</span> <span class="current"><a href="Stochastic-iterative-algorithm/#Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm">Stochastic iterative algorithm</a></span></div>
-              <ol>
-                <li>
-                  <span class="header head-1"><span class="level-num">1.</span> <a href="Stochastic-iterative-algorithm/#Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Definition">Definition</a></span></li>
-                <li>
-                  <a href="Stochastic-iterative-algorithm/#Algorithm___mk"><code>Algorithm</code></a></li>
-                </ol>
-              </div>
+              <table><tr class="numbered"><td class="num">1.</td><td><a href="Stochastic-iterative-algorithm/#Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm">Stochastic iterative algorithm</a></td></tr><tr class="numbered"><td class="num">2.</td><td><a href="Consistency-and-sampling/#Consistency-of-global-optimization-algorithms--Consistency-and-sampling">Consistency and sampling</a></td></tr><tr class="numbered"><td class="num">3.</td><td><a href="Consistency-equivalence/#Consistency-of-global-optimization-algorithms--Consistency-equivalence">Consistency equivalence</a></td></tr><tr class="numbered"><td class="num">4.</td><td><a href="Indistinguishable-function/#Consistency-of-global-optimization-algorithms--Indistinguishable-function">Indistinguishable function</a></td></tr></table></div>
             </div>
           </div>
         <div class="last">
@@ -1799,82 +1789,23 @@ window.onload = () => {
         </nav>
       <main><div class="content-wrapper">
           <nav class="prev-next-buttons">
-            <a class="local-button active" href="#" rel="prev" title=" Consistency of global optimization algorithms"><span class="arrow">←</span><span class="where"> Consistency of global optimization algorithms</span></a><a class="local-button active" href="Consistency-and-sampling/#Consistency-of-global-optimization-algorithms--Consistency-and-sampling" rel="next" title="2. Consistency and sampling"><span class="where">2. Consistency and sampling</span><span class="arrow">→</span></a></nav>
-          <section>
+            <div></div>
+            <div></div>
+            </nav>
+          <section class="search-page">
             <h1>
-              1. Stochastic iterative algorithm<span class="permalink-widget inline"><a href="find/?domain=Verso.Genre.Manual.section&amp;name=Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm" title="Permalink">🔗</a></span></h1>
-            <p>
-              To formalize the Proposition 3 of  (Malherbe and Vayatis, 2017)<span class="marginalia"><span class="note"><span class="citation">Cédric Malherbe and Nicolas Vayatis, 2017. “Global optimization of Lipschitz functions”. In <em>International conference on machine learning.</em></span></span></span>, we need to abstract the notion of a stochastic iterative global optimization algorithm. The full documentation of this framework can be found <a href="https://gaetanserre.fr/LeanGO">here</a>. We give here a brief overview of the definition of a stochastic iterative global optimization algorithm.</p>
-            <section>
-              <h2 id="Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Definition">
-                1.1. Definition<span class="permalink-widget inline"><a href="find/?domain=Verso.Genre.Manual.section&amp;name=Consistency-of-global-optimization-algorithms--Stochastic-iterative-algorithm--Definition" title="Permalink">🔗</a></span></h2>
-              <p>
-                A stochastic iterative global optimization algorithm can be seen as a stochastic process that iteratively samples from a search space, producing a sequence of samples. The first sample is drawn from a probability measure inherent to the algorithm, and subsequent samples are generated based on Markov kernels that depend on the previous samples and their associated evaluations by a measurable function. We define the following structure to represent such an algorithm.</p>
-              <div class="namedocs" id="Algorithm___mk">
-                <span class="permalink-widget block"><a href="find/?domain=Verso.Genre.Manual.doc&amp;name=Algorithm.markov_kernel" title="Permalink">🔗</a></span><span class="label">structure</span><pre class="signature hl lean block"><div class="wide-only"><a href="Stochastic-iterative-algorithm/#Algorithm___mk" title="Documentation for Algorithm"><span class="const token" data-binding="const-Algorithm" data-verso-hover="0">Algorithm.{u_1, u_2}</span></a><span class="inter-text"> </span><span class="unknown token" data-binding="">(</span><span class="var token" data-binding="var-_uniq.86" data-verso-hover="1">α</span><span class="inter-text"> </span><span class="unknown token" data-binding="">:</span><span class="inter-text"> </span><span class="sort token" data-binding="sort-7243200735919010059" data-verso-hover="2">Type u_1</span><span class="unknown token" data-binding="">)</span><span class="inter-text"> </span><span class="unknown token" data-binding="">(</span><span class="var token" data-binding="var-_uniq.87" data-verso-hover="3">β</span><span class="inter-text"> </span><span class="unknown token" data-binding="">:</span><span class="inter-text"> </span><span class="sort token" data-binding="sort-7243200735919010059" data-verso-hover="2">Type u_2</span><span class="unknown token" data-binding="">)</span><span class="inter-text"> </span><span class="unknown token" data-binding="">[</span><span class="const token" data-binding="const-MeasurableSpace" data-verso-hover="4">MeasurableSpace</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.86" data-verso-hover="1">α</span><span class="unknown token" data-binding="">]</span><span class="inter-text">
-  </span><span class="unknown token" data-binding="">[</span><span class="const token" data-binding="const-MeasurableSpace" data-verso-hover="4">MeasurableSpace</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.87" data-verso-hover="3">β</span><span class="unknown token" data-binding="">]</span><span class="inter-text"> </span><span class="unknown token" data-binding="">:</span><span class="inter-text"> </span><span class="sort token" data-binding="sort-7243200735919010059" data-verso-hover="2">Type (max u_1 u_2)</span></div><div class="narrow-only"><a href="Stochastic-iterative-algorithm/#Algorithm___mk" title="Documentation for Algorithm"><span class="const token" data-binding="const-Algorithm" data-verso-hover="0">Algorithm.{u_1, u_2}</span></a><span class="inter-text"> </span><span class="unknown token" data-binding="">(</span><span class="var token" data-binding="var-_uniq.86" data-verso-hover="1">α</span><span class="inter-text"> </span><span class="unknown token" data-binding="">:</span><span class="inter-text"> </span><span class="sort token" data-binding="sort-7243200735919010059" data-verso-hover="2">Type u_1</span><span class="unknown token" data-binding="">)</span><span class="inter-text">
-  </span><span class="unknown token" data-binding="">(</span><span class="var token" data-binding="var-_uniq.87" data-verso-hover="3">β</span><span class="inter-text"> </span><span class="unknown token" data-binding="">:</span><span class="inter-text"> </span><span class="sort token" data-binding="sort-7243200735919010059" data-verso-hover="2">Type u_2</span><span class="unknown token" data-binding="">)</span><span class="inter-text"> </span><span class="unknown token" data-binding="">[</span><span class="const token" data-binding="const-MeasurableSpace" data-verso-hover="4">MeasurableSpace</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.86" data-verso-hover="1">α</span><span class="unknown token" data-binding="">]</span><span class="inter-text">
-  </span><span class="unknown token" data-binding="">[</span><span class="const token" data-binding="const-MeasurableSpace" data-verso-hover="4">MeasurableSpace</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.87" data-verso-hover="3">β</span><span class="unknown token" data-binding="">]</span><span class="inter-text"> </span><span class="unknown token" data-binding="">:</span><span class="inter-text"> </span><span class="sort token" data-binding="sort-7243200735919010059" data-verso-hover="2">Type (max u_1 u_2)</span></div></pre><div class="text">
-                  <p>
-                    <code class="hl lean inline" data-lean-context="docstring-examples"><a href="Stochastic-iterative-algorithm/#Algorithm___mk" title="Documentation for Algorithm"><span class="const token" data-binding="const-Algorithm" data-verso-hover="0">Algorithm</span></a><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.8" data-verso-hover="1">α</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.9" data-verso-hover="3">β</span></code> represents a general iterative stochastic optimization algorithm.</p>
-                  <p>
-                    It models a sequence of updates where:</p>
-                  <ul>
-                    <li>
-                      <p>
-                        <code class="hl lean inline" data-lean-context="docstring-examples"><span class="var token" data-binding="var-_uniq.28" data-verso-hover="1">α</span></code> is the search space (e.g., parameters, candidate solutions),</p>
-                      </li>
-                    <li>
-                      <p>
-                        <code class="hl lean inline" data-lean-context="docstring-examples"><span class="var token" data-binding="var-_uniq.29" data-verso-hover="3">β</span></code> is the evaluation space (e.g., objective values, feedback),</p>
-                      </li>
-                    </ul>
-                  <p>
-                    It allows formal reasoning over joint distributions of evaluated points and convergence
-properties.</p>
-                  <h1>
-                    Constructor</h1>
-                  <section class="subdocs">
-                    <pre class="name-and-type hl lean"><a href="Stochastic-iterative-algorithm/#Algorithm___mk" title="Documentation for Algorithm.mk"><span class="const token" data-binding="const-Algorithm.mk" data-verso-hover="5">Algorithm.mk</span></a><span class="unknown token" data-binding="">.{u_1,</span><span class="inter-text"> </span><span class="unknown token" data-binding="">u_2}</span></pre><div class="docs"></div>
-                    </section>
-                  <h1>
-                    Fields</h1>
-                  <section class="subdocs">
-                    <pre class="name-and-type hl lean"><span class="const token" data-binding="const-Algorithm.ν" data-verso-hover="6">ν</span> : <span class="const token" data-binding="const-MeasureTheory.Measure" data-verso-hover="7">MeasureTheory.Measure</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.41" data-verso-hover="1">α</span></pre><div class="docs">
-                      <p>
-                        The initial smeasure over the search space <code class="hl lean inline" data-lean-context="docstring-examples"><span class="var token" data-binding="var-_uniq.94" data-verso-hover="1">α</span></code>.</p>
-                      </div>
-                    </section>
-                  <section class="subdocs">
-                    <pre class="name-and-type hl lean"><span class="const token" data-binding="const-Algorithm.prob_measure" data-verso-hover="8">prob_measure</span> : <span class="const token" data-binding="const-MeasureTheory.IsProbabilityMeasure" data-verso-hover="9">MeasureTheory.IsProbabilityMeasure</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.45" data-verso-hover="10">self</span><span class="unknown token" data-binding="">.</span><a href="Stochastic-iterative-algorithm/#Algorithm___mk" title="Documentation for Algorithm.ν"><span class="const token" data-binding="const-Algorithm.ν" data-verso-hover="11">ν</span></a></pre><div class="docs">
-                      <p>
-                        The initial measure <code class="hl lean inline" data-lean-context="docstring-examples"><span class="var token" data-binding="var-_uniq.110" data-verso-hover="12">ν</span></code> must be a probability measure.</p>
-                      </div>
-                    </section>
-                  <section class="subdocs">
-                    <pre class="name-and-type hl lean"><span class="const token" data-binding="const-Algorithm.kernel_iter" data-verso-hover="13">kernel_iter</span> : <span class="unknown token" data-binding="">(</span><span class="var token" data-binding="var-_uniq.51" data-verso-hover="14">n</span><span class="inter-text"> </span><span class="unknown token" data-binding="">:</span><span class="inter-text"> </span><span class="const token" data-binding="const-Nat" data-verso-hover="15">ℕ</span><span class="unknown token" data-binding="">)</span><span class="inter-text"> </span><span class="unknown token" data-binding="">→</span><span class="inter-text"> </span><span class="const token" data-binding="const-ProbabilityTheory.Kernel" data-verso-hover="16">ProbabilityTheory.Kernel</span><span class="inter-text"> </span><span class="unknown token" data-binding="">(</span><span class="const token" data-binding="const-prod_iter_image" data-verso-hover="17">prod_iter_image</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.41" data-verso-hover="1">α</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.42" data-verso-hover="3">β</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.51" data-verso-hover="14">n</span><span class="unknown token" data-binding="">)</span><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.41" data-verso-hover="1">α</span></pre><div class="docs">
-                      <p>
-                        The kernels that defines how to sample the next point based on the history of points
-and evaluations.</p>
-                      </div>
-                    </section>
-                  <section class="subdocs">
-                    <pre class="name-and-type hl lean"><span class="const token" data-binding="const-Algorithm.markov_kernel" data-verso-hover="18">markov_kernel</span> : <span class="unknown token" data-binding="">∀</span><span class="inter-text"> </span><span class="unknown token" data-binding="">(</span><span class="var token" data-binding="var-_uniq.56" data-verso-hover="14">n</span><span class="inter-text"> </span><span class="unknown token" data-binding="">:</span><span class="inter-text"> </span><span class="const token" data-binding="const-Nat" data-verso-hover="15">ℕ</span><span class="unknown token" data-binding="">),</span><span class="inter-text"> </span><span class="const token" data-binding="const-ProbabilityTheory.IsMarkovKernel" data-verso-hover="19">ProbabilityTheory.IsMarkovKernel</span><span class="inter-text"> </span><span class="unknown token" data-binding="">(</span><span class="var token" data-binding="var-_uniq.45" data-verso-hover="10">self</span><span class="unknown token" data-binding="">.</span><a href="Stochastic-iterative-algorithm/#Algorithm___mk" title="Documentation for Algorithm.kernel_iter"><span class="const token" data-binding="const-Algorithm.kernel_iter" data-verso-hover="20">kernel_iter</span></a><span class="inter-text"> </span><span class="var token" data-binding="var-_uniq.56" data-verso-hover="14">n</span><span class="unknown token" data-binding="">)</span></pre><div class="docs">
-                      <p>
-                        The kernels must satisfy be Markov kernels.</p>
-                      </div>
-                    </section>
-                  </div>
-                </div>
-              <p>
-                The type <code class="hl lean inline" data-lean-context="examples"><span class="const token" data-binding="const-prod_iter_image" data-verso-hover="17">prod_iter_image</span></code> is the product type <code>(Iic n → α) × (Iic n → β)</code> which represents the sequence of samples and their evaluations at each iteration. The measure <code class="hl lean inline" data-lean-context="examples"><a href="Stochastic-iterative-algorithm/#Algorithm___mk" title="Documentation for Algorithm.ν"><span class="const token" data-binding="const-Algorithm.ν" data-verso-hover="11">ν</span></a></code> is the initial probability measure from which the first sample is drawn, and <code class="hl lean inline" data-lean-context="examples"><a href="Stochastic-iterative-algorithm/#Algorithm___mk" title="Documentation for Algorithm.kernel_iter"><span class="const token" data-binding="const-Algorithm.kernel_iter" data-verso-hover="20">kernel_iter</span></a></code> is the Markov kernel that defines how to sample the next element based on the previous ones.
-</p>
-              </section>
+              Search</h1>
+            <div data-search-host="" class="search-page-host"></div>
+            <noscript><p>
+                This search feature requires JavaScript.</p>
+              </noscript><div id="search-page-results"></div>
+            <script type="module" src="-verso-search/search-page.js"></script>
             </section>
           <nav class="prev-next-buttons">
-            <a class="local-button active" href="#" rel="prev" title=" Consistency of global optimization algorithms"><span class="arrow">←</span><span class="where"> Consistency of global optimization algorithms</span></a><a class="local-button active" href="Consistency-and-sampling/#Consistency-of-global-optimization-algorithms--Consistency-and-sampling" rel="next" title="2. Consistency and sampling"><span class="where">2. Consistency and sampling</span><span class="arrow">→</span></a></nav>
+            <div></div>
+            <div></div>
+            </nav>
           </div>
         </main></div>
     </body>
   </html>
-

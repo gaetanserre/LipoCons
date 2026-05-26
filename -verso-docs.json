@@ -104,7 +104,8 @@
  "<code>Continuous.measurable.{u_1, u_3} {α : Type u_1} {γ : Type u_3} [TopologicalSpace α] [MeasurableSpace α]\n  [OpensMeasurableSpace α] [TopologicalSpace γ] [MeasurableSpace γ] [BorelSpace γ] {f : α → γ} (hf : Continuous f) :\n  Measurable f</code><span class=\"sep\"></span><code class=\"docstring\">A continuous function from an `OpensMeasurableSpace` to a `BorelSpace`\nis measurable. </code>",
  "46":
  "<code>Continuous.{u, v} {X : Type u} {Y : Type v} [TopologicalSpace X] [TopologicalSpace Y] (f : X → Y) : Prop</code><span class=\"sep\"></span><code class=\"docstring\">A function between topological spaces is continuous if the preimage\nof every open set is open. Registered as a structure to make sure it is not unfolded by Lean. </code>",
- "45": "<code>Continuous f</code>",
+ "45":
+ "<code>Continuous[PseudoMetricSpace.toUniformSpace.toTopologicalSpace, PseudoMetricSpace.toUniformSpace.toTopologicalSpace] f</code>",
  "44":
  "<code>sample_whole_space.{u_1, u_2} {α : Type u_1} [PseudoMetricSpace α] {β : Type u_2} [CompactSpace α] [Nonempty α]\n  [MeasurableSpace α] [MeasurableSpace β] [PseudoMetricSpace β] [OpensMeasurableSpace α] [BorelSpace β]\n  (A : Algorithm α β) {f : α → β} (hf : Continuous f) : Prop</code><span class=\"sep\"></span><code class=\"docstring\">**Main definition**: Given a function `f`, an algorithm `A` sample the whole space\nif `∀ ε &gt; 0, lim_(n → ∞) A.measure f n {u | max_min_dist u &gt; ε} = 0`. </code>",
  "43":
