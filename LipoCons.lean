@@ -41,7 +41,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
     suffices ∃ δ > 0, ∀ n, set_dist_max hf ε ⊆ {u : iter α n | max_min_dist u > δ} by
       obtain ⟨δ, hδ, h'⟩ := this
       refine tendsto_of_tendsto_of_tendsto_of_le_of_le tendsto_const_nhds
-        (h hf δ hδ) ?_ (fun n => (A.fin_measure hfm).mono (h' n))
+        (h hf δ hδ) ?_ (fun n => (A.fin_measure _ hfm).mono (h' n))
       intro x
       simp only [zero_le]
 
@@ -92,7 +92,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
   · intro h f hf ε₁ ε₁_pos
     have hfc := hf.continuous
     have hfm := hf.measurable
-    set gε₁ := fun n => A.fin_measure hfm {u | max_min_dist u > ε₁}
+    set gε₁ := fun n => A.fin_measure _ hfm {u | max_min_dist u > ε₁}
 
     /- We change the goal to: for any positive `ε`,
       it exists a `N : ℕ` such that, for any `n ≥ N`, `g ε₁ n < ε`. -/
@@ -115,13 +115,13 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
     /- We construct a ball for which the probability to never sample inside is
     strictly positive for all `n > 0`. -/
     obtain ⟨c, c_mem_t, hc⟩ : ∃ c ∈ t, ∀ n,
-        ε₂/(2 * N₁) ≤ A.fin_measure hfm {u : iter α n | ∀ i, u i ∉ ball c (ε₁/2)} := by
+        ε₂/(2 * N₁) ≤ A.fin_measure _ hfm {u : iter α n | ∀ i, u i ∉ ball c (ε₁/2)} := by
       by_contra! h_contra
 
       /- We take the `N` of `not_sample_space` specialized to the maximum image of
         the choice function `f : t → ℕ₀` of `h_contra`. -/
       replace h_contra : ∃ n,
-          (∀ c ∈ t, A.fin_measure hfm {u : iter α n | ∀ i, u i ∉ ball c (ε₁/2)} < ε₂/(2 * N₁))
+          (∀ c ∈ t, A.fin_measure _ hfm {u : iter α n | ∀ i, u i ∉ ball c (ε₁/2)} < ε₂/(2 * N₁))
           ∧ ε₂ < gε₁ n := by
         refine Finset.extract_mono (Finset.card_pos.mp ?_) h_contra ?_ ?_
         · rw [t_card]
@@ -131,7 +131,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
           suffices S m ⊆ {u | subTuple hnm u ∈ S n} by
             have measurable_S : ∀ p, MeasurableSet (S p) := by
               intro p
-              suffices S p = univ.pi (fun _ => (ball c (ε₁/2))ᶜ) by
+              suffices S p = rect (ball c (ε₁/2))ᶜ p by
                 rw [this]
                 exact MeasurableSet.univ_pi
                   (fun i => MeasurableSet.compl_iff.mpr measurableSet_ball)
@@ -160,8 +160,8 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
       the set `{u | max_min_dist u > ε₁}`, its elements are more than `ε₁` away
       from `x'`. This implies that its elements are not in `B(c, ε₁/2)`,
       since the distance between any points in `B(c, ε₁/2)` is at most `ε₁`. -/
-      have le_μ_cover : gε₁ n_max ≤ A.fin_measure hfm S := by
-        suffices {u : iter α n_max | max_min_dist u > ε₁} ⊆ S from (A.fin_measure hfm).mono this
+      have le_μ_cover : gε₁ n_max ≤ A.fin_measure _ hfm S := by
+        suffices {u : iter α n_max | max_min_dist u > ε₁} ⊆ S from (A.fin_measure _ hfm).mono this
         intro u (hu : max_min_dist u > ε₁)
         let x' := (compact_argmax (min_dist_x_continuous u))
         obtain ⟨c, c_in_t, hc⟩ : ∃ c ∈ t, x' ∈ ball c (ε₁/2) := by
@@ -185,14 +185,14 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
           _ < ε₁/2 + ε₁/2 := (add_lt_add_iff_left _).mpr hc
           _ = ε₁ := by ring
 
-      calc _ ≤ A.fin_measure hfm S := le_μ_cover
-      _ ≤ A.fin_measure hfm (⋃ c ∈ t, {u | ∀ i, u i ∉ ball c (ε₁/2)}) := by
-        suffices S ⊆ ⋃ c ∈ t, {u | ∀ i, u i ∉ ball c (ε₁/2)} from (A.fin_measure hfm).mono this
+      calc _ ≤ A.fin_measure _ hfm S := le_μ_cover
+      _ ≤ A.fin_measure _ hfm (⋃ c ∈ t, {u | ∀ i, u i ∉ ball c (ε₁/2)}) := by
+        suffices S ⊆ ⋃ c ∈ t, {u | ∀ i, u i ∉ ball c (ε₁/2)} from (A.fin_measure _ hfm).mono this
         rintro u ⟨c, hc, hu⟩
         rw [mem_iUnion]
         simp only [mem_iUnion, exists_prop]
         exact ⟨c, hc, hu⟩
-      _ ≤ ∑ c ∈ t, A.fin_measure hfm {u | ∀ i, u i ∉ ball c (ε₁/2)} :=
+      _ ≤ ∑ c ∈ t, A.fin_measure _ hfm {u | ∀ i, u i ∉ ball c (ε₁/2)} :=
         measure_biUnion_finset_le _ _
       _ ≤ ∑ c ∈ t, ε₂ / (2 * N₁) := Finset.sum_le_sum (fun c hc => le_of_lt <| hn_max c hc)
       _ = ε₂ / 2 := by
@@ -258,13 +258,13 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
     specialize hc N_succ
     unfold measure_dist_max at hN
 
-    have as_pi : {u : iter α N_succ | ∀ i, u i ∉ ball c (ε₁/2)} =
-        (univ.pi fun x ↦ (ball c (ε₁ / 2))ᶜ) :=
+    have as_rect : {u : iter α N_succ | ∀ i, u i ∉ ball c (ε₁/2)} =
+        rect (ball c (ε₁ / 2))ᶜ N_succ :=
       Eq.symm (Subset.antisymm (fun ⦃a⦄ a i ↦ a i trivial) fun ⦃a⦄ a i a_1 ↦ a i)
-    rw [as_pi] at hc
-    clear as_pi
+    rw [as_rect] at hc
+    clear as_rect
 
-    set S := (univ.pi fun x ↦ (ball c (ε₁ / 2))ᶜ)
+    set S := rect (ball c (ε₁ / 2))ᶜ N_succ
     set E := set_dist_max hf_tilde δ
 
     /- Finally, it is enough to show that any sequence that does not belong in `B(c, ε₁/2)`
@@ -298,11 +298,11 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
       /- We use the fact that, as `f and f~` are indistinguishable outside `B(c, ε₁/2)`,
         `A.measure f (N+1) {u | u ∉ B(c, ε₁/2)} = A.measure f~ (N+1) {u | u ∉ B(c, ε₁/2)}`
         (See `Algorithm.eq_restrict` in `Algorithm.lean`). -/
-      have measure_eq_f_set : A.fin_measure hfm S = A.fin_measure hf_tildem S := by
-        suffices (A.fin_measure hfm).restrict S S = (A.fin_measure hf_tildem).restrict S S by
-          rw [(A.fin_measure hfm).restrict_apply_self S] at this
-          rwa [(A.fin_measure hf_tildem).restrict_apply_self S] at this
-        suffices (A.fin_measure hfm).restrict S = (A.fin_measure hf_tildem).restrict S by
+      have measure_eq_f_set : A.fin_measure _ hfm S = A.fin_measure _ hf_tildem S := by
+        suffices (A.fin_measure _ hfm).restrict S S = (A.fin_measure _ hf_tildem).restrict S S by
+          rw [(A.fin_measure _ hfm).restrict_apply_self S] at this
+          rwa [(A.fin_measure _ hf_tildem).restrict_apply_self S] at this
+        suffices (A.fin_measure _ hfm).restrict S = (A.fin_measure _ hf_tildem).restrict S by
           rw [this]
         refine A.eq_restrict hfm hf_tildem ?_ ?_ N_succ
         · exact MeasurableSet.compl_iff.mpr measurableSet_ball
@@ -310,7 +310,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
 
       rw [measure_eq_f_set] at hc
       refine lt_of_le_of_lt' ?_ (lt_of_le_of_lt' hc half_lt_ε₂)
-      exact (A.fin_measure hf_tildem).mono this
+      exact (A.fin_measure _ hf_tildem).mono this
 
     -- This is given by the construction of `δ`.
     intro u hu
