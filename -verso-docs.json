@@ -115,7 +115,7 @@
  "41":
  "<code>max_min_dist.{u_1} {α : Type u_1} [PseudoMetricSpace α] [CompactSpace α] [Nonempty α] {n : ℕ} (u : iter α n) : ℝ</code><span class=\"sep\"></span><code class=\"docstring\">Given a sequence `u`, maximum over `α` of `min_dist_x u`: the maximum distance between\nany element in `α` and `u`. </code>",
  "40":
- "<code>Tuple.min.{u_1, u_2} {ι : Type u_1} {α : Type u_2} [LinearOrder α] [Fintype ι] [Nonempty ι] (f : ι → α) : α</code>",
+ "<code>Tuple.min.{u_1, u_2} {ι : Type u_1} {α : Type u_2} [LinearOrder α] [Fintype ι] [Nonempty ι] (f : ι → α) : α</code><span class=\"sep\"></span><code class=\"docstring\">The minimum value of a tuple. </code>",
  "4":
  "<code>MeasurableSpace.{u_7} (α : Type u_7) : Type u_7</code><span class=\"sep\"></span><code class=\"docstring\">A measurable space is a space equipped with a σ-algebra. </code>",
  "39": "<code>α</code>",
@@ -133,7 +133,7 @@
  "32":
  "<code>measure_dist_max.{u_1, u_2} {α : Type u_1} [PseudoMetricSpace α] {β : Type u_2} [CompactSpace α] [Nonempty α]\n  [MeasurableSpace α] [MeasurableSpace β] [PseudoMetricSpace β] [OpensMeasurableSpace α] [BorelSpace β] [LinearOrder β]\n  [ClosedIciTopology β] (A : Algorithm α β) {f : α → β} (hf : Lipschitz f) (ε : ℝ) (n : ℕ) : ENNReal</code><span class=\"sep\"></span><code class=\"docstring\">Given an algorithm `A`, the function that, given `ε` and `n`, returns\nthe measure of the set of sequences of size `n + 1` such that the maximum of\n`f` over these sequences is at least `ε` away from from `fmax`. </code>",
  "31":
- "<code>Tuple.max.{u_1, u_2} {ι : Type u_1} {α : Type u_2} [LinearOrder α] [Fintype ι] [Nonempty ι] (f : ι → α) : α</code>",
+ "<code>Tuple.max.{u_1, u_2} {ι : Type u_1} {α : Type u_2} [LinearOrder α] [Fintype ι] [Nonempty ι] (f : ι → α) : α</code><span class=\"sep\"></span><code class=\"docstring\">The maximum value of a tuple. </code>",
  "30":
  "<code>Dist.dist.{u_3} {α : Type u_3} [self : Dist α] : α → α → ℝ</code><span class=\"sep\"></span><code class=\"docstring\">Distance between two points </code>",
  "3": "<code>Type u_2</code>",
