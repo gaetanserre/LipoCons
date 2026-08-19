@@ -117,7 +117,7 @@ lemma LipschitzWith.if {f g : α → ℝ} {c : α} {ε : ℝ} {Kf Kg : ℝ≥0}
   let p := fun a => a ∈ ball c ε
 
   by_cases hxy : ¬ p x ∧ ¬ p y
-  · rw [if_neg hxy.1, if_neg hxy.2]
+  · rw [ite_eq_right hxy.1, ite_eq_right hxy.2]
     rw [lipschitzWith_iff_dist_le_mul] at hf
     specialize hf x y
     suffices Kf * dist x y ≤ (Kf + Kg) * dist x y from le_trans hf this
@@ -127,7 +127,7 @@ lemma LipschitzWith.if {f g : α → ℝ} {c : α} {ε : ℝ} {Kf Kg : ℝ≥0}
     exact mul_le_mul_of_nonneg Kf_le_add (le_refl _) zero_le_coe dist_nonneg
 
   · by_cases hxy' : p x ∧ p y
-    · rw [if_pos hxy'.1, if_pos hxy'.2]
+    · rw [ite_eq_left hxy'.1, ite_eq_left hxy'.2]
       exact lipschitzWith_iff_dist_le_mul.mp (hf.add hg) x y
     · push Not at hxy hxy'
       let φ := fun a => if a ∈ ball c ε then f a + g a else f a
@@ -139,7 +139,7 @@ lemma LipschitzWith.if {f g : α → ℝ} {c : α} {ε : ℝ} {Kf Kg : ℝ≥0}
           rwa [dist_comm, dist_comm x y]
       intro a b hab
       simp only [φ]
-      rw [if_neg hab.1, if_pos hab.2]
+      rw [ite_eq_right hab.1, ite_eq_left hab.2]
       show |f a - (f b + g b)| ≤ (Kf + Kg) * dist a b
       rw [abs_sub_comm]
       suffices h : ∃ e, e ∈ sphere c ε ∧ dist e b ≤ dist a b by

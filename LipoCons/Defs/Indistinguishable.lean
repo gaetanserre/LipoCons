@@ -26,11 +26,11 @@ noncomputable def f_tilde (ε : ℝ) (x : α) :=
 
 lemma f_tilde_apply_out {ε : ℝ} {x : α} (hx : x ∉ ball c (ε/2)) :
     hf.f_tilde c ε x = f x := by
-  simp only [f_tilde, if_neg hx]
+  simp only [f_tilde, ite_eq_right hx]
 
 lemma f_tilde_apply_in {ε : ℝ} {x : α} (hx : x ∈ ball c (ε/2)) :
     hf.f_tilde c ε x = f x + 2 * ((1 - (dist x c) / (ε/2)) * (fmax hf - fmin hf + 1)) := by
-  simp only [f_tilde, if_pos hx]
+  simp only [f_tilde, ite_eq_left hx]
 
 lemma f_tilde_c {ε : ℝ} (ε_pos : 0 < ε) :
     hf.f_tilde c ε c = fmax hf + ((f c - fmin hf) + (fmax hf - fmin hf) + 2) := by
