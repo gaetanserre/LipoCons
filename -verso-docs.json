@@ -1,30 +1,30 @@
 {"99":
- "<code>Lipschitz.max_f_lt_f_tilde_c.{u_1} {α : Type u_1} [NormedAddCommGroup α] [CompactSpace α] [Nonempty α] {f : α → ℝ}\n  (hf : Lipschitz f) (c : α) {ε : ℝ} (ε_pos : 0 &lt; ε) : fmax hf &lt; hf.f_tilde c ε c</code>",
- "98":
  "<code>Lipschitz.dist_left.{u_1} {α : Type u_1} [PseudoMetricSpace α] (y : α) : Lipschitz fun x =&gt; dist x y</code>",
- "97":
+ "98":
  "<code>Lipschitz.div_const.{u_1} {α : Type u_1} [PseudoEMetricSpace α] {f : α → ℝ} (hf : Lipschitz f) {b : ℝ} :\n  Lipschitz fun a =&gt; f a / b</code>",
- "96":
+ "97":
  "<code>lipschitz_const.{u_1, u_2} {α : Type u_1} {β : Type u_2} [PseudoEMetricSpace β] [PseudoEMetricSpace α] {b : β} :\n  Lipschitz fun x =&gt; b</code>",
- "95":
+ "96":
  "<code>Lipschitz.sub.{u_1, u_2} {α : Type u_1} {β : Type u_2} [PseudoEMetricSpace α] {f g : α → β} [SeminormedAddCommGroup β]\n  (hf : Lipschitz f) (hg : Lipschitz g) : Lipschitz (f - g)</code>",
- "94":
+ "95":
  "<code>Lipschitz.mul_const.{u_1} {α : Type u_1} [PseudoEMetricSpace α] {f : α → ℝ} (hf : Lipschitz f) {b : ℝ} :\n  Lipschitz fun a =&gt; f a * b</code>",
- "93":
+ "94":
  "<code>Lipschitz.const_mul.{u_1} {α : Type u_1} [PseudoEMetricSpace α] {f : α → ℝ} (hf : Lipschitz f) {b : ℝ} :\n  Lipschitz fun a =&gt; b * f a</code>",
- "92": "<code>Ne.symm.{u} {α : Sort u} {a b : α} (h : a ≠ b) : b ≠ a</code>",
+ "93": "<code>Ne.symm.{u} {α : Sort u} {a b : α} (h : a ≠ b) : b ≠ a</code>",
+ "92":
+ "<code>half_pos.{u_1} {α : Type u_1} [Semifield α] [PartialOrder α] [PosMulReflectLT α] {a : α} [IsStrictOrderedRing α]\n  (h : 0 &lt; a) : 0 &lt; a / 2</code>",
  "91":
- "<code>half_pos.{u_2} {α : Type u_2} [Semifield α] [PartialOrder α] [PosMulReflectLT α] {a : α} [IsStrictOrderedRing α]\n  (h : 0 &lt; a) : 0 &lt; a / 2</code>",
- "90":
  "<code>ne_of_lt.{u_1} {α : Type u_1} [Preorder α] {a b : α} (h : a &lt; b) : a ≠ b</code>",
+ "90":
+ "<code>CommGroupWithZero.mul_inv_cancel.{u_2} {G₀ : Type u_2} [self : CommGroupWithZero G₀] (a : G₀) : a ≠ 0 → a * a⁻¹ = 1</code><span class=\"sep\"></span><code class=\"docstring\">Every nonzero element of a group with zero is invertible. </code>",
  "9":
  "<code>MeasureTheory.IsProbabilityMeasure.{u_1} {α : Type u_1} {m0 : MeasurableSpace α} (μ : MeasureTheory.Measure α) : Prop</code><span class=\"sep\"></span><code class=\"docstring\">A measure `μ` is called a probability measure if `μ univ = 1`. </code>",
  "89":
- "<code>CommGroupWithZero.mul_inv_cancel.{u_2} {G₀ : Type u_2} [self : CommGroupWithZero G₀] (a : G₀) : a ≠ 0 → a * a⁻¹ = 1</code><span class=\"sep\"></span><code class=\"docstring\">Every nonzero element of a group with zero is invertible. </code>",
- "88":
  "<code class=\"docstring\">`exact e` closes the main goal if its target type matches that of `e`.\n</code>",
- "87":
+ "88":
  "<code class=\"docstring\">`ring` solves equations in *commutative* (semi)rings, allowing for variables in the\nexponent. If the goal is not appropriate for `ring` (e.g. not an equality) `ring_nf` will be\nsuggested. See also `ring1`, which fails if the goal is not an equality.\n\n* `ring!` will use a more aggressive reducibility setting to determine equality of atoms.\n\nExamples:\n```\nexample (n : ℕ) (m : ℤ) : 2^(n+1) * m = 2 * 2^n * m := by ring\nexample (a b : ℤ) (n : ℕ) : (a + b)^(n + 2) = (a^2 + b^2 + a * b + b * a) * (a + b)^n := by ring\nexample (x y : ℕ) : x + id y = y + id x := by ring!\nexample (x : ℕ) (h : x * 2 &gt; 5): x + x &gt; 5 := by ring; assumption -- suggests ring_nf\n```\n</code>",
+ "87":
+ "<code class=\"docstring\">This is the same as `byTactic`, but it uses a different syntax kind. This is\nused by `show` and `suffices` instead of `byTactic` because these syntaxes don't\nsupport arbitrary terms where `byTactic` is accepted. Mathport uses this to e.g.\nsafely find-replace `by exact $e` by `$e` in any context without causing\nincorrect syntax when the full expression is `show $T by exact $e`.\n</code>",
  "86": "<code>ε / 2 / (ε / 2) = 1</code>",
  "85":
  "<code class=\"docstring\">Given a main goal `ctx ⊢ t`, `suffices h : t' from e` replaces the main goal with `ctx ⊢ t'`,\n`e` must have type `t` in the context `ctx, h : t'`.\n\nThe variant `suffices h : t' by tac` is a shorthand for `suffices h : t' from by tac`.\nIf `h :` is omitted, the name `this` is used.\n </code>",
@@ -59,11 +59,11 @@
  "70":
  "<code>fmin.{u_1, u_2} {α : Type u_1} [PseudoMetricSpace α] {β : Type u_2} [CompactSpace α] [Nonempty α] [PseudoMetricSpace β]\n  [LinearOrder β] [ClosedIicTopology β] {f : α → β} (hf : Lipschitz f) : β</code><span class=\"sep\"></span><code class=\"docstring\">The minimum of a Lipschitz function over `α`. </code>",
  "7":
- "<code>MeasureTheory.Measure.{u_6} (α : Type u_6) [MeasurableSpace α] : Type u_6</code><span class=\"sep\"></span><code class=\"docstring\">A measure is defined to be an outer measure that is countably additive on\nmeasurable sets, with the additional assumption that the outer measure is the canonical\nextension of the restricted measure.\n\nThe measure of a set `s`, denoted `μ s`, is an extended nonnegative real. The real-valued version\nis written `μ.real s`.\n</code>",
+ "<code>MeasureTheory.Measure.{u_5} (α : Type u_5) [MeasurableSpace α] : Type u_5</code><span class=\"sep\"></span><code class=\"docstring\">A measure is defined to be an outer measure that is countably additive on\nmeasurable sets, with the additional assumption that the outer measure is the canonical\nextension of the restricted measure.\n\nThe measure of a set `s`, denoted `μ s`, is an extended nonnegative real. The real-valued version\nis written `μ.real s`.\n</code>",
  "69":
  "<code>Metric.ball.{u} {α : Type u} [PseudoMetricSpace α] (x : α) (ε : ℝ) : Set α</code><span class=\"sep\"></span><code class=\"docstring\">`ball x ε` is the set of all points `y` with `dist y x &lt; ε` </code>",
  "68":
- "<code class=\"docstring\">`if c then t else e` is notation for `ite c t e`, \"if-then-else\", which decides to\nreturn `t` or `e` depending on whether `c` is true or false. The explicit argument\n`c : Prop` does not have any actual computational content, but there is an additional\n`[Decidable c]` argument synthesized by typeclass inference which actually\ndetermines how to evaluate `c` to true or false. Write `if h : c then t else e`\ninstead for a \"dependent if-then-else\" `dite`, which allows `t`/`e` to use the fact\nthat `c` is true/false.\n</code>",
+ "<code class=\"docstring\">`if c then t else e` is notation for `ite c t e`, \"if-then-else\", which decides to\nreturn `t` or `e` depending on whether `c` is true or false. The explicit argument\n`c : Prop` does not have any actual computational content, but there is an additional\n`[Decidable c]` argument synthesized by typeclass inference which actually\ndetermines how to evaluate `c` to true or false. Write `if h : c then t else e`\ninstead for a \"dependent if-then-else\" `dite`, which allows `t`/`e` to use the fact\nthat `c` is true/false.\n\n\nConventions for notations in identifiers:\n\n * The recommended spelling of `if c then t else e` in identifiers is `ite` (use `left` for `t` and `right` for `e`).</code>",
  "67":
  "<code>Lipschitz.f_tilde_lipschitz.{u_1} {α : Type u_1} [NormedAddCommGroup α] [CompactSpace α] [Nonempty α] {f : α → ℝ}\n  (hf : Lipschitz f) (c : α) [NormedSpace ℝ α] {ε : ℝ} (ε_pos : 0 &lt; ε) : Lipschitz (hf.f_tilde c ε)</code>",
  "66":
@@ -82,64 +82,64 @@
  "<code>MeasureTheory.Measure α</code><span class=\"sep\"></span><code class=\"docstring\">The initial smeasure over the search space `α`. </code>",
  "59": "<code>CompactSpace α</code>",
  "58":
- "<code>Real : Type</code><span class=\"sep\"></span><code class=\"docstring\">The type `ℝ` of real numbers constructed as equivalence classes of Cauchy sequences of rational\nnumbers. </code>",
- "57":
  "<code>NormedSpace.{u_6, u_7} (𝕜 : Type u_6) (E : Type u_7) [NormedField 𝕜] [SeminormedAddCommGroup E] : Type (max u_6 u_7)</code><span class=\"sep\"></span><code class=\"docstring\">A normed space over a normed field is a vector space endowed with a norm which satisfies the\nequality `‖c • x‖ = ‖c‖ ‖x‖`. We require only `‖c • x‖ ≤ ‖c‖ ‖x‖` in the definition, then prove\n`‖c • x‖ = ‖c‖ ‖x‖` in `norm_smul`.\n\nNote that since this requires `SeminormedAddCommGroup` and not `NormedAddCommGroup`, this\ntypeclass can be used for \"seminormed spaces\" too, just as `Module` can be used for\n\"semimodules\". </code>",
- "56": "<code>NormedSpace ℝ α</code>",
- "55":
- "<code>NormedAddCommGroup.{u_8} (E : Type u_8) : Type u_8</code><span class=\"sep\"></span><code class=\"docstring\">A normed group is an additive group endowed with a norm for which `dist x y = ‖-x + y‖` defines\na metric space structure. </code>",
- "54": "<code>NormedAddCommGroup α</code>",
- "53": "<code>MeasurableSpace α</code>",
- "52":
+ "57": "<code>NormedSpace ℝ α</code>",
+ "56":
+ "<code>NormedAddCommGroup.{u_4} (E : Type u_4) : Type u_4</code><span class=\"sep\"></span><code class=\"docstring\">A normed group is an additive group endowed with a norm for which `dist x y = ‖-x + y‖` defines\na metric space structure. </code>",
+ "55": "<code>NormedAddCommGroup α</code>",
+ "54": "<code>MeasurableSpace α</code>",
+ "53":
  "<code class=\"docstring\">`by tac` constructs a term of the expected type by running the tactic(s) `tac`. </code>",
- "51":
+ "52":
  "<code>Lipschitz.continuous.{u_1, u_2} {α : Type u_1} {β : Type u_2} [PseudoEMetricSpace α] {f : α → β} [PseudoEMetricSpace β]\n  (hf : Lipschitz f) : Continuous f</code>",
- "50": "<code>α → ℝ</code>",
+ "51": "<code>α → ℝ</code>",
+ "50": "<code>Algorithm α ℝ</code>",
  "5":
  "<code>Algorithm.mk.{u_1, u_2} {α : Type u_1} {β : Type u_2} [MeasurableSpace α] [MeasurableSpace β]\n  (ν : MeasureTheory.Measure α) [prob_measure : MeasureTheory.IsProbabilityMeasure ν]\n  (kernel_iter : (n : ℕ) → ProbabilityTheory.Kernel (prod_iter_image α β n) α)\n  [markov_kernel : ∀ (n : ℕ), ProbabilityTheory.IsMarkovKernel (kernel_iter n)] : Algorithm α β</code>",
- "49": "<code>Algorithm α ℝ</code>",
- "48":
+ "49":
  "<code>sample_iff_consistent.{u_1} {α : Type u_1} [MeasurableSpace α] [NormedAddCommGroup α] [NormedSpace ℝ α] [CompactSpace α]\n  [Nonempty α] [OpensMeasurableSpace α] (A : Algorithm α ℝ) :\n  (∀ ⦃f : α → ℝ⦄ (hf : Lipschitz f), sample_whole_space A ⋯) ↔ ∀ ⦃f : α → ℝ⦄ (hf : Lipschitz f), is_consistent A hf</code>",
- "47":
+ "48":
  "<code>Continuous.measurable.{u_1, u_3} {α : Type u_1} {γ : Type u_3} [TopologicalSpace α] [MeasurableSpace α]\n  [OpensMeasurableSpace α] [TopologicalSpace γ] [MeasurableSpace γ] [BorelSpace γ] {f : α → γ} (hf : Continuous f) :\n  Measurable f</code><span class=\"sep\"></span><code class=\"docstring\">A continuous function from an `OpensMeasurableSpace` to a `BorelSpace`\nis measurable. </code>",
- "46":
+ "47":
  "<code>Continuous.{u, v} {X : Type u} {Y : Type v} [TopologicalSpace X] [TopologicalSpace Y] (f : X → Y) : Prop</code><span class=\"sep\"></span><code class=\"docstring\">A function between topological spaces is continuous if the preimage\nof every open set is open. Registered as a structure to make sure it is not unfolded by Lean. </code>",
- "45":
+ "46":
  "<code>Continuous[PseudoMetricSpace.toUniformSpace.toTopologicalSpace, PseudoMetricSpace.toUniformSpace.toTopologicalSpace] f</code>",
- "44":
+ "45":
  "<code>sample_whole_space.{u_1, u_2} {α : Type u_1} [PseudoMetricSpace α] {β : Type u_2} [CompactSpace α] [Nonempty α]\n  [MeasurableSpace α] [MeasurableSpace β] [PseudoMetricSpace β] [OpensMeasurableSpace α] [BorelSpace β]\n  (A : Algorithm α β) {f : α → β} (hf : Continuous f) : Prop</code><span class=\"sep\"></span><code class=\"docstring\">**Main definition**: Given a function `f`, an algorithm `A` sample the whole space\nif `∀ ε &gt; 0, lim_(n → ∞) A.measure f n {u | max_min_dist u &gt; ε} = 0`. </code>",
- "43":
+ "44":
  "<code>min_dist_x_continuous.{u_1} {α : Type u_1} [PseudoMetricSpace α] {n : ℕ} (u : iter α n) : Continuous (min_dist_x u)</code><span class=\"sep\"></span><code class=\"docstring\">For any `(u : iter α n)`, `min_dist_x u` is continuous </code>",
- "42":
+ "43":
  "<code>compact_argmax.{u_1, u_2} {α : Type u_1} {β : Type u_2} [TopologicalSpace α] [Nonempty α] [CompactSpace α]\n  [TopologicalSpace β] [LinearOrder β] {f : α → β} [ClosedIciTopology β] (hf : Continuous f) : α</code>",
- "41":
+ "42":
  "<code>max_min_dist.{u_1} {α : Type u_1} [PseudoMetricSpace α] [CompactSpace α] [Nonempty α] {n : ℕ} (u : iter α n) : ℝ</code><span class=\"sep\"></span><code class=\"docstring\">Given a sequence `u`, maximum over `α` of `min_dist_x u`: the maximum distance between\nany element in `α` and `u`. </code>",
- "40":
+ "41":
  "<code>Tuple.min.{u_1, u_2} {ι : Type u_1} {α : Type u_2} [LinearOrder α] [Fintype ι] [Nonempty ι] (f : ι → α) : α</code><span class=\"sep\"></span><code class=\"docstring\">The minimum value of a tuple. </code>",
+ "40": "<code>α</code>",
  "4":
- "<code>MeasurableSpace.{u_7} (α : Type u_7) : Type u_7</code><span class=\"sep\"></span><code class=\"docstring\">A measurable space is a space equipped with a σ-algebra. </code>",
- "39": "<code>α</code>",
- "38":
+ "<code>MeasurableSpace.{u_6} (α : Type u_6) : Type u_6</code><span class=\"sep\"></span><code class=\"docstring\">A measurable space is a space equipped with a σ-algebra. </code>",
+ "39":
  "<code>min_dist_x.{u_1} {α : Type u_1} [PseudoMetricSpace α] {n : ℕ} (u : iter α n) (x : α) : ℝ</code><span class=\"sep\"></span><code class=\"docstring\">Given a sequence `u` and a element `x`, returns `min_(0 ≤ i &lt; n) dist (u i) x. </code>",
- "37": "<code>ENNReal</code>",
+ "38": "<code>ENNReal</code>",
+ "37":
+ "<code>Filter.atTop.{u_2} {α : Type u_2} [Preorder α] : Filter α</code><span class=\"sep\"></span><code class=\"docstring\">`atTop` is the filter representing the limit `→ ∞` on an ordered set.\nIt is generated by the collection of up-sets `{b | a ≤ b}`.\n(The preorder need not have a top element for this to be well defined,\nand indeed is trivial when a top element `x` exists, i.e., it coincides with `pure x`.) </code>",
  "36":
- "<code>Filter.atTop.{u_3} {α : Type u_3} [Preorder α] : Filter α</code><span class=\"sep\"></span><code class=\"docstring\">`atTop` is the filter representing the limit `→ ∞` on an ordered set.\nIt is generated by the collection of up-sets `{b | a ≤ b}`.\n(The preorder need not have a top element for this to be well defined,\nand indeed is trivial when a top element `x` exists, i.e., it coincides with `pure x`.) </code>",
- "35":
  "<code>Filter.Tendsto.{u_1, u_2} {α : Type u_1} {β : Type u_2} (f : α → β) (l₁ : Filter α) (l₂ : Filter β) : Prop</code><span class=\"sep\"></span><code class=\"docstring\">`Filter.Tendsto` is the generic \"limit of a function\" predicate.\n`Tendsto f l₁ l₂` asserts that for every `l₂` neighborhood `a`,\nthe `f`-preimage of `a` is an `l₁` neighborhood. </code>",
- "34":
+ "35":
  "<code>is_consistent.{u_1, u_2} {α : Type u_1} [PseudoMetricSpace α] {β : Type u_2} [CompactSpace α] [Nonempty α]\n  [MeasurableSpace α] [MeasurableSpace β] [PseudoMetricSpace β] [OpensMeasurableSpace α] [BorelSpace β] [LinearOrder β]\n  [ClosedIciTopology β] (A : Algorithm α β) {f : α → β} (hf : Lipschitz f) : Prop</code><span class=\"sep\"></span><code class=\"docstring\">**Main definition**: An algorithm `A` is consistent over a Lipschitz function `f`\nif for any `ε &gt; 0`, `lim_(n → ∞) measure_dist_max n = 0`. </code>",
- "33":
+ "34":
  "<code>Lipschitz.measurable.{u_1, u_2} {α : Type u_1} {β : Type u_2} [PseudoEMetricSpace α] {f : α → β} [PseudoEMetricSpace β]\n  (hf : Lipschitz f) [MeasurableSpace α] [MeasurableSpace β] [OpensMeasurableSpace α] [BorelSpace β] : Measurable f</code>",
- "32":
+ "33":
  "<code>measure_dist_max.{u_1, u_2} {α : Type u_1} [PseudoMetricSpace α] {β : Type u_2} [CompactSpace α] [Nonempty α]\n  [MeasurableSpace α] [MeasurableSpace β] [PseudoMetricSpace β] [OpensMeasurableSpace α] [BorelSpace β] [LinearOrder β]\n  [ClosedIciTopology β] (A : Algorithm α β) {f : α → β} (hf : Lipschitz f) (ε : ℝ) (n : ℕ) : ENNReal</code><span class=\"sep\"></span><code class=\"docstring\">Given an algorithm `A`, the function that, given `ε` and `n`, returns\nthe measure of the set of sequences of size `n + 1` such that the maximum of\n`f` over these sequences is at least `ε` away from from `fmax`. </code>",
- "31":
+ "32":
  "<code>Tuple.max.{u_1, u_2} {ι : Type u_1} {α : Type u_2} [LinearOrder α] [Fintype ι] [Nonempty ι] (f : ι → α) : α</code><span class=\"sep\"></span><code class=\"docstring\">The maximum value of a tuple. </code>",
- "30":
+ "31":
  "<code>Dist.dist.{u_3} {α : Type u_3} [self : Dist α] : α → α → ℝ</code><span class=\"sep\"></span><code class=\"docstring\">Distance between two points </code>",
- "3": "<code>Type u_2</code>",
- "29":
+ "30":
  "<code>iter.{u_1} (α : Type u_1) (n : ℕ) : Type u_1</code><span class=\"sep\"></span><code class=\"docstring\">`iter α n` is the type of finite sequences of elements in `α` of length `n + 1`.\n\nIt represents the history of `n + 1` steps in an iterative process,\nwith entries indexed by `Fin (n + 1)` (i.e., from `0` to `n`).\n\nUsed in the context of stochastic iterative algorithms to store past evaluations or points. </code>",
- "28": "<code>iter α n</code>",
+ "3": "<code>Type u_2</code>",
+ "29": "<code>iter α n</code>",
+ "28":
+ "<code>Real : Type</code><span class=\"sep\"></span><code class=\"docstring\">The type `ℝ` of real numbers constructed as equivalence classes of Cauchy sequences of rational\nnumbers. </code>",
  "27": "<code>ℝ</code>",
  "26":
  "<code>Lipschitz.{u_1, u_2} {α : Type u_1} {β : Type u_2} [PseudoEMetricSpace α] [PseudoEMetricSpace β] (f : α → β) : Prop</code><span class=\"sep\"></span><code class=\"docstring\">A wrapper around `LipschitzWith` of Mathlib. A function is `Lipschitz` if it exists\na `K : ℝ≥0` such that `LipschitzWith K f`. </code>",
@@ -169,36 +169,38 @@
  "13":
  "<code>(n : ℕ) → ProbabilityTheory.Kernel (prod_iter_image α β n) α</code><span class=\"sep\"></span><code class=\"docstring\">The kernels that defines how to sample the next point based on the history of points\nand evaluations. </code>",
  "12": "<code>MeasureTheory.Measure α</code>",
- "115":
+ "116":
  "<code class=\"docstring\">`linarith` attempts to find a contradiction between hypotheses that are linear (in)equalities.\nEquivalently, it can prove a linear inequality by assuming its negation and proving `False`.\n\nIn theory, `linarith` should prove any goal that is true in the theory of linear arithmetic over\nthe rationals. While there is some special handling for non-dense orders like `Nat` and `Int`,\nthis tactic is not complete for these theories and will not prove every true goal. It will solve\ngoals over arbitrary types that instantiate `CommRing`, `LinearOrder` and `IsStrictOrderedRing`.\n\nAn example:\n```lean\nexample (x y z : ℚ) (h1 : 2*x &lt; 3*y) (h2 : -4*x + 2*z &lt; 0)\n        (h3 : 12*y - 4* z &lt; 0) : False := by\n  linarith\n```\n\n`linarith` will use all appropriate hypotheses and the negation of the goal, if applicable.\nDisequality hypotheses require case splitting and are not normally considered\n(see the `splitNe` option below).\n\n`linarith [t1, t2, t3]` will additionally use proof terms `t1, t2, t3`.\n\n`linarith only [h1, h2, h3, t1, t2, t3]` will use only the goal (if relevant), local hypotheses\n`h1`, `h2`, `h3`, and proofs `t1`, `t2`, `t3`. It will ignore the rest of the local context.\n\n`linarith!` will use a stronger reducibility setting to try to identify atoms. For example,\n```lean\nexample (x : ℚ) : id x ≥ x := by\n  linarith\n```\nwill fail, because `linarith` will not identify `x` and `id x`. `linarith!` will.\nThis can sometimes be expensive.\n\n`linarith (config := { .. })` takes a config object with five\noptional arguments:\n* `discharger` specifies a tactic to be used for reducing an algebraic equation in the\n  proof stage. The default is `ring`. Other options include `simp` for basic\n  problems.\n* `transparency` controls how hard `linarith` will try to match atoms to each other. By default\n  it will only unfold `reducible` definitions.\n* If `splitHypotheses` is true, `linarith` will split conjunctions in the context into separate\n  hypotheses.\n* If `splitNe` is `true`, `linarith` will case split on disequality hypotheses.\n  For a given `x ≠ y` hypothesis, `linarith` is run with both `x &lt; y` and `x &gt; y`,\n  and so this runs linarith exponentially many times with respect to the number of\n  disequality hypotheses. (`false` by default.)\n* If `exfalso` is `false`, `linarith` will fail when the goal is neither an inequality nor `False`.\n  (`true` by default.)\n* If `minimize` is `false`, `linarith?` will report all hypotheses appearing in its initial\n  proof without attempting to drop redundancies. (`true` by default.)\n* `restrict_type` (not yet implemented in mathlib4)\n  will only use hypotheses that are inequalities over `tp`. This is useful\n  if you have e.g. both integer- and rational-valued inequalities in the local context, which can\n  sometimes confuse the tactic.\n\nA variant, `nlinarith`, does some basic preprocessing to handle some nonlinear goals.\n\nThe option `set_option trace.linarith true` will trace certain intermediate stages of the `linarith`\nroutine.\n</code>",
- "114": "<code>fmax hf &lt; fmax ⋯</code>",
- "113": "<code>fmax ⋯ ≤ fmax hf</code>",
- "112":
+ "115": "<code>fmax hf &lt; fmax ⋯</code>",
+ "114": "<code>fmax ⋯ ≤ fmax hf</code>",
+ "113":
  "<code>LE.le.{u} {α : Type u} [self : LE α] : α → α → Prop</code><span class=\"sep\"></span><code class=\"docstring\">The less-equal relation: `x ≤ y` \n\nConventions for notations in identifiers:\n\n * The recommended spelling of `≤` in identifiers is `le`.</code>",
- "111":
+ "112":
  "<code>Lipschitz.f_tilde_apply_out.{u_1} {α : Type u_1} [NormedAddCommGroup α] [CompactSpace α] [Nonempty α] {f : α → ℝ}\n  (hf : Lipschitz f) (c : α) {ε : ℝ} {x : α} (hx : x ∉ ball c (ε / 2)) : hf.f_tilde c ε x = f x</code>",
- "110":
+ "111":
  "<code class=\"docstring\">The `simp` tactic uses lemmas and hypotheses to simplify the main goal target or\nnon-dependent hypotheses. It has many variants:\n- `simp` simplifies the main goal target using lemmas tagged with the attribute `[simp]`.\n- `simp [h₁, h₂, ..., hₙ]` simplifies the main goal target using the lemmas tagged\n  with the attribute `[simp]` and the given `hᵢ`'s, where the `hᵢ`'s are expressions.-\n- If an `hᵢ` is a defined constant `f`, then `f` is unfolded. If `f` has equational lemmas associated\n  with it (and is not a projection or a `reducible` definition), these are used to rewrite with `f`.\n- `simp [*]` simplifies the main goal target using the lemmas tagged with the\n  attribute `[simp]` and all hypotheses.\n- `simp only [h₁, h₂, ..., hₙ]` is like `simp [h₁, h₂, ..., hₙ]` but does not use `[simp]` lemmas.\n- `simp [-id₁, ..., -idₙ]` simplifies the main goal target using the lemmas tagged\n  with the attribute `[simp]`, but removes the ones named `idᵢ`.\n- `simp at h₁ h₂ ... hₙ` simplifies the hypotheses `h₁ : T₁` ... `hₙ : Tₙ`. If\n  the target or another hypothesis depends on `hᵢ`, a new simplified hypothesis\n  `hᵢ` is introduced, but the old one remains in the local context.\n- `simp at *` simplifies all the hypotheses and the target.\n- `simp [*] at *` simplifies target and all (propositional) hypotheses using the\n  other hypotheses.\n</code>",
+ "110":
+ "<code class=\"docstring\">The `have` tactic is for adding opaque definitions and hypotheses to the local context of the main goal.\nThe definitions forget their associated value and cannot be unfolded, unlike definitions added by the `let` tactic.\n\n* `have h : t := e` adds the hypothesis `h : t` if `e` is a term of type `t`.\n* `have h := e` uses the type of `e` for `t`.\n* `have : t := e` and `have := e` use `this` for the name of the hypothesis.\n* `have pat := e` for a pattern `pat` is equivalent to `match e with | pat =&gt; _`,\n  where `_` stands for the tactics that follow this one.\n  It is convenient for types that have only one applicable constructor.\n  For example, given `h : p ∧ q ∧ r`, `have ⟨h₁, h₂, h₃⟩ := h` produces the\n  hypotheses `h₁ : p`, `h₂ : q`, and `h₃ : r`.\n* The syntax `have (eq := h) pat := e` is equivalent to `match h : e with | pat =&gt; _`,\n  which adds the equation `h : e = pat` to the local context.\n\nThe tactic supports all the same syntax variants and options as the `have` term.\n\n## Properties and relations\n\n* It is not possible to unfold a variable introduced using `have`, since the definition's value is forgotten.\n  The `let` tactic introduces definitions that can be unfolded.\n* The `have h : t := e` is like doing `let h : t := e; clear_value h`.\n* The `have` tactic is preferred for propositions, and `let` is preferred for non-propositions.\n* Sometimes `have` is used for non-propositions to ensure that the variable is never unfolded,\n  which may be important for performance reasons.\n    Consider using the equivalent `let +nondep` to indicate the intent.\n\n</code>",
  "11":
  "<code>Algorithm.ν.{u_1, u_2} {α : Type u_1} {β : Type u_2} [MeasurableSpace α] [MeasurableSpace β] (self : Algorithm α β) :\n  MeasureTheory.Measure α</code><span class=\"sep\"></span><code class=\"docstring\">The initial smeasure over the search space `α`. </code>",
  "109":
- "<code class=\"docstring\">The `have` tactic is for adding opaque definitions and hypotheses to the local context of the main goal.\nThe definitions forget their associated value and cannot be unfolded, unlike definitions added by the `let` tactic.\n\n* `have h : t := e` adds the hypothesis `h : t` if `e` is a term of type `t`.\n* `have h := e` uses the type of `e` for `t`.\n* `have : t := e` and `have := e` use `this` for the name of the hypothesis.\n* `have pat := e` for a pattern `pat` is equivalent to `match e with | pat =&gt; _`,\n  where `_` stands for the tactics that follow this one.\n  It is convenient for types that have only one applicable constructor.\n  For example, given `h : p ∧ q ∧ r`, `have ⟨h₁, h₂, h₃⟩ := h` produces the\n  hypotheses `h₁ : p`, `h₂ : q`, and `h₃ : r`.\n* The syntax `have (eq := h) pat := e` is equivalent to `match h : e with | pat =&gt; _`,\n  which adds the equation `h : e = pat` to the local context.\n\nThe tactic supports all the same syntax variants and options as the `have` term.\n\n## Properties and relations\n\n* It is not possible to unfold a variable introduced using `have`, since the definition's value is forgotten.\n  The `let` tactic introduces definitions that can be unfolded.\n* The `have h : t := e` is like doing `let h : t := e; clear_value h`.\n* The `have` tactic is preferred for propositions, and `let` is preferred for non-propositions.\n* Sometimes `have` is used for non-propositions to ensure that the variable is never unfolded,\n  which may be important for performance reasons.\n    Consider using the equivalent `let +nondep` to indicate the intent.\n\n</code>",
- "108":
  "<code>False : Prop</code><span class=\"sep\"></span><code class=\"docstring\">`False` is the empty proposition. Thus, it has no introduction rules.\nIt represents a contradiction. `False` elimination rule, `False.rec`,\nexpresses the fact that anything follows from a contradiction.\nThis rule is sometimes called ex falso (short for ex falso sequitur quodlibet),\nor the principle of explosion.\nFor more information: [Propositional Logic](https://lean-lang.org/theorem_proving_in_lean4/propositions_and_proofs.html#propositional-logic)\n</code>",
- "107": "<code>x' ∉ ball c (ε / 2)</code>",
+ "108": "<code>x' ∉ ball c (ε / 2)</code>",
+ "107":
+ "<code class=\"docstring\">`by_contra h` proves `⊢ p` by contradiction,\nintroducing a hypothesis `h : ¬p` and proving `False`.\n* If `p` is a negation `¬q`, `h : q` will be introduced instead of `¬¬q`.\n* If `p` is decidable, it uses `Decidable.byContradiction` instead of `Classical.byContradiction`.\n* If `h` is omitted, the introduced variable will be called `this`.\n* `h` can be any pattern supported by `rcases`/`rintro`.\n</code>",
  "106":
- "<code class=\"docstring\">`by_contra h` proves `⊢ p` by contradiction,\nintroducing a hypothesis `h : ¬p` and proving `False`.\n* If `p` is a negation `¬q`, `h : q` will be introduced instead of `¬¬q`.\n* If `p` is decidable, it uses `Decidable.byContradiction` instead of `Classical.byContradiction`.\n* If `h` is omitted, the introduced variable will be called `this`.\n</code>",
- "105":
  "<code class=\"docstring\">`set a := t with h` is a variant of `let a := t`. It adds the hypothesis `h : a = t` to\nthe local context and replaces `t` with `a` everywhere it can.\n\n`set a := t with ← h` will add `h : t = a` instead.\n\n`set! a := t with h` does not do any replacing.\n\n```lean\nexample (x : Nat) (h : x + x - x = 3) : x + x - x = 3 := by\n  set y := x with ← h2\n  sorry\n/-\nx : Nat\ny : Nat := x\nh : y + y - y = 3\nh2 : x = y\n⊢ y + y - y = 3\n-/\n```\n</code>",
- "104":
+ "105":
  "<code>Lipschitz.max_f_tilde_in_ball.{u_1} {α : Type u_1} [NormedAddCommGroup α] [CompactSpace α] [Nonempty α] {f : α → ℝ}\n  (hf : Lipschitz f) (c : α) [NormedSpace ℝ α] {ε : ℝ} (ε_pos : 0 &lt; ε) : compact_argmax ⋯ ∈ ball c (ε / 2)</code>",
- "103":
+ "104":
  "<code>compact_argmax_apply.{u_1, u_2} {α : Type u_1} {β : Type u_2} [TopologicalSpace α] [Nonempty α] [CompactSpace α]\n  [TopologicalSpace β] [LinearOrder β] {f : α → β} [ClosedIciTopology β] (hf : Continuous f) (y : α) :\n  f y ≤ f (compact_argmax hf)</code>",
- "102":
+ "103":
  "<code>lt_of_le_of_lt'.{u_1} {α : Type u_1} [Preorder α] {a b c : α} (hab : b ≤ a) (hbc : c &lt; b) : c &lt; a</code>",
- "101": "<code>fmax hf &lt; hf.f_tilde c ε c</code>",
- "100":
+ "102": "<code>fmax hf &lt; hf.f_tilde c ε c</code>",
+ "101":
  "<code>Lipschitz.max_f_lt_max_f_tilde.{u_1} {α : Type u_1} [NormedAddCommGroup α] [CompactSpace α] [Nonempty α] {f : α → ℝ}\n  (hf : Lipschitz f) (c : α) [NormedSpace ℝ α] {ε : ℝ} (ε_pos : 0 &lt; ε) : fmax hf &lt; fmax ⋯</code>",
+ "100":
+ "<code>Lipschitz.max_f_lt_f_tilde_c.{u_1} {α : Type u_1} [NormedAddCommGroup α] [CompactSpace α] [Nonempty α] {f : α → ℝ}\n  (hf : Lipschitz f) (c : α) {ε : ℝ} (ε_pos : 0 &lt; ε) : fmax hf &lt; hf.f_tilde c ε c</code>",
  "10": "<code>Algorithm α β</code>",
  "1": "<code>Type u_1</code>",
  "0":
