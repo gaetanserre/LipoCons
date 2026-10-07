@@ -3,9 +3,12 @@ Copyright (c) 2026 Gaëtan Serré. All rights reserved.
 Released under MIT license as described in the file LICENSE.
 Authors: Gaëtan Serré
 -/
+module
 
-import Mathlib.Topology.Compactness.Compact
-import Mathlib.Topology.MetricSpace.Pseudo.Defs
+public import Mathlib.Topology.Compactness.Compact
+public import Mathlib.Topology.MetricSpace.Pseudo.Defs
+
+@[expose] public section
 
 /-! The subtype of positive natural numbers. -/
 abbrev pos_nat := {n : ℕ // 0 < n}

@@ -10,10 +10,12 @@ autoImplicit = false
 [[require]]
 name = "verso"
 git = "https://github.com/leanprover/verso"
+rev = "main"
 
 [[require]]
 name = "leango"
 git = "https://github.com/gaetanserre/LeanGO"
+rev = "main"
 
 [[require]]
 name = "mathlib"

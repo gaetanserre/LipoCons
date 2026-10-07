@@ -3,8 +3,11 @@ Copyright (c) 2026 Gaëtan Serré. All rights reserved.
 Released under MIT license as described in the file LICENSE.
 Authors: Gaëtan Serré
 -/
+module
 
-import Mathlib.Topology.MetricSpace.Pseudo.Defs
+public import Mathlib.Topology.MetricSpace.Pseudo.Defs
+
+@[expose] public section
 
 namespace Metric
 

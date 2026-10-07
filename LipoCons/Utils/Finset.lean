@@ -3,8 +3,11 @@ Copyright (c) 2026 Gaëtan Serré. All rights reserved.
 Released under MIT license as described in the file LICENSE.
 Authors: Gaëtan Serré
 -/
+module
 
-import Mathlib.Data.Finset.Max
+public import Mathlib.Data.Finset.Max
+
+@[expose] public section
 
 namespace Finset
 

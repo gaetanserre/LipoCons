@@ -3,7 +3,11 @@ Copyright (c) 2026 Gaëtan Serré. All rights reserved.
 Released under MIT license as described in the file LICENSE.
 Authors: Gaëtan Serré
 -/
-import Mathlib.Analysis.Normed.Order.Lattice
+module
+
+public import Mathlib.Analysis.Normed.Order.Lattice
+
+@[expose] public section
 
 open Set
 

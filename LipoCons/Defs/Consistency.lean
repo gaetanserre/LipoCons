@@ -3,11 +3,14 @@ Copyright (c) 2026 Gaëtan Serré. All rights reserved.
 Released under MIT license as described in the file LICENSE.
 Authors: Gaëtan Serré
 -/
+module
 
-import LeanGO.Algorithm
-import LipoCons.Defs.Lipschitz
-import LipoCons.Utils.Compact
-import Mathlib.Analysis.Normed.Order.Lattice
+public import LeanGO.Algorithm
+public import LipoCons.Defs.Lipschitz
+public import LipoCons.Utils.Compact
+public import Mathlib.Analysis.Normed.Order.Lattice
+
+@[expose] public section
 
 variable {α : Type*} [PseudoMetricSpace α]
 

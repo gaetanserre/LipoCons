@@ -3,9 +3,12 @@ Copyright (c) 2026 Gaëtan Serré. All rights reserved.
 Released under MIT license as described in the file LICENSE.
 Authors: Gaëtan Serré
 -/
+module
 
-import Mathlib.MeasureTheory.Measure.Typeclasses.Probability
-import Mathlib.Order.CompletePartialOrder
+public import Mathlib.MeasureTheory.Measure.Typeclasses.Probability
+public import Mathlib.Order.CompletePartialOrder
+
+@[expose] public section
 
 open ENNReal MeasureTheory
 

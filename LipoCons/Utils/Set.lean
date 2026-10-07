@@ -3,9 +3,12 @@ Copyright (c) 2026 Gaëtan Serré. All rights reserved.
 Released under MIT license as described in the file LICENSE.
 Authors: Gaëtan Serré
 -/
+module
 
-import Mathlib.Order.CompletePartialOrder
-import Mathlib.Topology.Algebra.InfiniteSum.Basic
+public import Mathlib.Order.CompletePartialOrder
+public import Mathlib.Topology.Algebra.InfiniteSum.Basic
+
+@[expose] public section
 
 namespace Set
 

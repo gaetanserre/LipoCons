@@ -3,10 +3,13 @@ Copyright (c) 2026 Gaëtan Serré. All rights reserved.
 Released under MIT license as described in the file LICENSE.
 Authors: Gaëtan Serré
 -/
+module
 
-import Mathlib.Analysis.Normed.Module.Convex
-import Mathlib.Analysis.Normed.Order.Lattice
-import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
+public import Mathlib.Analysis.Normed.Module.Convex
+public import Mathlib.Analysis.Normed.Order.Lattice
+public import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
+
+@[expose] public section
 
 open NNReal MeasureTheory
 
