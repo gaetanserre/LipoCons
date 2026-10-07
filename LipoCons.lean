@@ -3,14 +3,17 @@ Copyright (c) 2026 Gaëtan Serré. All rights reserved.
 Released under MIT license as described in the file LICENSE.
 Authors: Gaëtan Serré
 -/
+module
 
-import LipoCons.Utils.ECover
-import LipoCons.Utils.ENNReal
-import LipoCons.Utils.Finset
-import LipoCons.Utils.Metric
-import LipoCons.Defs.Indistinguishable
-import Mathlib.Analysis.RCLike.Basic
-import Mathlib.MeasureTheory.Constructions.BorelSpace.Metric
+public import LipoCons.Utils.ECover
+public import LipoCons.Utils.ENNReal
+public import LipoCons.Utils.Finset
+public import LipoCons.Utils.Metric
+public import LipoCons.Defs.Indistinguishable
+public import Mathlib.Analysis.RCLike.Basic
+public import Mathlib.MeasureTheory.Constructions.BorelSpace.Metric
+
+@[expose] public section
 
 /-! Here, we prove that an iterative stochastic global optimization algorithm
 is consistent over Lipschitz functions if and only if it, for any Lipschitz function,
