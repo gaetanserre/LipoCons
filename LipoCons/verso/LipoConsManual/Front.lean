@@ -31,7 +31,7 @@ More formally, *Proposition 3* states that, for any stochastic iterative global 
 1. For any Lipschitz function $`f` defined on $`\mathcal{X}`,
   $$`\max_{i = 0 \dots n} f(X_i) \xrightarrow{p} \max_{x \in \mathcal{X}} f(x).`
 
-Here $`\mathcal{X} \subset \mathbb{R}^d` is compact, $`(X_i)_{1 \le i \le n}` are the samples produced by the algorithm $`A` after $`n` iterations, and $`\xrightarrow{p}` denotes the convergence in probability.
+Here $`\mathcal{X} \subset \mathbb{R}^d` is compact, $`(X_i)_{1 \le i \le n}` are the samples produced by the algorithm $`A` after $`n` iterations, and $`\xrightarrow{p}` denotes the convergence in probability. The formalization holds more generally for any nonempty compact (pseudo)metric space $`\mathcal{X}`, which includes the compact subsets of $`\mathbb{R}^d`.
 
 One can see that *(2)* is a popular definition of the consistency of a stochastic iterative global optimization algorithm while *(1)* means that $`A` samples the whole domain $`\mathcal{X}`.
 

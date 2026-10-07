@@ -17,7 +17,7 @@ located in `LipoCons.lean`. -/
 
 open Metric Tuple MeasureTheory Set ENNReal
 
-variable {α : Type*} [MeasurableSpace α] [NormedAddCommGroup α] [NormedSpace ℝ α]
+variable {α : Type*} [MeasurableSpace α] [PseudoMetricSpace α]
   [CompactSpace α] [Nonempty α] [OpensMeasurableSpace α]
 
 -- ANCHOR: sample_iff_consistent

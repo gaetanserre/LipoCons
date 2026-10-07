@@ -21,13 +21,13 @@ set_option verso.exampleModule "LipoCons.Defs.Indistinguishable"
 htmlSplit := .never
 %%%
 
-Given a Lipschitz function $`f` on a compact domain $`\alpha`, a positive real number $`\varepsilon`, and an element of $`\alpha` $`c`, we construct a new Lipschitz function $`\tilde{f}` such that $`f = \tilde{f}` outside of the ball centered at $`c` with radius $`\varepsilon/2`, and such that the maximum value of $`\tilde{f}` is inside this ball and is strictly greater than the maximum value of $`f`.
+Given a Lipschitz function $`f` on a compact (pseudo)metric space $`\alpha`, a positive real number $`\varepsilon`, and an element of $`\alpha` $`c`, we construct a new Lipschitz function $`\tilde{f}` such that $`f = \tilde{f}` outside of the ball centered at $`c` with radius $`\varepsilon/2`, and such that the maximum value of $`\tilde{f}` is inside this ball and is strictly greater than the maximum value of $`f`.
 
 # Expression
 We define the function $`\tilde{f}` as follows:
 $$`
 \tilde{f}(x) \triangleq \begin{cases}
-  f (x) + 2 \cdot \left(1 - \frac{\|x - c\|}{\varepsilon / 2} \right) \cdot (\max_{x \in \alpha} f(x) - \min_{x \in \alpha} f(x) + 1) & \text{if } x \in B(c, \varepsilon / 2) \\
+  f (x) + 2 \cdot \left(1 - \frac{d(x, c)}{\varepsilon / 2} \right) \cdot (\max_{x \in \alpha} f(x) - \min_{x \in \alpha} f(x) + 1) & \text{if } x \in B(c, \varepsilon / 2) \\
   f (x) & \text{otherwise}
 \end{cases}
 `
@@ -46,16 +46,23 @@ noncomputable def f_tilde (ε : ℝ) (x : α) :=
 ```
 
 # Lipschitz property
-We show that $`\tilde{f}` is Lipschitz continuous. The proof relies on the fact that $`\tilde{f}` is a cases function of two Lipschitz functions that are equal on the frontier of the ball $`B(c, \varepsilon / 2)`.
+We show that $`\tilde{f}` is Lipschitz continuous. Writing $`\tilde{f} = f + g` on $`B(c, \varepsilon / 2)` and $`\tilde{f} = f` elsewhere, the Lipschitz function $`g` is nonnegative inside the ball and nonpositive outside of it. Hence $`\tilde{f} = f + \max(g, 0)`, which is Lipschitz as a sum of Lipschitz functions (see {name LipschitzWith.if}`LipschitzWith.if`). This argument only uses the metric structure of $`\alpha`: no vector space structure is required.
 ```anchor f_tilde_lipschitz
 lemma f_tilde_lipschitz {ε : ℝ} (ε_pos : 0 < ε) : Lipschitz (hf.f_tilde c ε) := by
-  refine hf.if ?_ ?_
+  have hK : 0 ≤ fmax hf - fmin hf + 1 := by
+    have : 0 ≤ fmax hf - fmin hf := compact_argmax_sub_argmin_pos hf.continuous
+    linarith
+  refine hf.if ?_ ?_ ?_
   · intro a ha
-    rw [ha]
-    suffices h : ε / 2 / (ε / 2) = 1 by
-      rw [h]
-      ring
-    exact CommGroupWithZero.mul_inv_cancel _ ((ne_of_lt (half_pos ε_pos)).symm)
+    have : dist a c / (ε / 2) < 1 := (div_lt_one (half_pos ε_pos)).mpr (mem_ball.mp ha)
+    have : 0 ≤ (1 - dist a c / (ε / 2)) * (fmax hf - fmin hf + 1) := mul_nonneg (by linarith) hK
+    linarith
+  · intro a ha
+    have : 1 ≤ dist a c / (ε / 2) :=
+      (one_le_div (half_pos ε_pos)).mpr (not_lt.mp (mt mem_ball.mpr ha))
+    have : (1 - dist a c / (ε / 2)) * (fmax hf - fmin hf + 1) ≤ 0 :=
+      mul_nonpos_of_nonpos_of_nonneg (by linarith) hK
+    linarith
   · refine const_mul <| mul_const <| sub lipschitz_const ?_
     exact div_const (dist_left c)
 ```

@@ -26,7 +26,7 @@ Please refer to
 
 open Metric Tuple MeasureTheory Set ENNReal
 
-variable {α : Type*} [MeasurableSpace α] [NormedAddCommGroup α] [NormedSpace ℝ α]
+variable {α : Type*} [MeasurableSpace α] [PseudoMetricSpace α]
   [CompactSpace α] [Nonempty α] [OpensMeasurableSpace α]
 
 theorem sample_iff_consistent (A : Algorithm α ℝ) :
@@ -139,7 +139,7 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
                 exact MeasurableSet.univ_pi
                   (fun i => MeasurableSet.compl_iff.mpr measurableSet_ball)
               ext _
-              simp_all only [S, mem_setOf_eq, mem_pi, mem_univ, mem_compl_iff, mem_ball,
+              simp_all only [S, mem_ofPred_eq, mem_pi, mem_univ, mem_compl_iff, mem_ball,
                 not_lt, forall_const]
             exact lt_of_le_of_lt
               (A.fin_measure_mono (measurable_S n) (measurable_S m) hnm this hfm) hn
@@ -320,3 +320,12 @@ theorem sample_iff_consistent (A : Algorithm α ℝ) :
     show dist (Tuple.max (f_tilde ∘ u)) (fmax hf_tilde) > δ
     rw [← argmax_spec]
     exact hδ (u <| argmax (f_tilde ∘ u)) (hu _ trivial)
+
+/-- Sanity check: `sample_iff_consistent` applies to the setting of the paper, i.e. any nonempty
+compact subset of `ℝ^d` (here with the sup distance, which yields the same Lipschitz functions and
+the same notion of sampling the whole space as the Euclidean one). -/
+example {d : ℕ} (K : Set (Fin d → ℝ)) [CompactSpace K] [Nonempty K] (A : Algorithm K ℝ) :
+    (∀ ⦃f : K → ℝ⦄, (hf : Lipschitz f) → sample_whole_space A hf.continuous)
+    ↔
+    (∀ ⦃f : K → ℝ⦄, (hf : Lipschitz f) → is_consistent A hf) :=
+  sample_iff_consistent A

@@ -5,8 +5,8 @@ Authors: Gaëtan Serré
 -/
 module
 
-public import Mathlib.Analysis.Normed.Module.Convex
 public import Mathlib.Analysis.Normed.Order.Lattice
+public import Mathlib.Analysis.Normed.Field.Basic
 public import Mathlib.MeasureTheory.Constructions.BorelSpace.Basic
 
 @[expose] public section
@@ -107,89 +107,24 @@ variable [PseudoEMetricSpace β]
 lemma lipschitz_const [PseudoEMetricSpace α] {b : β} :
     Lipschitz (fun _ : α => b) := ⟨0, LipschitzWith.const b⟩
 
-variable [NormedAddCommGroup α] [NormedSpace ℝ α]
-open Metric Set unitInterval
-
-lemma LipschitzWith.if {f g : α → ℝ} {c : α} {ε : ℝ} {Kf Kg : ℝ≥0}
-    [∀ a, Decidable (a ∈ ball c ε)] (hp : ∀ a ∈ sphere c ε, g a = 0)
+/-- Adding `g` to `f` only where `p` holds preserves the Lipschitz property, provided `g` is
+nonnegative where `p` holds and nonpositive elsewhere: the resulting function is then
+`f + max g 0`. This holds in any (pseudo-e)metric space. -/
+lemma LipschitzWith.if [PseudoEMetricSpace α] {f g : α → ℝ} {p : α → Prop} [DecidablePred p]
+    {Kf Kg : ℝ≥0} (hpos : ∀ a, p a → 0 ≤ g a) (hneg : ∀ a, ¬ p a → g a ≤ 0)
     (hf : LipschitzWith Kf f) (hg : LipschitzWith Kg g) :
-    LipschitzWith (Kf + Kg) (fun a => if a ∈ ball c ε then f a + g a else f a) := by
+    LipschitzWith (Kf + Kg) (fun a => if p a then f a + g a else f a) := by
+  have : (fun a => if p a then f a + g a else f a) = fun a => f a + max (g a) 0 := by
+    ext a
+    by_cases ha : p a
+    · rw [ite_eq_left ha, max_eq_left (hpos a ha)]
+    · rw [ite_eq_right ha, max_eq_right (hneg a ha), add_zero]
+  rw [this]
+  exact hf.add (hg.max_const 0)
 
-  rw [lipschitzWith_iff_dist_le_mul]
-  intro x y
-  let p := fun a => a ∈ ball c ε
-
-  by_cases hxy : ¬ p x ∧ ¬ p y
-  · rw [ite_eq_right hxy.1, ite_eq_right hxy.2]
-    rw [lipschitzWith_iff_dist_le_mul] at hf
-    specialize hf x y
-    suffices Kf * dist x y ≤ (Kf + Kg) * dist x y from le_trans hf this
-    have Kf_le_add : (Kf : ℝ) ≤ Kf + Kg := by
-      show Kf ≤ Kf + Kg
-      exact le_self_add
-    exact mul_le_mul_of_nonneg Kf_le_add (le_refl _) zero_le_coe dist_nonneg
-
-  · by_cases hxy' : p x ∧ p y
-    · rw [ite_eq_left hxy'.1, ite_eq_left hxy'.2]
-      exact lipschitzWith_iff_dist_le_mul.mp (hf.add hg) x y
-    · push Not at hxy hxy'
-      let φ := fun a => if a ∈ ball c ε then f a + g a else f a
-      suffices ∀ a b, ¬ p a ∧ p b → dist (φ a) (φ b) ≤ (Kf + Kg) * dist a b by
-        by_cases hx : ¬ p x
-        · exact this x y ⟨hx, hxy hx⟩
-        · push Not at hx
-          specialize this y x ⟨hxy' hx, hx⟩
-          rwa [dist_comm, dist_comm x y]
-      intro a b hab
-      simp only [φ]
-      rw [ite_eq_right hab.1, ite_eq_left hab.2]
-      show |f a - (f b + g b)| ≤ (Kf + Kg) * dist a b
-      rw [abs_sub_comm]
-      suffices h : ∃ e, e ∈ sphere c ε ∧ dist e b ≤ dist a b by
-        let e := h.choose
-        have : f b + g b - f a = f b - f a + g b := by ring
-        rw [this]
-        clear this
-        calc _ ≤ |f b - f a| + |g b| := abs_add_le _ _
-        _ ≤ Kf * dist b a + |g b| := by
-          rw [lipschitzWith_iff_dist_le_mul] at hf
-          exact add_le_add_left (hf b a) _
-        _ = Kf * dist a b + |g b| := by rw [dist_comm]
-        _ = Kf * dist a b + |g b - g e| := by
-          rw [hp h.choose h.choose_spec.1]
-          simp only [sub_zero]
-        _ ≤ Kf * dist a b + Kg * dist b e := by
-          rw [lipschitzWith_iff_dist_le_mul] at hg
-          exact (add_le_add_iff_left (Kf * dist a b)).mpr (hg b e)
-        _ ≤ Kf * dist a b + Kg * dist a b := by
-          have : Kg * dist b e ≤ Kg * dist a b := by
-            rw [dist_comm]
-            exact mul_le_mul_of_nonneg
-              (le_refl _) h.choose_spec.2 (NNReal.zero_le_coe) (dist_nonneg)
-          exact (add_le_add_iff_left _).mpr this
-        _ = (Kf + Kg) * dist a b := by ring
-
-      suffices ∃ e ∈ segment ℝ b a, e ∈ sphere c ε by
-        obtain ⟨e, e_mem⟩ := this
-        refine ⟨e, e_mem.2, ?_⟩
-        simp only [dist_eq_norm]
-        exact norm_sub_le_of_mem_segment e_mem.1
-
-      let combo := fun t : I => (1 - t.1) • b + t.1 • a
-      have int := intermediate_value_univ (f := (dist · c) ∘ combo) 0 1 (by fun_prop)
-      simp only [Function.comp_apply, Icc.coe_zero, sub_zero, one_smul, zero_smul, add_zero,
-        Icc.coe_one, sub_self, zero_add, combo] at int
-      have ε_mem_icc : ε ∈ Icc (dist b c) (dist a c) := by
-        suffices h : Icc ε ε ⊆ Icc (dist b c) (dist a c) from h ⟨le_refl _, le_refl _⟩
-        refine Icc_subset_Icc (le_of_lt hab.2) ?_
-        simp only [mem_ball, gt_iff_lt, not_lt, p] at hab
-        exact hab.1
-      obtain ⟨t, ht⟩ := int ε_mem_icc
-      refine ⟨combo t, ?_, ht⟩
-      exact ⟨1 - t, t, sub_nonneg_of_le t.2.2, t.2.1, (by ring), rfl⟩
-
-lemma Lipschitz.if {f g : α → ℝ} {c : α} {ε : ℝ} [∀ a, Decidable (a ∈ ball c ε)]
-    (hp : ∀ a ∈ sphere c ε, g a = 0) (hf : Lipschitz f) (hg : Lipschitz g) :
-    Lipschitz (fun a => if a ∈ ball c ε then f a + g a else f a) :=
+lemma Lipschitz.if [PseudoEMetricSpace α] {f g : α → ℝ} {p : α → Prop} [DecidablePred p]
+    (hpos : ∀ a, p a → 0 ≤ g a) (hneg : ∀ a, ¬ p a → g a ≤ 0)
+    (hf : Lipschitz f) (hg : Lipschitz g) :
+    Lipschitz (fun a => if p a then f a + g a else f a) :=
   ⟨hf.isLipschitz.choose + hg.isLipschitz.choose,
-   hf.isLipschitz.choose_spec.if hp hg.isLipschitz.choose_spec⟩
+   hf.isLipschitz.choose_spec.if hpos hneg hg.isLipschitz.choose_spec⟩

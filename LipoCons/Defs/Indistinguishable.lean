@@ -13,7 +13,7 @@ open Classical Metric
 
 namespace Lipschitz
 
-variable {α : Type*} [NormedAddCommGroup α] [CompactSpace α]
+variable {α : Type*} [PseudoMetricSpace α] [CompactSpace α]
   [Nonempty α] {f : α → ℝ} (hf : Lipschitz f) (c : α)
 
 /-- Given a `Lipschitz` function `f` over a `CompactSpace α`, construct a `Lipschitz`
@@ -52,19 +52,22 @@ lemma max_f_lt_f_tilde_c {ε : ℝ} (ε_pos : 0 < ε) : fmax hf < hf.f_tilde c �
   rw [hf.f_tilde_c c ε_pos]
   exact lt_add_of_pos_right (fmax hf) (hf.pos_rhs_f_tilde_c c)
 
-open Set unitInterval
-
-variable [NormedSpace ℝ α]
-
 -- ANCHOR: f_tilde_lipschitz
 lemma f_tilde_lipschitz {ε : ℝ} (ε_pos : 0 < ε) : Lipschitz (hf.f_tilde c ε) := by
-  refine hf.if ?_ ?_
+  have hK : 0 ≤ fmax hf - fmin hf + 1 := by
+    have : 0 ≤ fmax hf - fmin hf := compact_argmax_sub_argmin_pos hf.continuous
+    linarith
+  refine hf.if ?_ ?_ ?_
   · intro a ha
-    rw [ha]
-    suffices h : ε / 2 / (ε / 2) = 1 by
-      rw [h]
-      ring
-    exact CommGroupWithZero.mul_inv_cancel _ ((ne_of_lt (half_pos ε_pos)).symm)
+    have : dist a c / (ε / 2) < 1 := (div_lt_one (half_pos ε_pos)).mpr (mem_ball.mp ha)
+    have : 0 ≤ (1 - dist a c / (ε / 2)) * (fmax hf - fmin hf + 1) := mul_nonneg (by linarith) hK
+    linarith
+  · intro a ha
+    have : 1 ≤ dist a c / (ε / 2) :=
+      (one_le_div (half_pos ε_pos)).mpr (not_lt.mp (mt mem_ball.mpr ha))
+    have : (1 - dist a c / (ε / 2)) * (fmax hf - fmin hf + 1) ≤ 0 :=
+      mul_nonpos_of_nonpos_of_nonneg (by linarith) hK
+    linarith
   · refine const_mul <| mul_const <| sub lipschitz_const ?_
     exact div_const (dist_left c)
 -- ANCHOR_END: f_tilde_lipschitz
